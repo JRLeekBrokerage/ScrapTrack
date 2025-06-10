@@ -1,0 +1,16 @@
+{
+  "name": "leekbrokerage-frontend",
+  "version": "1.0.0",
+  "description": "Frontend for LeekBrokerage Inc trucking logistics application",
+  "main": "index.html",
+  "scripts": {
+    "serve": "npx http-server . -p 3001 -c-1",
+    "dev": "npx http-server . -p 3001 -c-1"
+  },
+  "keywords": ["trucking", "logistics", "freight", "frontend"],
+  "author": "LeekBrokerage Inc",
+  "license": "ISC",
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  }
+}
