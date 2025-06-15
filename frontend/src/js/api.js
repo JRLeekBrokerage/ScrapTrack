@@ -47,7 +47,7 @@ class API {
     static async login(username, password) {
         return this.makeRequest('/auth/login', {
             method: 'POST',
-            body: JSON.stringify({ username, password })
+            body: JSON.stringify({ login: username, password })
         });
     }
 
@@ -85,12 +85,133 @@ class API {
         });
     }
 
-    // Drivers
-    static async getDrivers() {
-        return this.makeRequest('/drivers');
+    // Customers
+    static async getCustomers(params = {}) {
+        const queryString = new URLSearchParams(params).toString();
+        return this.makeRequest(`/customers${queryString ? '?' + queryString : ''}`);
     }
 
-    static async getDriverCommissions(driverId) {
-        return this.makeRequest(`/drivers/${driverId}/commissions`);
+    static async getCustomer(id) {
+        return this.makeRequest(`/customers/${id}`);
+    }
+
+    static async createCustomer(customerData) {
+        return this.makeRequest('/customers', {
+            method: 'POST',
+            body: JSON.stringify(customerData)
+        });
+    }
+
+    static async updateCustomer(id, customerData) {
+        return this.makeRequest(`/customers/${id}`, {
+            method: 'PUT',
+            body: JSON.stringify(customerData)
+        });
+    }
+
+    static async deleteCustomer(id) {
+        return this.makeRequest(`/customers/${id}`, {
+            method: 'DELETE'
+        });
+    }
+
+    static async getCustomerInvoices(id, params = {}) {
+        const queryString = new URLSearchParams(params).toString();
+        return this.makeRequest(`/customers/${id}/invoices${queryString ? '?' + queryString : ''}`);
+    }
+
+    static async getCustomerStatistics(id) {
+        return this.makeRequest(`/customers/${id}/statistics`);
+    }
+
+    // Invoices
+    static async getInvoices(params = {}) {
+        const queryString = new URLSearchParams(params).toString();
+        return this.makeRequest(`/invoices${queryString ? '?' + queryString : ''}`);
+    }
+
+    static async getInvoice(id) {
+        return this.makeRequest(`/invoices/${id}`);
+    }
+
+    static async createInvoice(invoiceData) {
+        return this.makeRequest('/invoices', {
+            method: 'POST',
+            body: JSON.stringify(invoiceData)
+        });
+    }
+
+    static async updateInvoice(id, invoiceData) {
+        return this.makeRequest(`/invoices/${id}`, {
+            method: 'PUT',
+            body: JSON.stringify(invoiceData)
+        });
+    }
+
+    static async deleteInvoice(id) {
+        return this.makeRequest(`/invoices/${id}`, {
+            method: 'DELETE'
+        });
+    }
+
+    static async recordPayment(id, paymentData) {
+        return this.makeRequest(`/invoices/${id}/payment`, {
+            method: 'POST',
+            body: JSON.stringify(paymentData)
+        });
+    }
+
+    static async markInvoiceAsSent(id) {
+        return this.makeRequest(`/invoices/${id}/send`, {
+            method: 'POST'
+        });
+    }
+
+    static async getInvoicePDF(id) {
+        return this.makeRequest(`/invoices/${id}/pdf`);
+    }
+
+    static async getInvoiceStatistics(params = {}) {
+        const queryString = new URLSearchParams(params).toString();
+        return this.makeRequest(`/invoices/statistics${queryString ? '?' + queryString : ''}`);
+    }
+
+    // Drivers
+    static async getDrivers(params = {}) {
+        const queryString = new URLSearchParams(params).toString();
+        return this.makeRequest(`/drivers${queryString ? '?' + queryString : ''}`);
+    }
+
+    static async getDriver(id) {
+        return this.makeRequest(`/drivers/${id}`);
+    }
+
+    static async getActiveDrivers() {
+        return this.makeRequest('/drivers/active');
+    }
+
+    static async createDriver(driverData) {
+        return this.makeRequest('/drivers', {
+            method: 'POST',
+            body: JSON.stringify(driverData)
+        });
+    }
+
+    static async updateDriver(id, driverData) {
+        return this.makeRequest(`/drivers/${id}`, {
+            method: 'PUT',
+            body: JSON.stringify(driverData)
+        });
+    }
+
+    static async deleteDriver(id) {
+        return this.makeRequest(`/drivers/${id}`, {
+            method: 'DELETE'
+        });
+    }
+
+    static async getDriverCommissions(driverId, params = {}) {
+        const queryString = new URLSearchParams(params).toString();
+        return this.makeRequest(`/drivers/${driverId}/commissions${queryString ? '?' + queryString : ''}`);
     }
 }

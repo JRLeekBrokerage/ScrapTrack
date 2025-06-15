@@ -9,6 +9,11 @@ class App {
     init() {
         this.bindEvents();
         this.checkAuthStatus();
+        
+        // Initialize invoice manager when app starts
+        if (typeof invoiceManager !== 'undefined') {
+            invoiceManager.init();
+        }
     }
 
     bindEvents() {
@@ -210,22 +215,21 @@ class App {
 
     loadInvoicesSection() {
         const mainContent = document.getElementById('main-content');
-        mainContent.innerHTML = `
-            <div class="section-header">
-                <h2>Invoicing Reports</h2>
-                <p>View and manage invoicing reports</p>
-            </div>
-            <div class="section-content">
-                <p><em>Invoicing section coming soon...</em></p>
-                <p>This section will include:</p>
-                <ul>
-                    <li>Generate invoices</li>
-                    <li>View invoice reports</li>
-                    <li>Track payment status</li>
-                    <li>Export financial data</li>
-                </ul>
-            </div>
-        `;
+        
+        // Check if invoice manager is loaded
+        if (typeof invoiceManager !== 'undefined') {
+            invoiceManager.displayInvoiceList(mainContent);
+        } else {
+            mainContent.innerHTML = `
+                <div class="section-header">
+                    <h2>Invoicing Reports</h2>
+                    <p>View and manage invoicing reports</p>
+                </div>
+                <div class="section-content">
+                    <p><em>Loading invoice module...</em></p>
+                </div>
+            `;
+        }
     }
 
     loadDriversSection() {
