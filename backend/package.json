@@ -8,7 +8,13 @@
     "dev": "nodemon src/server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": ["trucking", "logistics", "freight", "backend", "api"],
+  "keywords": [
+    "trucking",
+    "logistics",
+    "freight",
+    "backend",
+    "api"
+  ],
   "author": "LeekBrokerage Inc",
   "license": "ISC",
   "dependencies": {

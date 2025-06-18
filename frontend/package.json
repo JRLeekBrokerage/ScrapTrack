@@ -7,7 +7,12 @@
     "serve": "npx http-server . -p 3001 -c-1",
     "dev": "npx http-server . -p 3001 -c-1"
   },
-  "keywords": ["trucking", "logistics", "freight", "frontend"],
+  "keywords": [
+    "trucking",
+    "logistics",
+    "freight",
+    "frontend"
+  ],
   "author": "LeekBrokerage Inc",
   "license": "ISC",
   "devDependencies": {
