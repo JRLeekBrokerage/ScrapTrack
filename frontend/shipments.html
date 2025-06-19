@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Shipments - LeekBrokerage Inc</title>
+    <link rel="stylesheet" href="src/css/styles.css">
+</head>
+<body>
+    <div id="app">
+        <div id="shipments-screen" class="screen active">
+            <div class="container">
+                <header class="dashboard-header">
+                    <h1>Freight Shipments Management</h1>
+                    <div class="user-info">
+                        <span id="user-name-shipments">Welcome</span>
+                        <button id="logout-btn-shipments" class="btn-secondary">Logout</button>
+                        <button id="back-to-dashboard-btn" class="btn-secondary">Back to Dashboard</button>
+                    </div>
+                </header>
+
+                <nav class="main-nav">
+                    <!-- Navigation could be dynamic or specific to this page -->
+                    <button class="nav-btn" id="show-add-shipment-form-btn">Add New Shipment</button>
+                </nav>
+
+                <main id="main-content-shipments">
+                    <!-- Add/Edit Shipment Form (hidden by default) -->
+                    <div id="shipment-form-section" class="form-section" style="display: none;">
+                        <h2 id="shipment-form-title">Add New Shipment</h2>
+                        <form id="shipment-form">
+                            <input type="hidden" id="shipment-db-id" name="shipmentDbId">
+
+                            <div class="form-group">
+                                <label for="shipmentId">Shipment ID (e.g., SH12345):</label>
+                                <input type="text" id="shipmentId" name="shipmentId" required>
+                            </div>
+
+                            <fieldset>
+                                <legend>Origin</legend>
+                                <div class="form-group">
+                                    <label for="origin-street">Street:</label>
+                                    <input type="text" id="origin-street" name="origin.street" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="origin-city">City:</label>
+                                    <input type="text" id="origin-city" name="origin.city" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="origin-state">State:</label>
+                                    <input type="text" id="origin-state" name="origin.state" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="origin-zipCode">Zip Code:</label>
+                                    <input type="text" id="origin-zipCode" name="origin.zipCode" required>
+                                </div>
+                            </fieldset>
+
+                            <fieldset>
+                                <legend>Destination</legend>
+                                <div class="form-group">
+                                    <label for="destination-street">Street:</label>
+                                    <input type="text" id="destination-street" name="destination.street" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="destination-city">City:</label>
+                                    <input type="text" id="destination-city" name="destination.city" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="destination-state">State:</label>
+                                    <input type="text" id="destination-state" name="destination.state" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="destination-zipCode">Zip Code:</label>
+                                    <input type="text" id="destination-zipCode" name="destination.zipCode" required>
+                                </div>
+                            </fieldset>
+
+                            <div class="form-group">
+                                <label for="pickupDate">Pickup Date:</label>
+                                <input type="date" id="pickupDate" name="pickupDate" required>
+                            </div>
+
+                            <fieldset>
+                                <legend>Customer</legend>
+                                <div class="form-group">
+                                    <label for="customer-name">Name:</label>
+                                    <input type="text" id="customer-name" name="customer.name" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="customer-contact">Contact (Optional):</label>
+                                    <input type="text" id="customer-contact" name="customer.contact">
+                                </div>
+                            </fieldset>
+                            
+                            <div class="form-group">
+                                <label for="status">Status:</label>
+                                <select id="status" name="status">
+                                    <option value="pending">Pending</option>
+                                    <option value="assigned">Assigned</option>
+                                    <option value="in-transit">In-Transit</option>
+                                    <option value="delayed">Delayed</option>
+                                    <option value="delivered">Delivered</option>
+                                    <option value="cancelled">Cancelled</option>
+                                    <option value="on-hold">On-Hold</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="driver">Driver (Optional, Assign Later):</label>
+                                <select id="driver" name="driver">
+                                    <option value="">-- Select Driver --</option>
+                                    <!-- Driver options will be populated dynamically -->
+                                </select>
+                            </div>
+                            
+                            <!-- Items will be handled dynamically, placeholder for now -->
+                            <fieldset>
+                                <legend>Items</legend>
+                                <div id="items-container">
+                                    <!-- Item entry will be added here -->
+                                </div>
+                                <button type="button" id="add-item-btn" class="btn-secondary">Add Item</button>
+                            </fieldset>
+
+
+                            <div class="form-actions">
+                                <button type="submit" class="btn-primary">Save Shipment</button>
+                                <button type="button" id="cancel-shipment-form-btn" class="btn-secondary">Cancel</button>
+                            </div>
+                            <div id="shipment-form-error" class="error-message" style="display: none;"></div>
+                        </form>
+                    </div>
+
+                    <!-- Shipments List -->
+                    <div id="shipments-list-section">
+                        <h2>Current Shipments</h2>
+                        <div id="shipments-table-container">
+                            <!-- Table will be generated by JavaScript -->
+                            <p id="loading-shipments-msg">Loading shipments...</p>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </div>
+    </div>
+
+    <script src="src/js/api.js"></script>
+    <script src="src/js/auth.js"></script> <!-- Assuming auth functions might be needed -->
+    <!-- app.js is not strictly needed on this page if all nav is outbound -->
+    <script src="src/js/shipments.js"></script> <!-- Dedicated shipments JS -->
+</body>
+</html>

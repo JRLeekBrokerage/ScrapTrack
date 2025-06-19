@@ -6,7 +6,7 @@ A web-based trucking logistics management system for tracking freight shipments,
 
 - **Backend**: Node.js v22.16.0 with Express.js
 - **Frontend**: Vanilla JavaScript, HTML5, CSS3
-- **Database**: PostgreSQL
+- **Database**: MongoDB
 - **Authentication**: JWT tokens
 
 ## Project Structure
@@ -43,12 +43,13 @@ ScrapTrack/
 ### Prerequisites
 - Node.js v22.16.0 (installed ✓)
 - Python 3.13.3 (installed ✓)
-- PostgreSQL (needs to be installed and configured)
+- MongoDB (needs to be installed and configured)
 
-### Database Setup
-1. Install PostgreSQL if not already installed
-2. Create a new database called `leekbrokerage_db`
-3. Create a user with appropriate permissions
+### Database Setup (MongoDB)
+1. Install MongoDB if not already installed (e.g., MongoDB Community Server).
+2. Ensure MongoDB service is running.
+3. Create a new database called `leekbrokerage_db` (Mongoose will typically create it on first connection if it doesn't exist, but it's good practice to be aware).
+4. If using authentication, create a user with appropriate permissions for this database.
 
 ### Backend Setup
 1. Navigate to the backend directory:
@@ -66,14 +67,16 @@ ScrapTrack/
    cp .env.example .env
    ```
 
-4. Edit `.env` with your database credentials:
+4. Edit `.env` with your database credentials. For MongoDB, you might use individual parameters as shown or a single `MONGODB_URI` connection string. The current Mongoose setup in `config/database.js` likely uses individual parameters.
    ```
    DB_HOST=localhost
-   DB_PORT=5432
+   DB_PORT=27017 # Default MongoDB port
    DB_NAME=leekbrokerage_db
-   DB_USER=your_username
-   DB_PASSWORD=your_password
+   DB_USER=your_mongodb_username # Optional, if auth is enabled
+   DB_PASSWORD=your_mongodb_password # Optional, if auth is enabled
    JWT_SECRET=your_super_secret_key
+   # Example MONGODB_URI (if preferred over individual params):
+   # MONGODB_URI=mongodb://your_username:your_password@localhost:27017/leekbrokerage_db?authSource=admin
    ```
 
 5. Start the backend server:

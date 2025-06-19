@@ -23,44 +23,31 @@ class Auth {
 
     static async login(username, password) {
         try {
-            // For now, we'll simulate a successful login
-            // This will be replaced with actual API call once backend auth is implemented
-            if (username && password) {
-                const mockUser = {
-                    id: 1,
-                    username: username,
-                    name: username.charAt(0).toUpperCase() + username.slice(1),
-                    role: 'admin'
-                };
-                
-                const mockToken = 'mock_jwt_token_' + Date.now();
-                this.setAuthData(mockToken, mockUser);
-                return { success: true, user: mockUser, token: mockToken };
+            const response = await API.login(username, password); // API.login actually returns the full server response which has a 'data' property
+            if (response && response.data && response.data.token && response.data.user) {
+                this.setAuthData(response.data.token, response.data.user); // Use response.data.token and response.data.user
+                // Optionally, also store refreshToken if you plan to use it: response.data.refreshToken
+                return { success: true, user: response.data.user, token: response.data.token };
             } else {
-                throw new Error('Username and password required');
+                // Try to get a more specific error message if available from the server response
+                const errorMessage = response && response.message ? response.message : 'Login failed: Invalid response structure from server';
+                throw new Error(response.error || errorMessage);
             }
-            
-            // Uncomment this when backend auth is ready:
-            // const response = await API.login(username, password);
-            // this.setAuthData(response.token, response.user);
-            // return response;
-            
         } catch (error) {
             console.error('Login failed:', error);
+            this.clearAuthData(); // Ensure no partial auth data is stored
             throw error;
         }
     }
 
     static async logout() {
         try {
-            // Uncomment when backend is ready:
-            // await API.logout();
-            
+            await API.logout();
             this.clearAuthData();
             return { success: true };
         } catch (error) {
             console.error('Logout failed:', error);
-            // Clear auth data anyway on logout failure
+            // Clear auth data anyway on logout failure, even if API call fails
             this.clearAuthData();
             throw error;
         }
@@ -72,9 +59,7 @@ class Auth {
         }
 
         try {
-            // For now, just return true if we have stored auth data
-            // Uncomment when backend is ready:
-            // await API.verifyToken();
+            await API.verifyToken();
             return true;
         } catch (error) {
             console.error('Auth verification failed:', error);

@@ -1,5 +1,6 @@
 // API Configuration
 const API_BASE_URL = 'http://localhost:3000/api';
+window.API_BASE_URL = API_BASE_URL; // Make it globally accessible for invoices.js
 
 // API Helper Functions
 class API {
@@ -44,10 +45,10 @@ class API {
     }
 
     // Authentication
-    static async login(username, password) {
+    static async login(loginIdentifier, password) { // Changed 'username' param to 'loginIdentifier' for clarity
         return this.makeRequest('/auth/login', {
             method: 'POST',
-            body: JSON.stringify({ username, password })
+            body: JSON.stringify({ login: loginIdentifier, password }) // Changed 'username' field to 'login'
         });
     }
 
@@ -58,7 +59,9 @@ class API {
     }
 
     static async verifyToken() {
-        return this.makeRequest('/auth/verify');
+        // The /auth/profile route is protected by authenticateToken,
+        // so successfully calling it verifies the token.
+        return this.makeRequest('/auth/profile');
     }
 
     // Shipments
@@ -70,6 +73,23 @@ class API {
         return this.makeRequest('/shipments', {
             method: 'POST',
             body: JSON.stringify(shipmentData)
+        });
+    }
+
+    static async getShipmentById(id) {
+        return this.makeRequest(`/shipments/${id}`);
+    }
+
+    static async updateShipment(id, shipmentData) {
+        return this.makeRequest(`/shipments/${id}`, {
+            method: 'PUT',
+            body: JSON.stringify(shipmentData)
+        });
+    }
+
+    static async deleteShipment(id) {
+        return this.makeRequest(`/shipments/${id}`, {
+            method: 'DELETE'
         });
     }
 
@@ -85,6 +105,23 @@ class API {
         });
     }
 
+    static async getInvoiceById(id) { // Added for completeness, might be used by edit form later
+        return this.makeRequest(`/invoices/${id}`);
+    }
+
+    static async updateInvoice(id, invoiceData) {
+        return this.makeRequest(`/invoices/${id}`, {
+            method: 'PUT',
+            body: JSON.stringify(invoiceData)
+        });
+    }
+
+    static async deleteInvoice(id) {
+        return this.makeRequest(`/invoices/${id}`, {
+            method: 'DELETE'
+        });
+    }
+
     // Drivers
     static async getDrivers() {
         return this.makeRequest('/drivers');
@@ -93,4 +130,28 @@ class API {
     static async getDriverCommissions(driverId) {
         return this.makeRequest(`/drivers/${driverId}/commissions`);
     }
+
+    // User Management
+    static async getUsers() {
+        return this.makeRequest('/users');
+    }
+
+    static async getUserById(id) { // For fetching full details if needed for an edit form
+        return this.makeRequest(`/users/${id}`);
+    }
+
+    static async updateUser(id, userData) {
+        return this.makeRequest(`/users/${id}`, {
+            method: 'PUT',
+            body: JSON.stringify(userData)
+        });
+    }
+
+    static async deleteUser(id) {
+        return this.makeRequest(`/users/${id}`, {
+            method: 'DELETE'
+        });
+    }
+    // Note: User creation typically goes through /auth/register, which is already handled
+    // by a direct call in user-management.js or could be wrapped here if preferred.
 }

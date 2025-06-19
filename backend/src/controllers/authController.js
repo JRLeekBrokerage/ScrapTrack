@@ -162,7 +162,10 @@ const login = async (req, res) => {
       isActive: true
     });
 
+    console.log('User found by login identifier:', user ? user.toObject() : null); // Log the found user
+
     if (!user) {
+      console.log('Login attempt: No active user found for identifier:', login);
       return res.status(401).json({
         success: false,
         message: 'Invalid credentials'

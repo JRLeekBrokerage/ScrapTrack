@@ -32,13 +32,27 @@ class App {
     }
 
     async checkAuthStatus() {
-        const isAuthenticated = await Auth.verifyAuth();
-        
-        if (isAuthenticated) {
+        // First, check if token & user exist in localStorage (quick check)
+        if (Auth.isLoggedIn()) {
             this.currentUser = Auth.getCurrentUser();
-            this.showDashboard();
+            this.showDashboard(); // Optimistically show dashboard
+
+            // Then, verify token with backend in the background
+            // If it fails, then redirect to login
+            try {
+                const stillValid = await Auth.verifyAuth(); // This still calls API.verifyToken()
+                if (!stillValid) {
+                    console.warn('Backend token verification failed after optimistic load. Redirecting to login.');
+                    this.showHome(); // This will clear user and show login
+                }
+                // If stillValid is true, dashboard is already shown, user is fine.
+            } catch (error) {
+                // Error already handled by Auth.verifyAuth, which clears auth data
+                // and would have made stillValid false.
+                // showHome() would have been called by the !stillValid check.
+            }
         } else {
-            this.showHome();
+            this.showHome(); // No token/user in localStorage, show login
         }
     }
 
@@ -124,7 +138,7 @@ class App {
         // Update user info
         const userNameSpan = document.getElementById('user-name');
         if (userNameSpan && this.currentUser) {
-            userNameSpan.textContent = `Welcome, ${this.currentUser.name}`;
+            userNameSpan.textContent = `Welcome, ${this.currentUser.fullName || this.currentUser.firstName || this.currentUser.username}`;
         }
 
         // Reset navigation
@@ -175,78 +189,31 @@ class App {
 
         switch (section) {
             case 'shipments':
-                this.loadShipmentsSection();
+                // Navigate to the dedicated shipments page
+                window.location.href = 'shipments.html';
                 break;
             case 'invoices':
-                this.loadInvoicesSection();
+                // Navigate to the dedicated invoices page
+                window.location.href = 'invoices.html';
                 break;
             case 'drivers':
-                this.loadDriversSection();
+                // Navigate to the dedicated driver commissions page
+                window.location.href = 'driver-commissions.html';
+                break;
+            case 'users':
+                // Navigate to the dedicated user management page
+                window.location.href = 'user-management.html';
                 break;
             default:
                 this.showWelcomeMessage();
         }
     }
 
-    loadShipmentsSection() {
-        const mainContent = document.getElementById('main-content');
-        mainContent.innerHTML = `
-            <div class="section-header">
-                <h2>Freight Shipments</h2>
-                <p>Manage and track freight shipments</p>
-            </div>
-            <div class="section-content">
-                <p><em>Shipments section coming soon...</em></p>
-                <p>This section will include:</p>
-                <ul>
-                    <li>Shipment tracking</li>
-                    <li>Add new shipments</li>
-                    <li>Update shipment status</li>
-                    <li>View shipment history</li>
-                </ul>
-            </div>
-        `;
-    }
+    // The loadShipmentsSection is removed as its functionality will be on shipments.html
 
-    loadInvoicesSection() {
-        const mainContent = document.getElementById('main-content');
-        mainContent.innerHTML = `
-            <div class="section-header">
-                <h2>Invoicing Reports</h2>
-                <p>View and manage invoicing reports</p>
-            </div>
-            <div class="section-content">
-                <p><em>Invoicing section coming soon...</em></p>
-                <p>This section will include:</p>
-                <ul>
-                    <li>Generate invoices</li>
-                    <li>View invoice reports</li>
-                    <li>Track payment status</li>
-                    <li>Export financial data</li>
-                </ul>
-            </div>
-        `;
-    }
+    // The loadInvoicesSection is removed as its functionality will be on invoices.html
 
-    loadDriversSection() {
-        const mainContent = document.getElementById('main-content');
-        mainContent.innerHTML = `
-            <div class="section-header">
-                <h2>Driver Commission Reports</h2>
-                <p>Manage driver commissions and payments</p>
-            </div>
-            <div class="section-content">
-                <p><em>Driver commission section coming soon...</em></p>
-                <p>This section will include:</p>
-                <ul>
-                    <li>Commission calculations</li>
-                    <li>Driver payment reports</li>
-                    <li>Performance tracking</li>
-                    <li>Payment history</li>
-                </ul>
-            </div>
-        `;
-    }
+    // The loadDriversSection is removed as its functionality will be on driver-commissions.html
 }
 
 // Initialize the application when DOM is loaded
