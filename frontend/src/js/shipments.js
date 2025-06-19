@@ -22,8 +22,17 @@ class ShipmentsPage {
     }
 
     async loadInitialData() {
-        await this.loadDrivers(); // Wait for drivers to be loaded
-        await this.loadShipments(); // Then load shipments
+        console.log('[shipments.js] Entering loadInitialData...');
+        try {
+            await this.loadDrivers();
+            console.log('[shipments.js] loadDrivers completed.');
+            await this.loadCustomers(); // Added call to load customers
+            console.log('[shipments.js] loadCustomers completed.');
+            await this.loadShipments();
+            console.log('[shipments.js] loadShipments completed.');
+        } catch (error) {
+            console.error('[shipments.js] Error in loadInitialData:', error);
+        }
     }
 
     updateUserInfo() {
@@ -65,6 +74,21 @@ class ShipmentsPage {
         if (addItemBtn) {
             addItemBtn.addEventListener('click', this.addItemToForm.bind(this));
         }
+
+        // Shipment Details Modal listeners
+        const closeDetailsModalBtn = document.getElementById('close-shipment-details-modal-btn');
+        if (closeDetailsModalBtn) {
+            closeDetailsModalBtn.addEventListener('click', this.closeShipmentDetailsModal.bind(this));
+        }
+
+        const shipmentDetailsModal = document.getElementById('shipment-details-modal');
+        if (shipmentDetailsModal) {
+            window.addEventListener('click', (event) => {
+                if (event.target === shipmentDetailsModal) {
+                    this.closeShipmentDetailsModal();
+                }
+            });
+        }
     }
 
     async handleLogout() {
@@ -83,8 +107,9 @@ class ShipmentsPage {
         this.editingShipmentId = null; // Clear any editing ID
         document.getElementById('shipment-form-title').textContent = 'Add New Shipment';
         document.getElementById('shipment-form').reset();
-        this.clearItemsFromForm(); // Clear any dynamically added items
-        document.getElementById('shipment-db-id').value = ''; // Clear hidden DB ID
+        this.clearItemsFromForm();
+        document.getElementById('shipment-db-id').value = '';
+        this.populateCustomerDropdown(); // Populate customer dropdown for new shipment
         document.getElementById('shipment-form-section').style.display = 'block';
         document.getElementById('shipments-list-section').style.display = 'none';
     }
@@ -168,14 +193,22 @@ class ShipmentsPage {
         const tbody = table.querySelector('tbody');
         this.shipments.forEach(shipment => {
             const row = tbody.insertRow();
+            // Ensuring clean TD structure
+            const originCityState = shipment.origin ? `${shipment.origin.city}, ${shipment.origin.state}` : 'N/A';
+            const destCityState = shipment.destination ? `${shipment.destination.city}, ${shipment.destination.state}` : 'N/A';
+            const pickupDateStr = shipment.pickupDate ? new Date(shipment.pickupDate).toLocaleDateString() : 'N/A';
+            const customerNameStr = shipment.customer && shipment.customer.name ? shipment.customer.name : 'N/A';
+            const statusStr = shipment.status || 'unknown';
+            const driverNameStr = shipment.driver ? (shipment.driver.fullName || `${shipment.driver.firstName} ${shipment.driver.lastName}` || shipment.driver.username) : 'Not Assigned';
+
             row.innerHTML = `
                 <td>${shipment.shipmentId || 'N/A'}</td>
-                <td>${shipment.origin ? `${shipment.origin.city}, ${shipment.origin.state}` : 'N/A'}</td>
-                <td>${shipment.destination ? `${shipment.destination.city}, ${shipment.destination.state}` : 'N/A'}</td>
-                <td>${shipment.pickupDate ? new Date(shipment.pickupDate).toLocaleDateString() : 'N/A'}</td>
-                <td>${shipment.customer ? shipment.customer.name : 'N/A'}</td>
-                <td><span class="status-badge status-${shipment.status || 'unknown'}">${shipment.status || 'N/A'}</span></td>
-                <td>${shipment.driver ? (this.drivers.find(d => d._id === shipment.driver)?.name || 'N/A') : 'Not Assigned'}</td>
+                <td>${originCityState}</td>
+                <td>${destCityState}</td>
+                <td>${pickupDateStr}</td>
+                <td>${customerNameStr}</td>
+                <td><span class="status-badge status-${statusStr}">${statusStr}</span></td>
+                <td>${driverNameStr}</td>
                 <td>
                     <button class="btn-action btn-edit" data-id="${shipment._id}">Edit</button>
                     <button class="btn-action btn-delete" data-id="${shipment._id}">Delete</button>
@@ -283,7 +316,8 @@ class ShipmentsPage {
         data.shipmentId = formData.get('shipmentId');
         data.pickupDate = formData.get('pickupDate');
         data.status = formData.get('status');
-        data.driver = formData.get('driver') || null; // Handle empty driver selection
+        data.driver = formData.get('driver') || null;
+        data.customer = formData.get('customer'); // This will be customerId from the select
 
         // Nested objects
         data.origin = {
@@ -298,10 +332,7 @@ class ShipmentsPage {
             state: formData.get('destination.state'),
             zipCode: formData.get('destination.zipCode'),
         };
-        data.customer = {
-            name: formData.get('customer.name'),
-            contact: formData.get('customer.contact'),
-        };
+        // Customer object is no longer embedded, it's a customerId reference
 
         // Items - this needs careful handling due to dynamic nature
         data.items = [];
@@ -378,6 +409,7 @@ class ShipmentsPage {
         const form = document.getElementById('shipment-form');
         form.reset(); // Clear previous data
         this.clearItemsFromForm();
+        this.populateCustomerDropdown(); // Ensure customer dropdown is populated
 
         // Populate form fields
         document.getElementById('shipment-db-id').value = shipment._id;
@@ -396,19 +428,23 @@ class ShipmentsPage {
             document.getElementById('destination-zipCode').value = shipment.destination.zipCode || '';
         }
         if (shipment.pickupDate) {
-            // Format date to YYYY-MM-DD for input type="date"
             const date = new Date(shipment.pickupDate);
             const year = date.getFullYear();
             const month = ('0' + (date.getMonth() + 1)).slice(-2);
             const day = ('0' + date.getDate()).slice(-2);
             document.getElementById('pickupDate').value = `${year}-${month}-${day}`;
         }
-        if (shipment.customer) {
-            document.getElementById('customer-name').value = shipment.customer.name || '';
-            document.getElementById('customer-contact').value = shipment.customer.contact || '';
-        }
+        
+        // Set customer dropdown
+        // shipment.customer will be the populated customer object or just an ID if not populated fully for edit
+        const customerIdToSelect = shipment.customer && shipment.customer._id ? shipment.customer._id : shipment.customer;
+        document.getElementById('shipment-customer-select').value = customerIdToSelect || '';
+
         document.getElementById('status').value = shipment.status || 'pending';
-        document.getElementById('driver').value = shipment.driver || '';
+        // shipment.driver will be the populated driver object or just an ID
+        const driverIdToSelect = shipment.driver && shipment.driver._id ? shipment.driver._id : shipment.driver;
+        document.getElementById('driver').value = driverIdToSelect || '';
+
 
         // Populate items
         if (shipment.items && shipment.items.length > 0) {
@@ -471,37 +507,122 @@ class ShipmentsPage {
     }
 
     async showShipmentDetails(shipmentDbId) {
-        // This could open a modal or a dedicated details view.
-        // For now, let's just log to console or alert.
+        const modal = document.getElementById('shipment-details-modal');
+        const contentDiv = document.getElementById('shipment-details-content');
+        if (!modal || !contentDiv) {
+            console.error('Shipment details modal elements not found.');
+            return;
+        }
+
+        contentDiv.innerHTML = '<p>Loading details...</p>';
+        modal.style.display = 'block';
+
         try {
-            const shipment = await API.getShipmentById(shipmentDbId); // Fetch fresh details
-            if (shipment) {
-                let details = `Shipment Details:\n`;
-                details += `DB ID: ${shipment._id}\n`;
-                details += `Shipment ID: ${shipment.shipmentId}\n`;
-                details += `Status: ${shipment.status}\n`;
-                details += `Pickup Date: ${new Date(shipment.pickupDate).toLocaleDateString()}\n`;
-                details += `Origin: ${shipment.origin.street}, ${shipment.origin.city}, ${shipment.origin.state} ${shipment.origin.zipCode}\n`;
-                details += `Destination: ${shipment.destination.street}, ${shipment.destination.city}, ${shipment.destination.state} ${shipment.destination.zipCode}\n`;
-                details += `Customer: ${shipment.customer.name} (${shipment.customer.contact || 'No contact'})\n`;
-                details += `Driver: ${shipment.driver ? (this.drivers.find(d => d._id === shipment.driver)?.name || 'Unknown Driver ID') : 'Not Assigned'}\n`;
-                
-                if (shipment.items && shipment.items.length > 0) {
-                    details += `Items:\n`;
-                    shipment.items.forEach((item, index) => {
-                        details += `  Item ${index + 1}: ${item.description}, Qty: ${item.quantity}, Weight: ${item.weight || 'N/A'} lbs\n`;
-                    });
-                } else {
-                    details += `Items: No items listed.\n`;
-                }
-                
-                alert(details); // Replace with a proper modal display
-            } else {
-                alert('Shipment details not found.');
+            const response = await API.getShipmentById(shipmentDbId); // API.getShipmentById returns {success, data}
+            if (!response || !response.success || !response.data) {
+                throw new Error(response.message || 'Shipment details not found.');
             }
+            const shipment = response.data;
+
+            let detailsHtml = `
+                <p><strong>Shipment ID:</strong> ${shipment.shipmentId || 'N/A'}</p>
+                <p><strong>Status:</strong> <span class="status-badge status-${shipment.status || 'unknown'}">${shipment.status || 'N/A'}</span></p>
+                <p><strong>Customer:</strong> ${shipment.customer ? shipment.customer.name : 'N/A'}</p>
+                <p><strong>Driver:</strong> ${shipment.driver ? (shipment.driver.fullName || `${shipment.driver.firstName} ${shipment.driver.lastName}` || shipment.driver.username) : 'Not Assigned'}</p>
+                <p><strong>Truck #:</strong> ${shipment.truckNumber || 'N/A'}</p>
+                <p><strong>Freight Cost:</strong> ${shipment.freightCost != null ? '$' + shipment.freightCost.toFixed(2) : 'N/A'}</p>
+                
+                <h4>Origin</h4>
+                <p>${shipment.origin.street || ''}<br>
+                   ${shipment.origin.city || ''}, ${shipment.origin.state || ''} ${shipment.origin.zipCode || ''}<br>
+                   ${shipment.origin.country || ''}</p>
+                
+                <h4>Destination</h4>
+                <p>${shipment.destination.street || ''}<br>
+                   ${shipment.destination.city || ''}, ${shipment.destination.state || ''} ${shipment.destination.zipCode || ''}<br>
+                   ${shipment.destination.country || ''}</p>
+
+                <p><strong>Scheduled Pickup:</strong> ${shipment.pickupDate ? new Date(shipment.pickupDate).toLocaleString() : 'N/A'}</p>
+                <p><strong>Actual Pickup:</strong> ${shipment.actualPickupDate ? new Date(shipment.actualPickupDate).toLocaleString() : 'N/A'}</p>
+                <p><strong>Estimated Delivery:</strong> ${shipment.estimatedDeliveryDate ? new Date(shipment.estimatedDeliveryDate).toLocaleString() : 'N/A'}</p>
+                <p><strong>Actual Delivery:</strong> ${shipment.actualDeliveryDate ? new Date(shipment.actualDeliveryDate).toLocaleString() : 'N/A'}</p>
+            `;
+
+            if (shipment.items && shipment.items.length > 0) {
+                detailsHtml += '<h4>Items:</h4><ul>';
+                shipment.items.forEach(item => {
+                    detailsHtml += `<li>${item.description} - Qty: ${item.quantity}` +
+                                   `${item.weight != null ? `, Weight: ${item.weight} lbs` : ''}` +
+                                   `${item.dimensions ? `, Dim: ${item.dimensions.length}x${item.dimensions.width}x${item.dimensions.height} ${item.dimensions.unit}` : ''}` +
+                                   `</li>`;
+                });
+                detailsHtml += '</ul>';
+            } else {
+                detailsHtml += '<p><strong>Items:</strong> No items listed.</p>';
+            }
+            
+            if (shipment.trackingHistory && shipment.trackingHistory.length > 0) {
+                detailsHtml += '<h4>Tracking History:</h4><ul class="tracking-history">';
+                shipment.trackingHistory.forEach(entry => {
+                    detailsHtml += `<li><strong>${new Date(entry.timestamp).toLocaleString()}:</strong> ${entry.status} ${entry.location ? `(${entry.location})` : ''} ${entry.notes ? `- ${entry.notes}` : ''}</li>`;
+                });
+                detailsHtml += '</ul>';
+            }
+
+
+            detailsHtml += `<p><strong>Notes:</strong> ${shipment.notes || 'N/A'}</p>`;
+            detailsHtml += `<p><strong>Created By:</strong> ${shipment.createdBy ? shipment.createdBy.username : 'N/A'} on ${new Date(shipment.createdAt).toLocaleDateString()}</p>`;
+            if (shipment.updatedBy) {
+                 detailsHtml += `<p><strong>Last Updated By:</strong> ${shipment.updatedBy.username} on ${new Date(shipment.updatedAt).toLocaleDateString()}</p>`;
+            }
+
+
+            contentDiv.innerHTML = detailsHtml;
+
         } catch (error) {
             console.error('Failed to load shipment details:', error);
-            alert('Error loading shipment details.');
+            contentDiv.innerHTML = `<p class="error-message">Error loading shipment details: ${error.message}</p>`;
+        }
+    }
+
+    closeShipmentDetailsModal() {
+        const modal = document.getElementById('shipment-details-modal');
+        if (modal) {
+            modal.style.display = 'none';
+        }
+    }
+
+    async loadCustomers() {
+        console.log('[shipments.js] Entering loadCustomers...'); // New log
+        try {
+            const response = await API.getCustomers();
+            console.log('API response from getCustomers (for shipments page):', response); // Log raw response
+            if (response && Array.isArray(response.data)) {
+                this.customers = response.data.filter(c => c.isActive !== false);
+            } else {
+                console.error('Unexpected response structure for customers list:', response);
+                this.customers = [];
+            }
+            this.populateCustomerDropdown(); // Populate dropdown in form
+        } catch (error) {
+            console.error('Failed to load customers for dropdown:', error);
+            this.customers = [];
+            this.populateCustomerDropdown();
+        }
+    }
+
+    populateCustomerDropdown() {
+        const customerSelect = document.getElementById('shipment-customer-select');
+        if (!customerSelect) return;
+
+        customerSelect.innerHTML = '<option value="">-- Select Customer --</option>'; // Default option
+        if (this.customers && this.customers.length > 0) {
+            this.customers.forEach(customer => {
+                const option = document.createElement('option');
+                option.value = customer._id;
+                option.textContent = customer.name;
+                customerSelect.appendChild(option);
+            });
         }
     }
 }

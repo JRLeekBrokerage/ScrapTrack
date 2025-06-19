@@ -62,10 +62,10 @@ const shipmentSchema = new Schema({
     ref: 'User', // Assumes your User model is named 'User'
     // Validate that the user has the 'driver' role if assigned
   },
-  customer: { // For simplicity, a string. Could be a ref to a Customer model later.
-    name: { type: String, required: true },
-    contactEmail: { type: String },
-    contactPhone: { type: String }
+  customer: {
+    type: Schema.Types.ObjectId,
+    ref: 'Customer',
+    required: [true, 'Customer is required for a shipment.']
   },
   items: [shipmentItemSchema],
   totalWeight: { type: Number }, // Optional, could be calculated

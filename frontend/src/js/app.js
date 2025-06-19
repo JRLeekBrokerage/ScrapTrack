@@ -202,7 +202,10 @@ class App {
                 break;
             case 'users':
                 // Navigate to the dedicated user management page
-                window.location.href = 'user-management.html';
+                window.location.href = 'driver-management.html'; // Corrected to reflect upcoming rename
+                break;
+            case 'customers':
+                window.location.href = 'customers.html';
                 break;
             default:
                 this.showWelcomeMessage();

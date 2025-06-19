@@ -8,11 +8,12 @@ const invoiceSchema = new Schema({
     unique: true,
     trim: true
   },
-  billTo: { // Customer details
-    name: { type: String, required: true }, // From Shipment.customer.name
-    contactEmail: { type: String },
-    // Potentially full address if needed, mirroring Shipment.customer or a dedicated Customer model
+  customer: { // Renamed from billTo for consistency, now references Customer model
+    type: Schema.Types.ObjectId,
+    ref: 'Customer',
+    required: [true, 'Customer is required for an invoice.']
   },
+  // Original billTo fields (name, contactEmail) will now come from populating the customer ref
   issueDate: {
     type: Date,
     required: true,
@@ -49,7 +50,7 @@ const invoiceSchema = new Schema({
 
 invoiceSchema.index({ invoiceNumber: 1 });
 invoiceSchema.index({ status: 1 });
-invoiceSchema.index({ 'billTo.name': 1 });
+invoiceSchema.index({ customer: 1 }); // Index on the customer reference
 invoiceSchema.index({ issueDate: -1 });
 
 // Pre-save hook to calculate totals might be useful

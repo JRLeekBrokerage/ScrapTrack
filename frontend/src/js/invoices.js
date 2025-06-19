@@ -3,6 +3,9 @@ class InvoicesPage {
     constructor() {
         this.invoices = [];
         this.currentUser = null;
+        this.editingInvoiceId = null;
+        this.availableShipments = [];
+        this.allCustomers = []; // Stores all active customers for the dropdown
         this.init();
     }
 
@@ -12,13 +15,23 @@ class InvoicesPage {
             return;
         }
         this.currentUser = Auth.getCurrentUser();
-        this.editingInvoiceId = null; // To store ID of invoice being edited
-        this.availableShipments = []; // For the create/edit form
-        this.uniqueCustomers = new Map(); // To store unique customer names and their details
         this.updateUserInfo();
         this.bindEventListeners();
-        this.loadInvoices();
-        this.loadAvailableShipmentsForForm(); // Load initially for the form
+        this.loadInitialInvoicePageData();
+    }
+
+    async loadInitialInvoicePageData() {
+        console.log('[invoices.js] Entering loadInitialInvoicePageData...');
+        try {
+            await this.loadAllCustomersForDropdown();
+            console.log('[invoices.js] loadAllCustomersForDropdown completed.');
+            await this.loadAvailableShipmentsForForm();
+            console.log('[invoices.js] loadAvailableShipmentsForForm completed.');
+            await this.loadInvoices();
+            console.log('[invoices.js] loadInvoices completed.');
+        } catch (error) {
+            console.error('[invoices.js] Error in loadInitialInvoicePageData:', error);
+        }
     }
 
     updateUserInfo() {
@@ -141,17 +154,24 @@ class InvoicesPage {
         const tbody = table.querySelector('tbody');
         this.invoices.forEach(invoice => {
             const row = tbody.insertRow();
+
+            const customerNameStr = invoice.customer && invoice.customer.name ? invoice.customer.name : 'N/A';
+            const issueDateStr = invoice.issueDate ? new Date(invoice.issueDate).toLocaleDateString() : 'N/A';
+            const dueDateStr = invoice.dueDate ? new Date(invoice.dueDate).toLocaleDateString() : 'N/A';
+            const totalAmountStr = invoice.totalAmount != null ? '$' + invoice.totalAmount.toFixed(2) : 'N/A';
+            const statusStr = invoice.status || 'unknown';
+
             row.innerHTML = `
                 <td>${invoice.invoiceNumber || 'N/A'}</td>
-                <td>${invoice.billTo ? invoice.billTo.name : 'N/A'}</td>
-                <td>${invoice.issueDate ? new Date(invoice.issueDate).toLocaleDateString() : 'N/A'}</td>
-                <td>${invoice.dueDate ? new Date(invoice.dueDate).toLocaleDateString() : 'N/A'}</td>
-                <td>${invoice.totalAmount != null ? '$' + invoice.totalAmount.toFixed(2) : 'N/A'}</td>
-                <td><span class="status-badge status-${invoice.status || 'unknown'}">${invoice.status || 'N/A'}</span></td>
+                <td>${customerNameStr}</td>
+                <td>${issueDateStr}</td>
+                <td>${dueDateStr}</td>
+                <td>${totalAmountStr}</td>
+                <td><span class="status-badge status-${statusStr}">${statusStr}</span></td>
                 <td>
                     <button class="btn-action btn-view-pdf" data-id="${invoice._id}">View PDF</button>
-                    <button class="btn-action btn-edit-invoice" data-id="${invoice._id}">Edit</button>
-                    <button class="btn-action btn-delete-invoice" data-id="${invoice._id}">Delete</button>
+                    <button class="btn-action btn-edit btn-edit-invoice" data-id="${invoice._id}">Edit</button>
+                    <button class="btn-action btn-delete btn-delete-invoice" data-id="${invoice._id}">Delete</button>
                 </td>
             `;
             row.querySelector('.btn-view-pdf').addEventListener('click', (e) => this.handleViewInvoicePdf(e.target.dataset.id));
@@ -220,9 +240,9 @@ class InvoicesPage {
         document.getElementById('invoice-form-title').textContent = 'Create New Invoice';
         document.getElementById('invoice-form').reset();
         document.getElementById('invoice-status-group').style.display = 'none';
-        this.populateCustomerDropdown(); // Populate customer dropdown
-        this.populateShipmentsDropdown(null); // Populate all available shipments initially
-        document.getElementById('invoice-customer-contact-email').value = ''; // Clear contact email
+        // this.populateCustomerDropdown(); // Called by loadAllCustomersForDropdown
+        this.populateShipmentsDropdown(null);
+        document.getElementById('invoice-customer-contact-email').value = '';
         document.getElementById('invoice-form-modal').style.display = 'block';
     }
 
@@ -240,11 +260,13 @@ class InvoicesPage {
 
         document.getElementById('invoice-edit-id').value = invoice._id;
         
-        this.populateCustomerDropdown(); // Ensure customer dropdown is populated
-        document.getElementById('invoice-customer-select').value = invoice.billTo.name || '';
-        // If customer select changes, it might auto-fill email. For now, set it directly.
-        document.getElementById('invoice-customer-contact-email').value = invoice.billTo.contactEmail || '';
+        // this.populateCustomerDropdown(); // Called by loadAllCustomersForDropdown
+        const customerIdToSelect = invoice.customer && invoice.customer._id ? invoice.customer._id : invoice.customer;
+        document.getElementById('invoice-customer-select').value = customerIdToSelect || '';
         
+        const selectedCustomerInEdit = this.allCustomers.find(c => c._id === customerIdToSelect);
+        document.getElementById('invoice-customer-contact-email').value = selectedCustomerInEdit ? (selectedCustomerInEdit.contactEmail || '') : (invoice.customer && invoice.customer.contactEmail ? invoice.customer.contactEmail : '');
+
         // For editing, shipments are usually fixed, but we might allow changing status or notes.
         // Disabling shipment selection for edit for now, as changing shipments on an existing invoice is complex.
         const shipmentSelect = document.getElementById('invoice-shipments-select');
@@ -282,99 +304,109 @@ class InvoicesPage {
         document.getElementById('invoice-shipments-select').disabled = false; // Re-enable for next create
     }
 
-    async loadAvailableShipmentsForForm() {
+    async loadAvailableShipmentsForForm(customerId = null) {
+        console.log(`[invoices.js] Entering loadAvailableShipmentsForForm, customerId: ${customerId}`);
         try {
-            // We need an API endpoint that returns DELIVERED shipments NOT YET INVOICED
-            // Assuming API.getShipments() can take query params, or a new method is needed.
-            // For now, let's assume API.getShipments({ status: 'delivered', invoiced: 'false' })
-            // This is a placeholder; the actual API endpoint might be different.
-            const response = await API.makeRequest('/shipments?status=delivered&invoiced=false'); // Updated query
+            let query = '/shipments?status=delivered&invoiced=false';
+            if (customerId) {
+                query += `&customer=${customerId}`; // Filter by customer ID
+            }
+            const response = await API.makeRequest(query);
+            console.log(`[invoices.js] API response from getAvailableShipments (customer: ${customerId}):`, response); // New log
             
             if (response && Array.isArray(response.data)) {
                 this.availableShipments = response.data;
-            } else if (response && Array.isArray(response.shipments)) {
-                this.availableShipments = response.shipments;
-            }
-            else {
-                console.error("Failed to load available shipments or unexpected structure:", response);
+            } else {
+                console.error("[invoices.js] Failed to load available shipments or unexpected structure:", response);
                 this.availableShipments = [];
             }
-            this.extractUniqueCustomers();
-            this.populateCustomerDropdown(); // Populate customer dropdown first
-            this.populateShipmentsDropdown(null); // Then populate shipments (initially unfiltered)
+            this.populateShipmentsDropdown();
         } catch (error) {
-            console.error('Failed to load available shipments:', error);
+            console.error('[invoices.js] Failed to load available shipments:', error);
             this.availableShipments = [];
-            this.extractUniqueCustomers(); // Still try to process if any data was partially loaded
-            this.populateCustomerDropdown();
-            this.populateShipmentsDropdown(null);
+            this.populateShipmentsDropdown();
         }
     }
 
-    extractUniqueCustomers() {
-        this.uniqueCustomers.clear();
-        this.availableShipments.forEach(shipment => {
-            if (shipment.customer && shipment.customer.name && !this.uniqueCustomers.has(shipment.customer.name)) {
-                this.uniqueCustomers.set(shipment.customer.name, {
-                    name: shipment.customer.name,
-                    contactEmail: shipment.customer.contactEmail || ''
-                });
+    async loadAllCustomersForDropdown() {
+        console.log('[invoices.js] Entering loadAllCustomersForDropdown...');
+        try {
+            const response = await API.getCustomers('?isActive=true');
+            console.log('[invoices.js] API response from getCustomers:', response);
+            if (response && Array.isArray(response.data)) {
+                this.allCustomers = response.data;
+            } else {
+                console.error('[invoices.js] Unexpected response structure for all customers list:', response);
+                this.allCustomers = [];
             }
-        });
+            this.populateCustomerDropdown();
+        } catch (error) {
+            console.error('[invoices.js] Failed to load all customers for dropdown:', error);
+            this.allCustomers = [];
+            this.populateCustomerDropdown();
+        }
     }
 
     populateCustomerDropdown() {
         const selectElement = document.getElementById('invoice-customer-select');
-        if (!selectElement) return;
+        if (!selectElement) {
+            console.error('[invoices.js] Customer select dropdown not found');
+            return;
+        }
         
-        const currentVal = selectElement.value; // Preserve current selection if possible
+        const currentVal = selectElement.value;
         selectElement.innerHTML = '<option value="">-- Select Customer --</option>';
 
-        this.uniqueCustomers.forEach(customer => {
-            const option = document.createElement('option');
-            option.value = customer.name;
-            option.textContent = customer.name;
-            // Store contact email as a data attribute for easy retrieval
-            if(customer.contactEmail) option.dataset.contactEmail = customer.contactEmail;
-            selectElement.appendChild(option);
-        });
-        if (this.uniqueCustomers.has(currentVal)) {
-             selectElement.value = currentVal; // Restore selection
+        if (this.allCustomers && this.allCustomers.length > 0) {
+            this.allCustomers.forEach(customer => {
+                const option = document.createElement('option');
+                option.value = customer._id;
+                option.textContent = customer.name;
+                if(customer.contactEmail) option.dataset.contactEmail = customer.contactEmail;
+                selectElement.appendChild(option);
+            });
+        } else {
+            console.log('[invoices.js] No customers to populate in dropdown.');
         }
 
-        // Add event listener to auto-fill email and filter shipments
-        selectElement.removeEventListener('change', this.handleCustomerSelectChange.bind(this)); // Remove old if any
+        // Try to restore previous selection if it's still valid
+        if (this.allCustomers.find(c => c._id === currentVal)) {
+             selectElement.value = currentVal;
+        }
+        
+        selectElement.removeEventListener('change', this.handleCustomerSelectChange.bind(this));
         selectElement.addEventListener('change', this.handleCustomerSelectChange.bind(this));
     }
     
     handleCustomerSelectChange(event) {
-        const selectedCustomerName = event.target.value;
+        const selectedCustomerId = event.target.value;
         const selectedOption = event.target.selectedOptions[0];
         const contactEmailField = document.getElementById('invoice-customer-contact-email');
         
         if (selectedOption && selectedOption.dataset.contactEmail) {
             contactEmailField.value = selectedOption.dataset.contactEmail;
         } else {
-            contactEmailField.value = ''; // Clear if no email associated
+             contactEmailField.value = '';
         }
-        this.populateShipmentsDropdown(selectedCustomerName); // Filter shipments
+        this.loadAvailableShipmentsForForm(selectedCustomerId);
     }
 
-    populateShipmentsDropdown(filterCustomerName = null) {
+    populateShipmentsDropdown() {
         const selectElement = document.getElementById('invoice-shipments-select');
         if (!selectElement) return;
         selectElement.innerHTML = ''; // Clear existing options
 
-        const shipmentsToDisplay = filterCustomerName
-            ? this.availableShipments.filter(s => s.customer && s.customer.name === filterCustomerName)
-            : this.availableShipments;
-
-        if (shipmentsToDisplay.length === 0) {
-            selectElement.innerHTML = `<option value="" disabled>${filterCustomerName ? 'No available shipments for ' + filterCustomerName : 'No available shipments to invoice'}</option>`;
+        // availableShipments is now filtered by loadAvailableShipmentsForForm based on customer selection
+        if (this.availableShipments.length === 0) {
+            const selectedCustomerName = document.getElementById('invoice-customer-select').selectedOptions[0]?.textContent;
+            const message = selectedCustomerName && selectedCustomerName !== '-- Select Customer --'
+                ? `No available shipments for ${selectedCustomerName}`
+                : 'Select a customer to see available shipments or no shipments available.';
+            selectElement.innerHTML = `<option value="" disabled>${message}</option>`;
             return;
         }
 
-        shipmentsToDisplay.forEach(shipment => {
+        this.availableShipments.forEach(shipment => {
             const option = document.createElement('option');
             option.value = shipment._id;
             try {
@@ -402,8 +434,8 @@ class InvoicesPage {
         const selectedShipmentIds = Array.from(document.getElementById('invoice-shipments-select').selectedOptions).map(opt => opt.value);
 
         const invoiceData = {
-            customerName: document.getElementById('invoice-customer-select').value, // Get from select
-            customerContactEmail: formData.get('customerContactEmail'), // This might be auto-filled
+            customerId: document.getElementById('invoice-customer-select').value, // This is customerId
+            // customerContactEmail is not part of invoice model, it's on Customer model
             shipmentIds: selectedShipmentIds,
             dueDate: formData.get('dueDate') || null,
             fuelSurchargeRate: parseFloat(formData.get('fuelSurchargeRate')) || 0,

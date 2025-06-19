@@ -106,14 +106,19 @@ const generateCommissionReportPdf = (reportData, res) => {
   // Table Header
   const tableTop = doc.y;
   const startX = 50;
-  const colWidths = [60, 70, 100, 100, 60, 70, 70, 50, 70]; // Date, Ship#, Dest, Driver, Truck#, Weight, Amount, Rate, Commission
+  // Adjusted widths: Date, Ship#, Dest, Driver, Truck#, Weight, Amount, Rate, Commission
+  const colWidths = [60, 70, 90, 90, 60, 70, 70, 50, 65]; // Sum = 625. Reduced Dest/Driver.
   let currentX = startX;
 
   doc.fontSize(9); // Smaller font for table
   const headers = ['Date', 'Shipment #', 'Destination', 'Driver', 'Truck #', 'Weight', 'Amount', 'Rate', 'Commission'];
   
   headers.forEach((header, i) => {
-    doc.text(header, currentX, tableTop, { width: colWidths[i], lineBreak: false, align: 'left' });
+    doc.text(header, currentX, tableTop, {
+        width: colWidths[i],
+        lineBreak: false,
+        align: (i >= 5 ? 'right' : 'left') // Align headers consistent with data
+    });
     currentX += colWidths[i];
   });
   doc.moveDown(0.5);
@@ -214,45 +219,53 @@ const generateInvoicePdf = (reportData, res) => {
 
   // Shipments Table Header
   const tableTop = doc.y;
-  const itemCol = 50;
-  const dateCol = itemCol;
-  const shippingNoCol = dateCol + 80;
-  const destinationCol = shippingNoCol + 80;
-  const driverCol = destinationCol + 120;
-  const truckNoCol = driverCol + 100;
-  // const priceCol = truckNoCol + 50; // Price per unit might be too wide
-  const weightCol = truckNoCol + 50;
-  const amountCol = weightCol + 60;
+  const startX = 50; // Renamed itemCol to startX for clarity
+  const pageContentWidth = doc.page.width - startX - startX; // 512
+
+  // Define relative widths, ensure they sum up to <= pageContentWidth
+  const colWidthsConfig = [
+    { header: 'Date', width: 65, align: 'left' },          // Adjusted width
+    { header: 'Shipping #', width: 70, align: 'left' },
+    { header: 'Destination', width: 100, align: 'left' }, // Adjusted width
+    { header: 'Driver', width: 85, align: 'left' },      // Adjusted width
+    { header: 'Trk #', width: 40, align: 'left' },
+    { header: 'Weight', width: 60, align: 'right' },     // Adjusted width
+    { header: 'Amount', width: 70, align: 'right' }
+  ];
+  // Sum of new widths: 65+70+100+85+40+60+70 = 490. This fits within 512.
 
   doc.fontSize(10);
-  doc.text('Date', dateCol, tableTop, { width: 70, lineBreak: false });
-  doc.text('Shipping #', shippingNoCol, tableTop, { width: 70, lineBreak: false });
-  doc.text('Destination', destinationCol, tableTop, { width: 110, lineBreak: false });
-  doc.text('Driver', driverCol, tableTop, { width: 90, lineBreak: false });
-  doc.text('Trk #', truckNoCol, tableTop, { width: 40, lineBreak: false });
-  // doc.text('Price', priceCol, tableTop, { width: 50, align: 'right', lineBreak: false });
-  doc.text('Weight', weightCol, tableTop, { width: 50, align: 'right', lineBreak: false });
-  doc.text('Amount', amountCol, tableTop, { width: 70, align: 'right' });
+  let currentX = startX;
+  colWidthsConfig.forEach(col => {
+    doc.text(col.header, currentX, tableTop, { width: col.width, lineBreak: false, align: col.align });
+    currentX += col.width;
+  });
   doc.moveDown(0.5);
   const tableHeaderBottom = doc.y;
-  doc.moveTo(itemCol, tableHeaderBottom).lineTo(doc.page.width - itemCol, tableHeaderBottom).stroke();
+  doc.moveTo(startX, tableHeaderBottom).lineTo(doc.page.width - startX, tableHeaderBottom).stroke(); // Replaced itemCol with startX
   doc.moveDown();
 
   // Shipments Table Rows
   reportData.shipmentDetails.forEach(item => {
     const rowY = doc.y;
-    doc.text(new Date(item.date).toLocaleDateString(), dateCol, rowY, { width: 70, lineBreak: false });
-    doc.text(item.shippingNumber, shippingNoCol, rowY, { width: 70, lineBreak: false });
-    doc.text(item.destination, destinationCol, rowY, { width: 110, lineBreak: false });
-    doc.text(item.driver, driverCol, rowY, { width: 90, lineBreak: false });
-    doc.text(item.truckNumber, truckNoCol, rowY, { width: 40, lineBreak: false });
-    // doc.text(item.pricePerUnit.toFixed(2), priceCol, rowY, { width: 50, align: 'right', lineBreak: false });
-    doc.text(item.weight.toFixed(2), weightCol, rowY, { width: 50, align: 'right', lineBreak: false });
-    doc.text(item.amount.toFixed(2), amountCol, rowY, { width: 70, align: 'right' });
-    doc.moveDown(1.5); // Adjust spacing as needed
+    currentX = startX;
+    const rowValues = [
+        item.date ? new Date(item.date).toLocaleDateString() : 'N/A',
+        item.shippingNumber || 'N/A',
+        item.destination || 'N/A',
+        item.driver || 'N/A',
+        item.truckNumber || 'N/A',
+        item.weight != null ? item.weight.toFixed(2) : 'N/A', // Ensure toFixed for consistency
+        item.amount != null ? item.amount.toFixed(2) : 'N/A'  // Ensure toFixed for consistency
+    ];
+    rowValues.forEach((value, i) => {
+        doc.text(value.toString(), currentX, rowY, { width: colWidthsConfig[i].width, align: colWidthsConfig[i].align, lineBreak: false });
+        currentX += colWidthsConfig[i].width;
+    });
+    doc.moveDown(1.5);
   });
   const tableBottom = doc.y;
-  doc.moveTo(itemCol, tableBottom).lineTo(doc.page.width - itemCol, tableBottom).stroke();
+  doc.moveTo(startX, tableBottom).lineTo(doc.page.width - startX, tableBottom).stroke(); // Used startX
   doc.moveDown();
 
   // Totals
@@ -297,12 +310,13 @@ const getInvoiceReport = async (req, res) => {
     const invoice = await Invoice.findById(invoiceId)
       .populate({
         path: 'shipments',
-        populate: {
-          path: 'driver',
-          select: 'firstName lastName username email' // Select fields for driver
-        }
+        populate: [ // Can populate multiple paths within shipments
+          { path: 'driver', select: 'firstName lastName username email' },
+          // { path: 'customer', select: 'name' } // Customer on shipment already an ID, not needed if invoice.customer is primary
+        ]
       })
-      .populate('createdBy', 'firstName lastName email phone'); // Select fields for invoice creator
+      .populate('customer', 'name contactEmail contactPhone primaryAddress') // Populate the main customer for the invoice
+      .populate('createdBy', 'firstName lastName email phone');
 
     if (!invoice) {
       return res.status(404).json({ success: false, message: 'Invoice not found' });
@@ -322,35 +336,38 @@ const getInvoiceReport = async (req, res) => {
       brokerageName: brokerageInfo.name,
       invoiceNumber: invoice.invoiceNumber,
       invoiceDate: invoice.issueDate,
-      billTo: invoice.billTo.name,
-      projectDescription: invoice.notes || "N/A", // Using notes for project description
+      billTo: invoice.customer && invoice.customer.name ? invoice.customer.name : 'N/A', // Use populated customer.name
+      projectDescription: invoice.notes || "N/A",
 
-      shipmentDetails: invoice.shipments.map(shipment => ({
-        date: shipment.actualPickupDate || shipment.pickupDate,
-        shippingNumber: shipment.shipmentId,
-        destination: shipment.destination ? `${shipment.destination.city}, ${shipment.destination.state}` : 'N/A',
-        driver: shipment.driver ? `${shipment.driver.firstName} ${shipment.driver.lastName}` : 'N/A',
-        truckNumber: shipment.truckNumber || 'N/A',
-        // Price per unit (e.g., per ton) is not directly available.
-        // Excel shows Price * Weight = Amount. We have freightCost (Amount) and totalWeight.
-        pricePerUnit: (shipment.totalWeight && shipment.totalWeight !== 0) ? (shipment.freightCost / shipment.totalWeight) : 0,
-        weight: shipment.totalWeight || 0,
-        amount: shipment.freightCost || 0,
-      })),
+      shipmentDetails: invoice.shipments ? invoice.shipments.map(shipment => {
+        const driverName = shipment.driver ? `${shipment.driver.firstName || ''} ${shipment.driver.lastName || ''}`.trim() || shipment.driver.username || 'N/A' : 'N/A';
+        const destination = shipment.destination || {};
+        const items = shipment.items || [];
+        const totalWeight = shipment.totalWeight || items.reduce((acc, item) => acc + (item.weight || 0), 0) || 0;
+        
+        return {
+            date: shipment.actualPickupDate || shipment.pickupDate,
+            shippingNumber: shipment.shipmentId || 'N/A',
+            destination: `${destination.city || ''}, ${destination.state || ''}`.trim().replace(/^,|,$/g, '') || 'N/A',
+            driver: driverName,
+            truckNumber: shipment.truckNumber || 'N/A',
+            pricePerUnit: (totalWeight && totalWeight !== 0 && shipment.freightCost != null) ? (shipment.freightCost / totalWeight) : 0,
+            weight: totalWeight,
+            amount: shipment.freightCost != null ? shipment.freightCost : 0,
+        };
+      }) : [],
 
-      totalItems: invoice.shipments.length,
-      subTotal: invoice.subTotal,
-      fuelSurcharge: invoice.fuelSurchargeAmount, // Using the calculated amount
-      // The Excel has "TaxRate" for fuel surcharge calculation, we have fuelSurchargeRate on invoice.
-      // The example shows 0.35 for fuel surcharge, which is likely a fixed amount or a misinterpretation of the Excel.
-      // For now, using the calculated fuelSurchargeAmount from the invoice model.
-      deposit: invoice.depositAmount,
-      invoiceTotal: invoice.totalAmount,
+      totalItems: invoice.shipments ? invoice.shipments.length : 0,
+      subTotal: invoice.subTotal != null ? invoice.subTotal : 0,
+      fuelSurcharge: invoice.fuelSurchargeAmount != null ? invoice.fuelSurchargeAmount : 0,
+      deposit: invoice.depositAmount != null ? invoice.depositAmount : 0,
+      invoiceTotal: invoice.totalAmount != null ? invoice.totalAmount : 0,
 
       payableTo: brokerageInfo.payableTo,
-      contactPerson: invoice.createdBy ? `${invoice.createdBy.firstName} ${invoice.createdBy.lastName}` : 'N/A',
-      contactPhone: invoice.createdBy ? invoice.createdBy.phone : 'N/A',
-      contactEmail: invoice.createdBy ? invoice.createdBy.email : 'N/A',
+      // Using static contact info from brokerageInfo as per Excel example for "If you have questions"
+      contactPerson: brokerageInfo.contactPerson || "James Randazzo", // Fallback to Excel example
+      contactPhone: brokerageInfo.contactPhone || "3303245421",   // Fallback to Excel example
+      contactEmail: brokerageInfo.contactEmail || "JR.leekbrokerage@gmail.com", // Fallback to Excel example
       brokerageAddressLine1: brokerageInfo.addressLine1,
       brokerageAddressLine2: brokerageInfo.addressLine2,
       brokerageMainPhone: brokerageInfo.mainPhone,

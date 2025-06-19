@@ -154,4 +154,33 @@ class API {
     }
     // Note: User creation typically goes through /auth/register, which is already handled
     // by a direct call in user-management.js or could be wrapped here if preferred.
+
+    // Customer Management
+    static async getCustomers(queryParams = '') { // queryParams can be like '?isActive=true'
+        return this.makeRequest(`/customers${queryParams}`);
+    }
+
+    static async getCustomerById(id) {
+        return this.makeRequest(`/customers/${id}`);
+    }
+
+    static async createCustomer(customerData) {
+        return this.makeRequest('/customers', {
+            method: 'POST',
+            body: JSON.stringify(customerData)
+        });
+    }
+
+    static async updateCustomer(id, customerData) {
+        return this.makeRequest(`/customers/${id}`, {
+            method: 'PUT',
+            body: JSON.stringify(customerData)
+        });
+    }
+
+    static async deleteCustomer(id) { // This will call the backend soft delete (deactivate)
+        return this.makeRequest(`/customers/${id}`, {
+            method: 'DELETE'
+        });
+    }
 }

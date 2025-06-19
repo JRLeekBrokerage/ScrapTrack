@@ -236,3 +236,225 @@ body {
         padding: 30px;
     }
 }
+
+/* Data Table Styling */
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.data-table th, .data-table td {
+    border: 1px solid #ddd;
+    padding: 8px 10px; /* Reduced padding */
+    text-align: left;
+    vertical-align: middle;
+}
+
+.data-table th {
+    background-color: #4a5568; /* Darker header */
+    color: white;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.9em;
+}
+
+.data-table tbody tr:nth-child(even) {
+    background-color: #f8f9fa; /* Zebra striping */
+}
+
+.data-table tbody tr:hover {
+    background-color: #e9ecef; /* Hover effect */
+}
+
+/* Action buttons within tables */
+.data-table .btn-action {
+    padding: 6px 10px;
+    font-size: 0.85em;
+    margin-right: 5px;
+    min-width: 70px; /* Ensure buttons have some width */
+    text-align: center;
+}
+
+.btn-edit {
+    background-color: #f0ad4e; /* Orange for edit */
+    color: white;
+}
+.btn-edit:hover {
+    background-color: #ec971f;
+}
+
+.btn-delete {
+    background-color: #d9534f; /* Red for delete */
+    color: white;
+}
+.btn-delete:hover {
+    background-color: #c9302c;
+}
+
+.btn-details, .btn-view-pdf {
+    background-color: #5bc0de; /* Info blue */
+    color: white;
+}
+.btn-details:hover, .btn-view-pdf:hover {
+    background-color: #46b8da;
+}
+
+
+/* Modal Styling */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgba(0,0,0,0.6); /* Black w/ opacity */
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 10% auto; /* 10% from the top and centered */
+    padding: 30px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 700px; /* Max width */
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    position: relative;
+}
+
+.modal-content h2 { /* Style for modal titles */
+    margin-top: 0;
+    color: #2c3e50;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+}
+
+.close-btn {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    position: absolute;
+    top: 15px;
+    right: 25px;
+}
+
+.close-btn:hover,
+.close-btn:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* Form elements within modals or sections */
+.form-section {
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 30px;
+}
+.form-section h2 {
+    margin-top: 0;
+    color: #2c3e50;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+}
+
+.form-actions {
+    margin-top: 30px;
+    text-align: right;
+}
+.form-actions .btn-secondary { /* For cancel buttons */
+    margin-left: 10px;
+}
+
+/* Status Badge Styling */
+.status-badge {
+    padding: 0.25em 0.6em;
+    font-size: 0.85em;
+    font-weight: 600;
+    border-radius: 0.25rem;
+    color: white;
+    display: inline-block;
+    min-width: 70px;
+    text-align: center;
+}
+.status-pending { background-color: #f0ad4e; } /* Orange */
+.status-assigned { background-color: #5bc0de; } /* Info Blue */
+.status-in-transit { background-color: #3498db; } /* Primary Blue */
+.status-delayed { background-color: #e67e22; } /* Darker Orange */
+.status-delivered { background-color: #27ae60; } /* Green */
+.status-cancelled { background-color: #d9534f; } /* Red */
+.status-on-hold { background-color: #7f8c8d; } /* Gray */
+.status-unknown { background-color: #bdc3c7; color: #333; } /* Light Gray */
+.status-draft { background-color: #95a5a6; }
+.status-sent { background-color: #5dade2; }
+.status-paid { background-color: #2ecc71; }
+.status-partially-paid { background-color: #f39c12; }
+.status-overdue { background-color: #e74c3c; }
+.status-void { background-color: #34495e; }
+
+
+/* Fieldset styling */
+fieldset {
+    border: 1px solid #ddd;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+}
+
+fieldset legend {
+    padding: 0 10px;
+    font-weight: 600;
+    color: #34495e;
+}
+
+/* Input and select enhancements */
+.form-group input[type="text"],
+.form-group input[type="email"],
+.form-group input[type="password"],
+.form-group input[type="tel"],
+.form-group input[type="date"],
+.form-group input[type="number"],
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 10px; /* Slightly reduced padding for better density */
+    border: 1px solid #ccc; /* Standardized border */
+    border-radius: 4px;
+    font-size: 15px;
+    transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+}
+
+.form-group select[multiple] {
+    min-height: 100px;
+}
+
+/* Tracking History List in Modal */
+ul.tracking-history {
+    list-style-type: none;
+    padding-left: 0;
+}
+ul.tracking-history li {
+    padding: 5px 0;
+    border-bottom: 1px dashed #eee;
+}
+ul.tracking-history li:last-child {
+    border-bottom: none;
+}

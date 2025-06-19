@@ -22,19 +22,19 @@ class UserManagementPage {
     }
 
     updateUserInfo() {
-        const userNameSpan = document.getElementById('user-name-usermgt');
+        const userNameSpan = document.getElementById('user-name-drivermgt'); // Corrected ID
         if (userNameSpan && this.currentUser) {
             userNameSpan.textContent = `Welcome, ${this.currentUser.fullName || this.currentUser.firstName || this.currentUser.username}`;
         }
     }
 
     bindEventListeners() {
-        const logoutBtn = document.getElementById('logout-btn-usermgt');
+        const logoutBtn = document.getElementById('logout-btn-drivermgt'); // Corrected ID
         if (logoutBtn) {
             logoutBtn.addEventListener('click', this.handleLogout.bind(this));
         }
 
-        const backToDashboardBtn = document.getElementById('back-to-dashboard-btn-usermgt');
+        const backToDashboardBtn = document.getElementById('back-to-dashboard-btn-drivermgt'); // Corrected ID
         if (backToDashboardBtn) {
             backToDashboardBtn.addEventListener('click', () => {
                 window.location.href = 'index.html';
@@ -149,8 +149,8 @@ class UserManagementPage {
                 <td>${user.isActive ? 'Yes' : 'No'}</td>
                 <td>${user.role === 'driver' && user.commissionRate != null ? (user.commissionRate * 100).toFixed(0) + '%' : 'N/A'}</td>
                 <td>
-                    <button class="btn-action btn-edit-user" data-id="${user._id}">Edit</button>
-                    <button class="btn-action btn-delete-user" data-id="${user._id}" data-username="${user.username}">Delete</button>
+                    <button class="btn-action btn-edit btn-edit-user" data-id="${user._id}">Edit</button>
+                    <button class="btn-action btn-delete btn-delete-user" data-id="${user._id}" data-username="${user.username}">Delete</button>
                 </td>
             `;
             row.querySelector('.btn-edit-user').addEventListener('click', (e) => this.openEditUserModal(e.target.dataset.id));

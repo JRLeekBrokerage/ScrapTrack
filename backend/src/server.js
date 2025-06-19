@@ -46,6 +46,7 @@ app.use('/api/invoices', require('./routes/invoices')); // Enable invoice routes
 app.use('/api/reports', require('./routes/reports')); // Enable report routes
 app.use('/api/drivers', require('./routes/drivers')); // Enable driver routes
 app.use('/api/users', require('./routes/users')); // Enable user management routes
+app.use('/api/customers', require('./routes/customers')); // Enable customer management routes
 
 // Error handling middleware
 app.use((err, req, res, next) => {

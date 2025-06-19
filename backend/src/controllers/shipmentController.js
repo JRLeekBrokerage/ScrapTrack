@@ -1,6 +1,7 @@
 const Shipment = require('../models/Shipment');
 const User = require('../models/User'); // For createdBy/updatedBy and driver validation
 const { validationResult } = require('express-validator');
+const mongoose = require('mongoose'); // Added mongoose for ObjectId conversion
 
 // Create a new shipment
 const createShipment = async (req, res) => {
@@ -38,15 +39,31 @@ const getAllShipments = async (req, res) => {
   try {
     // Basic find. Add pagination, sorting, filtering later.
     // Example: /api/shipments?status=pending&sortBy=pickupDate:desc&page=1&limit=10
-    // Added 'invoiced' query parameter for filtering shipments not yet invoiced
-    const { status, driver, sortBy, page = 1, limit = 20, invoiced } = req.query;
+    // Added 'invoiced' and 'customer' query parameters
+    const { status, driver, sortBy, page = 1, limit = 20, invoiced, customer } = req.query;
     const query = {};
     if (status) query.status = status;
-    if (driver) query.driver = driver;
-    if (invoiced === 'false') { // Check for shipments not yet invoiced
+
+    if (driver) {
+        if (mongoose.Types.ObjectId.isValid(driver)) {
+            query.driver = new mongoose.Types.ObjectId(driver);
+        } else {
+            console.warn(`[shipmentController] Invalid driver ID format received: ${driver}`);
+            // Decide handling: return error, or empty, or ignore filter. For now, ignoring.
+        }
+    }
+    if (invoiced === 'false') {
         query.invoiceId = null;
-    } else if (invoiced === 'true') { // Check for shipments already invoiced
+    } else if (invoiced === 'true') {
         query.invoiceId = { $ne: null };
+    }
+    if (customer) {
+        if (mongoose.Types.ObjectId.isValid(customer)) {
+            query.customer = new mongoose.Types.ObjectId(customer);
+        } else {
+            console.warn(`[shipmentController] Invalid customer ID format received: ${customer}`);
+            // Decide handling. For now, ignoring.
+        }
     }
 
 
@@ -60,6 +77,7 @@ const getAllShipments = async (req, res) => {
 
     const shipments = await Shipment.find(query)
       .populate('driver', 'username firstName lastName phone') // Populate driver details
+      .populate('customer', 'name contactEmail contactPhone') // Populate customer details
       .populate('createdBy', 'username')
       .populate('updatedBy', 'username')
       .sort(sortOptions)

@@ -27,8 +27,12 @@ const createInvoice = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Validation failed', errors: errors.array() });
     }
 
-    const { shipmentIds, customerName, customerContactEmail, dueDate, fuelSurchargeRate = 0, depositAmount = 0, notes } = req.body;
+    // Expect customerId instead of customerName, customerContactEmail
+    const { shipmentIds, customerId, dueDate, fuelSurchargeRate = 0, depositAmount = 0, notes } = req.body;
 
+    if (!customerId) {
+        return res.status(400).json({ success: false, message: 'Customer ID is required.' });
+    }
     if (!shipmentIds || shipmentIds.length === 0) {
       return res.status(400).json({ success: false, message: 'At least one shipment ID is required.' });
     }
@@ -37,32 +41,30 @@ const createInvoice = async (req, res) => {
     const shipments = await Shipment.find({ 
       _id: { $in: shipmentIds.map(id => new mongoose.Types.ObjectId(id)) },
       status: 'delivered',
-      invoiceId: null // Ensure not already invoiced
-    }).populate('customer'); // Assuming customer details are on shipment or to validate consistency
+      invoiceId: null, // Ensure not already invoiced
+      customer: new mongoose.Types.ObjectId(customerId) // Ensure shipments belong to the selected customer
+    });
 
+    if (shipments.length === 0 && shipmentIds.length > 0) {
+        // This means none of the provided shipmentIds were valid for this customer, delivered, and uninvoiced
+        return res.status(400).json({
+            success: false,
+            message: 'None of the selected shipments are valid for invoicing for the chosen customer (they may be already invoiced, not delivered, or belong to a different customer).'
+        });
+    }
     if (shipments.length !== shipmentIds.length) {
-      const foundIds = shipments.map(s => s._id.toString());
-      const notFoundOrInvalid = shipmentIds.filter(id => !foundIds.includes(id));
-      return res.status(400).json({ 
-        success: false, 
-        message: 'One or more shipments are invalid, not delivered, or already invoiced.',
-        details: { notFoundOrInvalid }
-      });
+        // Some shipments were invalid, but some were okay. Proceeding with valid ones.
+        // Or, choose to error out if not all are valid. For now, let's be strict.
+         const foundIds = shipments.map(s => s._id.toString());
+         const notFoundOrInvalid = shipmentIds.filter(id => !foundIds.includes(id));
+        return res.status(400).json({
+            success: false,
+            message: 'One or more selected shipments are invalid for invoicing for the chosen customer.',
+            details: { notFoundOrInvalid }
+        });
     }
-
-    // Ensure all shipments belong to the same customer (if customer details are on shipment)
-    // For simplicity, we'll use the provided customerName or the first shipment's customer
-    let billToName = customerName;
-    let billToContactEmail = customerContactEmail;
-
-    if (!billToName && shipments.length > 0 && shipments[0].customer) {
-        billToName = shipments[0].customer.name;
-        billToContactEmail = shipments[0].customer.contactEmail;
-    }
-    if (!billToName) {
-        return res.status(400).json({ success: false, message: 'Customer name is required for the invoice.' });
-    }
-
+    
+    // Customer is now validated by the shipment query using customerId
 
     const subTotal = shipments.reduce((sum, shipment) => sum + (shipment.freightCost || 0), 0);
     const numericFuelSurchargeRate = parseFloat(fuelSurchargeRate) || 0;
@@ -74,10 +76,7 @@ const createInvoice = async (req, res) => {
 
     const newInvoice = new Invoice({
       invoiceNumber,
-      billTo: {
-        name: billToName,
-        contactEmail: billToContactEmail,
-      },
+      customer: new mongoose.Types.ObjectId(customerId), // Use customerId
       issueDate: new Date(),
       dueDate: dueDate ? new Date(dueDate) : undefined,
       shipments: shipmentIds.map(id => new mongoose.Types.ObjectId(id)),
@@ -132,7 +131,8 @@ const getAllInvoices = async (req, res) => {
     console.log('[getAllInvoices] Page:', page, 'Limit:', limit);
 
     const invoices = await Invoice.find(query)
-      .populate('shipments', 'shipmentId freightCost') // Populate some shipment details
+      .populate('shipments', 'shipmentId freightCost customer') // Also populate customer from shipment for context if needed
+      .populate('customer', 'name contactEmail') // Populate the main customer for the invoice
       .populate('createdBy', 'username')
       .sort(sortOptions)
       .limit(parseInt(limit))
@@ -171,6 +171,7 @@ const getInvoiceById = async (req, res) => {
     }
     const invoice = await Invoice.findById(req.params.id)
       .populate('shipments') // Populate full shipment details
+      .populate('customer', 'name contactEmail contactPhone primaryAddress notes') // Populate full customer details
       .populate('createdBy', 'username');
 
     if (!invoice) {
@@ -225,6 +226,7 @@ const updateInvoice = async (req, res) => {
     // Re-populate for response
     const populatedInvoice = await Invoice.findById(updatedInvoice._id)
         .populate('shipments')
+        .populate('customer', 'name contactEmail contactPhone primaryAddress notes')
         .populate('createdBy', 'username');
 
     res.json({ success: true, message: 'Invoice updated successfully', data: populatedInvoice });
