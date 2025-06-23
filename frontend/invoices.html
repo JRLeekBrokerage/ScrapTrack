@@ -69,12 +69,12 @@
                                     <input type="date" id="invoice-due-date" name="dueDate">
                                 </div>
                                 <div class="form-group">
-                                    <label for="invoice-fuel-surcharge-rate">Fuel Surcharge Rate (e.g., 0.05 for 5%):</label>
-                                    <input type="number" id="invoice-fuel-surcharge-rate" name="fuelSurchargeRate" step="0.001" min="0" value="0">
-                                </div>
-                                <div class="form-group">
-                                    <label for="invoice-deposit-amount">Deposit Amount (Optional):</label>
-                                    <input type="number" id="invoice-deposit-amount" name="depositAmount" step="0.01" min="0" value="0">
+                                    <label for="invoice-fuel-surcharge-rate">Fuel Surcharge Rate:</label>
+                                    <div style="display: flex; align-items: center;">
+                                        <input type="number" id="invoice-fuel-surcharge-rate" name="fuelSurchargeRate" step="1" min="0" value="0" style="flex-grow: 1; margin-right: 5px;">
+                                        <span style="margin-left: 5px;">%</span>
+                                    </div>
+                                    <small>Enter as a whole number (e.g., 5 for 5%). Arrows increment by 1%.</small>
                                 </div>
                                 <div class="form-group">
                                     <label for="invoice-notes">Notes (Optional):</label>

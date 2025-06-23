@@ -476,7 +476,7 @@ const sampleInvoicesData = (createdShipments, createdById) => {
       shipments: [shipment._id],
       subTotal: shipment.freightCost,
       fuelSurchargeRate: Math.random() * 0.1, // Random fuel surcharge up to 10%
-      depositAmount: (status === 'partially-paid' || Math.random() < 0.1) ? shipment.freightCost * 0.25 : 0, // 25% deposit sometimes
+      // depositAmount: (status === 'partially-paid' || Math.random() < 0.1) ? shipment.freightCost * 0.25 : 0, // Removed
       status: status,
       createdBy: createdById,
       notes: `Invoice for shipment ${shipment.shipmentId}. Notes for invoice #${invoiceCounter -1}.`

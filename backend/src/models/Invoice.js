@@ -30,7 +30,7 @@ const invoiceSchema = new Schema({
   subTotal: { type: Number, required: true, default: 0 }, // Sum of freightCost from all included shipments
   fuelSurchargeRate: { type: Number, default: 0.0, min: 0 }, // e.g., 0.05 for 5%
   fuelSurchargeAmount: { type: Number, default: 0.0, min: 0 },
-  depositAmount: { type: Number, default: 0.0, min: 0 },
+  // depositAmount: { type: Number, default: 0.0, min: 0 }, // Removed
   totalAmount: { type: Number, required: true, default: 0 },
   status: {
     type: String,
@@ -59,9 +59,12 @@ invoiceSchema.index({ issueDate: -1 });
 // before saving, to ensure atomicity and access to related documents.
 // However, fuelSurchargeAmount and totalAmount can be derived here if subTotal is set.
 invoiceSchema.pre('save', function(next) {
-  if (this.isModified('subTotal') || this.isModified('fuelSurchargeRate') || this.isModified('depositAmount')) {
+  // Check if subTotal or fuelSurchargeRate was modified, or if it's a new document where calculations are needed.
+  // No longer checking for depositAmount modification.
+  if (this.isModified('subTotal') || this.isModified('fuelSurchargeRate') || this.isNew) {
     this.fuelSurchargeAmount = (this.subTotal || 0) * (this.fuelSurchargeRate || 0);
-    this.totalAmount = ((this.subTotal || 0) + (this.fuelSurchargeAmount || 0)) - (this.depositAmount || 0);
+    // Total amount calculation no longer subtracts depositAmount
+    this.totalAmount = (this.subTotal || 0) + (this.fuelSurchargeAmount || 0);
   }
   next();
 });

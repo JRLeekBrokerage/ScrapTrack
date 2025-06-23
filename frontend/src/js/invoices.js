@@ -101,22 +101,18 @@ class InvoicesPage {
 
         try {
             const response = await API.getInvoices(`?sortBy=issueDate:desc&page=${this.currentPage}&limit=${this.limit}`);
-            console.log('[invoices.js] loadInvoices: Raw API Response:', JSON.stringify(response, null, 2)); // Log the ENTIRE response
             this.invoices = (response && Array.isArray(response.data)) ? response.data : [];
             
             if (response && response.pagination) {
-                console.log('[invoices.js] loadInvoices: Received response.pagination object:', JSON.stringify(response.pagination, null, 2));
                 this.currentPage = parseInt(response.pagination.currentPage, 10);
                 this.totalPages = parseInt(response.pagination.totalPages, 10);
-                console.log(`[invoices.js] loadInvoices: Set currentPage=${this.currentPage}, totalPages=${this.totalPages} from response.pagination. totalInvoices from API: ${response.pagination.totalInvoices}`);
             } else {
-                console.warn('[invoices.js] loadInvoices: response.pagination not found or invalid. Using fallback calculation.');
-                const totalInvoicesFallback = this.invoices.length > 0 ? (this.currentPage * this.limit) : 0;
-                this.totalPages = Math.ceil(totalInvoicesFallback / this.limit) || 1;
-                console.log(`[invoices.js] loadInvoices: Fallback calculated totalPages=${this.totalPages} based on current page item count.`);
-                if(this.invoices.length === 0 && this.currentPage > 1) {
-                    console.log('[invoices.js] loadInvoices: Current page empty, attempting to load page 1.');
-                    return this.loadInvoices(1);
+                const totalInvoices = response && response.pagination && response.pagination.totalInvoices !== undefined 
+                                       ? parseInt(response.pagination.totalInvoices, 10)
+                                       : this.invoices.length; 
+                this.totalPages = Math.ceil(totalInvoices / this.limit) || 1;
+                if(this.invoices.length === 0 && totalInvoices > 0 && this.currentPage > 1) {
+                    return this.loadInvoices(this.totalPages > 0 ? this.totalPages : 1);
                 }
             }
 
@@ -136,6 +132,7 @@ class InvoicesPage {
     renderPaginationControls() {
         const container = document.getElementById('invoices-pagination-controls');
         if (!container) {
+            console.error('[invoices.js] renderPaginationControls: Pagination container #invoices-pagination-controls not found!');
             return;
         }
         container.innerHTML = '';
@@ -217,16 +214,15 @@ class InvoicesPage {
             row.querySelector('.btn-view-pdf').addEventListener('click', (e) => this.handleViewInvoicePdf(e.target.dataset.id));
             
             const editButton = row.querySelector('.btn-edit-invoice');
-            if (editButton && this.isInvoiceEditable(statusStr)) {
-                editButton.addEventListener('click', (e) => {
-                    if (invoice.status && invoice.status.toLowerCase() === 'draft') {
+            if (editButton) { // Check if button exists first
+                if (this.isInvoiceEditable(statusStr)) { 
+                    editButton.disabled = false;
+                    editButton.addEventListener('click', (e) => {
                         this.openEditInvoiceModal(e.target.dataset.id);
-                    } else {
-                        alert("Only 'Draft' invoices can be fully edited. Other statuses allow inline status change only.");
-                    }
-                });
-            } else if (editButton) {
-                editButton.disabled = true;
+                    });
+                } else {
+                    editButton.disabled = true;
+                }
             }
 
             row.querySelector('.btn-delete-invoice').addEventListener('click', (e) => this.handleDeleteInvoice(e.target.dataset.id));
@@ -287,6 +283,7 @@ class InvoicesPage {
         document.getElementById('invoice-status-group').style.display = 'none';
         this.populateShipmentsDropdown(null);
         document.getElementById('invoice-customer-contact-email').value = '';
+        document.getElementById('invoice-fuel-surcharge-rate').value = '0'; 
         document.getElementById('invoice-form-modal').style.display = 'block';
     }
 
@@ -328,8 +325,9 @@ class InvoicesPage {
         if (invoice.dueDate) {
             document.getElementById('invoice-due-date').value = new Date(invoice.dueDate).toISOString().split('T')[0];
         }
-        document.getElementById('invoice-fuel-surcharge-rate').value = invoice.fuelSurchargeRate || 0;
-        document.getElementById('invoice-deposit-amount').value = invoice.depositAmount || 0;
+        const decimalFuelSurchargeRate = invoice.fuelSurchargeRate || 0;
+        document.getElementById('invoice-fuel-surcharge-rate').value = (decimalFuelSurchargeRate * 100).toFixed(1); 
+        
         document.getElementById('invoice-notes').value = invoice.notes || '';
         
         const statusGroup = document.getElementById('invoice-status-group');
@@ -684,8 +682,7 @@ class InvoicesPage {
             customerId: document.getElementById('invoice-customer-select').value, 
             shipmentIds: selectedShipmentIds,
             dueDate: formData.get('dueDate') || null,
-            fuelSurchargeRate: parseFloat(formData.get('fuelSurchargeRate')) || 0,
-            depositAmount: parseFloat(formData.get('depositAmount')) || 0,
+            fuelSurchargeRate: (parseFloat(formData.get('fuelSurchargeRate')) / 100) || 0,
             notes: formData.get('notes')
         };
         

@@ -28,7 +28,7 @@ const createInvoice = async (req, res) => {
     }
 
     // Expect customerId instead of customerName, customerContactEmail
-    const { shipmentIds, customerId, dueDate, fuelSurchargeRate = 0, depositAmount = 0, notes } = req.body;
+    const { shipmentIds, customerId, dueDate, fuelSurchargeRate = 0, /* depositAmount = 0, */ notes } = req.body; // depositAmount removed
 
     if (!customerId) {
         return res.status(400).json({ success: false, message: 'Customer ID is required.' });
@@ -68,24 +68,25 @@ const createInvoice = async (req, res) => {
 
     const subTotal = shipments.reduce((sum, shipment) => sum + (shipment.freightCost || 0), 0);
     const numericFuelSurchargeRate = parseFloat(fuelSurchargeRate) || 0;
-    const numericDepositAmount = parseFloat(depositAmount) || 0;
+    // const numericDepositAmount = parseFloat(depositAmount) || 0; // Removed
 
     const fuelSurchargeAmount = parseFloat((subTotal * numericFuelSurchargeRate).toFixed(2));
-    const totalAmount = parseFloat(((subTotal + fuelSurchargeAmount) - numericDepositAmount).toFixed(2));
+    // Total amount calculation no longer subtracts depositAmount
+    const totalAmount = parseFloat((subTotal + fuelSurchargeAmount).toFixed(2));
     const invoiceNumber = await getNextInvoiceNumber();
 
     const newInvoice = new Invoice({
       invoiceNumber,
-      customer: new mongoose.Types.ObjectId(customerId), // Use customerId
+      customer: new mongoose.Types.ObjectId(customerId),
       issueDate: new Date(),
       dueDate: dueDate ? new Date(dueDate) : undefined,
       shipments: shipmentIds.map(id => new mongoose.Types.ObjectId(id)),
       subTotal,
       fuelSurchargeRate: numericFuelSurchargeRate,
       fuelSurchargeAmount,
-      depositAmount: numericDepositAmount,
+      // depositAmount: numericDepositAmount, // Removed
       totalAmount,
-      status: 'draft', // Default status
+      status: 'draft',
       notes,
       createdBy: req.user._id,
     });
@@ -199,7 +200,7 @@ const updateInvoice = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Validation failed', errors: errors.array() });
     }
 
-    const { status, notes, dueDate, depositAmount, fuelSurchargeRate } = req.body;
+    const { status, notes, dueDate, /* depositAmount, */ fuelSurchargeRate } = req.body; // depositAmount removed
     const invoiceId = req.params.id;
 
     const invoice = await Invoice.findById(invoiceId);
@@ -209,18 +210,22 @@ const updateInvoice = async (req, res) => {
 
     // Recalculate totals if relevant fields change
     let needsRecalculation = false;
-    if (depositAmount !== undefined && invoice.depositAmount !== parseFloat(depositAmount)) {
-        invoice.depositAmount = parseFloat(depositAmount);
-        needsRecalculation = true;
-    }
+    // Deposit amount related check removed
     if (fuelSurchargeRate !== undefined && invoice.fuelSurchargeRate !== parseFloat(fuelSurchargeRate)) {
         invoice.fuelSurchargeRate = parseFloat(fuelSurchargeRate);
         needsRecalculation = true;
     }
     
-    if (needsRecalculation) {
+    // If subTotal could change on update (not typical for existing invoice), add:
+    // if (req.body.subTotal !== undefined && invoice.subTotal !== parseFloat(req.body.subTotal)) {
+    //     invoice.subTotal = parseFloat(req.body.subTotal);
+    //     needsRecalculation = true;
+    // }
+
+    if (needsRecalculation || (invoice.isNew && !invoice.totalAmount)) { // Ensure calculation runs for new docs if not already done by pre-save
         invoice.fuelSurchargeAmount = parseFloat((invoice.subTotal * invoice.fuelSurchargeRate).toFixed(2));
-        invoice.totalAmount = parseFloat(((invoice.subTotal + invoice.fuelSurchargeAmount) - invoice.depositAmount).toFixed(2));
+        // Total amount calculation no longer subtracts depositAmount
+        invoice.totalAmount = parseFloat((invoice.subTotal + invoice.fuelSurchargeAmount).toFixed(2));
     }
 
     if (status) invoice.status = status;
