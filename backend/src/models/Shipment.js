@@ -12,14 +12,13 @@ const addressSchema = new Schema({
 // shipmentItemSchema removed
 
 const shipmentSchema = new Schema({
-  shipmentId: {
+  shippingNumber: { // Renamed from shipmentId
     type: String,
     required: true,
-    unique: true,
+    // unique: true, // Temporarily removed, can be re-added or handled at controller/service layer if strict DB enforcement is needed
     trim: true,
-    // Consider a pre-save hook or a separate service to generate this if needed
-    // For now, assume it's provided or generated client-side/controller-side
   },
+  // Mongoose _id will serve as the internal unique ID for API calls and references
   status: {
     type: String,
     required: true,
@@ -35,7 +34,7 @@ const shipmentSchema = new Schema({
     type: Date,
     required: true
   },
-  estimatedDeliveryDate: { // This field might become redundant or be used for a different purpose
+  estimatedDeliveryDate: { 
     type: Date
   },
   actualPickupDate: {
@@ -46,8 +45,7 @@ const shipmentSchema = new Schema({
   },
   driver: {
     type: Schema.Types.ObjectId,
-    ref: 'User', // Assumes your User model is named 'User'
-    // Validate that the user has the 'driver' role if assigned
+    ref: 'User', 
   },
   customer: {
     type: Schema.Types.ObjectId,
@@ -55,43 +53,53 @@ const shipmentSchema = new Schema({
     required: [true, 'Customer is required for a shipment.']
   },
   // items field removed
-  // totalWeight field removed
   // totalVolume field removed
-  freightCost: { type: Number },
+  weight: { type: Number }, // Retained as per previous changes (distinct from totalWeight which was also removed)
+  rate: { type: Number },   
+  freightCost: { type: Number }, 
   truckNumber: { type: String, required: true },
   commissionCalculatedDate: { type: Date },
   invoiceId: { type: Schema.Types.ObjectId, ref: 'Invoice' },
   trackingHistory: [{
     timestamp: { type: Date, default: Date.now },
-    location: String, // Optional, could be city/state or GPS
-    status: String, // e.g., "Picked Up", "Arrived at Hub", "Out for Delivery"
+    location: String, 
+    status: String, 
     notes: String
   }],
   notes: {
     type: String,
     trim: true
   },
-  createdBy: { // User who created this shipment record
+  createdBy: { 
     type: Schema.Types.ObjectId,
     ref: 'User'
   },
-  updatedBy: { // User who last updated this shipment record
+  updatedBy: { 
     type: Schema.Types.ObjectId,
     ref: 'User'
   }
 }, {
-  timestamps: true // Adds createdAt and updatedAt
+  timestamps: true 
 });
 
 // Indexes for performance
-shipmentSchema.index({ shipmentId: 1 });
+shipmentSchema.index({ shippingNumber: 1 }); // Index for the new user-facing ID
 shipmentSchema.index({ status: 1 });
 shipmentSchema.index({ driver: 1 });
-shipmentSchema.index({ deliveryDate: -1 }); // Updated index
+shipmentSchema.index({ deliveryDate: -1 }); 
 shipmentSchema.index({ 'customer.name': 1 });
 
 
 // TODO: Consider pre-save hook for validating driver role if a driver is assigned.
-// Removed TODO for totalWeight/totalVolume calculation
+
+// Pre-save hook to calculate freightCost if rate and weight are present
+shipmentSchema.pre('save', function(next) {
+  if (this.isModified('rate') || this.isModified('weight') || (this.isNew && this.rate != null && this.weight != null)) {
+    if (this.rate != null && this.weight != null) {
+      this.freightCost = parseFloat((this.rate * this.weight).toFixed(2));
+    }
+  }
+  next();
+});
 
 module.exports = mongoose.model('Shipment', shipmentSchema);

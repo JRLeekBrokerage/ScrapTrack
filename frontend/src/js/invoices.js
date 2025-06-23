@@ -3,12 +3,12 @@ class InvoicesPage {
     constructor() {
         this.invoices = [];
         this.currentUser = null;
-        this.editingInvoiceId = null;
+        this.editingInvoiceId = null; // This will store the _id of the invoice being edited
         this.availableShipments = [];
-        this.allCustomers = []; // Stores all active customers for the dropdown
+        this.allCustomers = []; 
         this.currentPage = 1;
         this.totalPages = 1;
-        this.limit = 10; // Records per page
+        this.limit = 10; 
         this.init();
     }
 
@@ -27,7 +27,7 @@ class InvoicesPage {
         try {
             await this.loadAllCustomersForDropdown();
             await this.loadAvailableShipmentsForForm();
-            await this.loadInvoices(); // Loads initial page
+            await this.loadInvoices(); 
         } catch (error) {
             console.error('[invoices.js] Error in loadInitialInvoicePageData:', error);
         }
@@ -205,24 +205,19 @@ class InvoicesPage {
                 <td>${dueDateStr}</td>
                 <td>${totalAmountStr}</td>
                 <td class="invoice-status-cell editable-cell" data-invoice-id="${invoice._id}" data-current-status="${statusStr}"><span class="status-badge status-${statusStr}">${statusStr}</span></td>
-                <td>
+                <td class="actions-cell">
                     <button class="btn-action btn-view-pdf" data-id="${invoice._id}">View PDF</button>
-                    <button class="btn-action btn-edit btn-edit-invoice" data-id="${invoice._id}">Edit</button>
+                    ${this.isInvoiceEditable(statusStr) ? `<button class="btn-action btn-edit btn-edit-invoice" data-id="${invoice._id}">Edit</button>` : ''}
                     <button class="btn-action btn-delete btn-delete-invoice" data-id="${invoice._id}">Delete</button>
                 </td>
             `;
             row.querySelector('.btn-view-pdf').addEventListener('click', (e) => this.handleViewInvoicePdf(e.target.dataset.id));
             
             const editButton = row.querySelector('.btn-edit-invoice');
-            if (editButton) { // Check if button exists first
-                if (this.isInvoiceEditable(statusStr)) { 
-                    editButton.disabled = false;
-                    editButton.addEventListener('click', (e) => {
-                        this.openEditInvoiceModal(e.target.dataset.id);
-                    });
-                } else {
-                    editButton.disabled = true;
-                }
+            if (editButton) {
+                editButton.addEventListener('click', (e) => {
+                    this.openEditInvoiceModal(e.target.dataset.id);
+                });
             }
 
             row.querySelector('.btn-delete-invoice').addEventListener('click', (e) => this.handleDeleteInvoice(e.target.dataset.id));
@@ -281,14 +276,14 @@ class InvoicesPage {
         document.getElementById('invoice-form-title').textContent = 'Create New Invoice';
         document.getElementById('invoice-form').reset();
         document.getElementById('invoice-status-group').style.display = 'none';
+        document.getElementById('invoice-number-group').style.display = 'none'; // Hide invoice number for new invoices
         this.populateShipmentsDropdown(null);
-        document.getElementById('invoice-customer-contact-email').value = '';
         document.getElementById('invoice-fuel-surcharge-rate').value = '0'; 
         document.getElementById('invoice-form-modal').style.display = 'block';
     }
 
     async openEditInvoiceModal(invoiceId) {
-        this.editingInvoiceId = invoiceId;
+        this.editingInvoiceId = invoiceId; // This is the _id
         const invoice = this.invoices.find(inv => inv._id === invoiceId);
         if (!invoice) {
             alert('Error: Invoice not found for editing.');
@@ -299,21 +294,24 @@ class InvoicesPage {
         const form = document.getElementById('invoice-form');
         form.reset();
 
-        document.getElementById('invoice-edit-id').value = invoice._id;
+        document.getElementById('invoice-edit-id').value = invoice._id; // Hidden field stores _id
+        
+        const invoiceNumberGroup = document.getElementById('invoice-number-group');
+        const invoiceNumberInput = document.getElementById('invoice-number-input');
+        if(invoiceNumberGroup) invoiceNumberGroup.style.display = 'block'; // Show invoice number field for editing
+        if(invoiceNumberInput) invoiceNumberInput.value = invoice.invoiceNumber || '';
         
         const customerIdToSelect = invoice.customer && invoice.customer._id ? invoice.customer._id : invoice.customer;
         document.getElementById('invoice-customer-select').value = customerIdToSelect || '';
         
-        const selectedCustomerInEdit = this.allCustomers.find(c => c._id === customerIdToSelect);
-        document.getElementById('invoice-customer-contact-email').value = selectedCustomerInEdit ? (selectedCustomerInEdit.contactEmail || '') : (invoice.customer && invoice.customer.contactEmail ? invoice.customer.contactEmail : '');
-
         const shipmentSelect = document.getElementById('invoice-shipments-select');
         shipmentSelect.innerHTML = ''; 
         if(invoice.shipments && invoice.shipments.length > 0) {
             invoice.shipments.forEach(ship => {
                 const option = document.createElement('option');
                 option.value = ship._id || ship; 
-                option.textContent = `Shipment ID: ${ship.shipmentId || ship._id} (Already Invoiced)`;
+                // Assuming shipment object has shippingNumber after refactor, otherwise use ship.shipmentId
+                option.textContent = `Shipment: ${ship.shippingNumber || ship.shipmentId || ship._id} (Invoiced)`; 
                 option.selected = true;
                 option.disabled = true; 
                 shipmentSelect.appendChild(option);
@@ -359,7 +357,7 @@ class InvoicesPage {
             }
             this.populateShipmentsDropdown();
         } catch (error) {
-            console.error('[invoices.js] Failed to load available shipments:', error);
+            console.error('[invoices.js] Failed to load available shipments for form:', error);
             this.availableShipments = [];
             this.populateShipmentsDropdown();
         }
@@ -397,7 +395,6 @@ class InvoicesPage {
                 const option = document.createElement('option');
                 option.value = customer._id;
                 option.textContent = customer.name;
-                if(customer.contactEmail) option.dataset.contactEmail = customer.contactEmail;
                 selectElement.appendChild(option);
             });
         }
@@ -412,14 +409,6 @@ class InvoicesPage {
     
     handleCustomerSelectChange(event) {
         const selectedCustomerId = event.target.value;
-        const selectedOption = event.target.selectedOptions[0];
-        const contactEmailField = document.getElementById('invoice-customer-contact-email');
-        
-        if (selectedOption && selectedOption.dataset.contactEmail) {
-            contactEmailField.value = selectedOption.dataset.contactEmail;
-        } else {
-             contactEmailField.value = '';
-        }
         this.loadAvailableShipmentsForForm(selectedCustomerId);
     }
 
@@ -439,14 +428,14 @@ class InvoicesPage {
 
         this.availableShipments.forEach(shipment => {
             const option = document.createElement('option');
-            option.value = shipment._id;
+            option.value = shipment._id; // Use internal _id for value
             try {
                 const customerName = shipment.customer && shipment.customer.name ? shipment.customer.name : 'N/A Customer';
                 const destCity = shipment.destination && shipment.destination.city ? shipment.destination.city : 'N/A City';
                 const destState = shipment.destination && shipment.destination.state ? shipment.destination.state : 'N/A State';
                 const freightCost = shipment.freightCost != null ? shipment.freightCost : 0;
 
-                option.textContent = `ID: ${shipment.shipmentId || 'N/A ID'} - ${customerName} - Dest: ${destCity}, ${destState} - Cost: $${freightCost.toFixed(2)}`;
+                option.textContent = `ID: ${shipment.shippingNumber || 'N/A ID'} - ${customerName} - Dest: ${destCity}, ${destState} - Cost: $${freightCost.toFixed(2)}`; // Display shippingNumber
             } catch (e) {
                 console.error(`Error processing shipment data for dropdown:`, shipment, e);
                 option.textContent = `Error processing shipment: ${shipment._id || 'Unknown ID'}`;
@@ -687,7 +676,8 @@ class InvoicesPage {
         };
         
         if (this.editingInvoiceId) {
-            invoiceData.status = formData.get('status'); 
+            invoiceData.status = formData.get('status');
+            invoiceData.invoiceNumber = formData.get('invoiceNumber'); // Add invoiceNumber to payload if editing
         }
 
 
@@ -698,7 +688,15 @@ class InvoicesPage {
         try {
             let response;
             if (this.editingInvoiceId) {
-                if (invoiceData.shipmentIds.length === 0) delete invoiceData.shipmentIds; 
+                if (invoiceData.shipmentIds.length === 0 && !invoiceData.invoiceNumber && !invoiceData.status && !invoiceData.dueDate && !invoiceData.notes && invoiceData.fuelSurchargeRate === (this.invoices.find(inv => inv._id === this.editingInvoiceId)?.fuelSurchargeRate || 0) ) {
+                    // If only shipments were potentially changed and none are selected for an existing invoice,
+                    // it might mean no actual update is needed unless other fields are also being changed.
+                    // However, the current logic disables shipment selection on edit.
+                    // This block might need refinement based on exact desired update behavior.
+                    // For now, if no shipments and no other changes, we might skip the API call or send it.
+                    // The backend will handle if no actual changes are made.
+                }
+                 if (invoiceData.shipmentIds.length === 0) delete invoiceData.shipmentIds; // Don't send empty array if not changing shipments
                 response = await API.updateInvoice(this.editingInvoiceId, invoiceData);
             } else {
                 if (selectedShipmentIds.length === 0) {

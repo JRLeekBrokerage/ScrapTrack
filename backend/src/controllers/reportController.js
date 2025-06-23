@@ -5,6 +5,25 @@ const mongoose = require('mongoose');
 const { validationResult } = require('express-validator'); // Removed query as it's used in routes
 const PDFDocument = require('pdfkit'); // Added PDFKit
 
+// Helper function to format currency
+const formatCurrency = (value) => {
+  if (value == null || isNaN(parseFloat(value))) {
+    return 'N/A'; // Or perhaps an empty string or $0.00
+  }
+  return `$${parseFloat(value).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+};
+
+// Helper function to format phone numbers
+const formatPhoneNumber = (phoneNumberString) => {
+  if (!phoneNumberString) return 'N/A';
+  const cleaned = ('' + phoneNumberString).replace(/\D/g, '');
+  const match = cleaned.match(/^(\d{3})(\d{3})(\d{4})$/);
+  if (match) {
+    return `(${match[1]}) ${match[2]}-${match[3]}`;
+  }
+  return phoneNumberString; // Return original if not a 10-digit number
+};
+
 // GET /api/reports/commission
 const getDriverCommissionReport = async (req, res) => {
   try {
@@ -76,12 +95,16 @@ const getDriverCommissionReport = async (req, res) => {
           driverName: shipment.driver ? `${shipment.driver.firstName} ${shipment.driver.lastName}` : 'N/A',
           driverUsername: shipment.driver ? shipment.driver.username : 'N/A',
           truckNumber: shipment.truckNumber || 'N/A',
-          // 'price' (Pice from Excel) is still ambiguous. Omitting for now.
+          price: shipment.rate != null ? parseFloat(shipment.rate.toFixed(4)) : 0, // Price (rate from shipment)
           weight: actualWeight, // Show actual weight hauled
-          effectiveWeightForPayment: effectiveWeightForPayment, // For clarity or if needed on report
-          amount: parseFloat(commissionBaseAmount.toFixed(2)), // This is the base for commission
-          commissionRate: shipment.driver.commissionRate,
-          commissionAmount: parseFloat(commissionAmount.toFixed(2)),
+          // effectiveWeightForPayment: effectiveWeightForPayment, // This is for driver payment logic, not customer invoice amount
+          amount: shipment.freightCost != null ? parseFloat(shipment.freightCost.toFixed(2)) : 0, // This is the freightCost (rate * weight)
+          commissionRate: shipment.driver.commissionRate, // This is driver's commission rate
+          commissionAmount: parseFloat(commissionAmount.toFixed(2)), // This is driver's actual commission
+          // Note: The 'amount' field here now represents shipment.freightCost.
+          // The 'commissionBaseAmount' used for calculating driver's commission might be different
+          // and is based on PAYMENT_RATE_PER_POUND and MINIMUM_PAYMENT_WEIGHT.
+          // For the report's "Amount" column, shipment.freightCost is more appropriate.
         };
       });
 // Helper function to generate Commission Report PDF
@@ -106,18 +129,18 @@ const generateCommissionReportPdf = (reportData, res) => {
   // Table Header
   const tableTop = doc.y;
   const startX = 50;
-  // Adjusted widths: Date, Ship#, Dest, Driver, Truck#, Weight, Amount, Rate, Commission
-  const colWidths = [60, 70, 90, 90, 60, 70, 70, 50, 65]; // Sum = 625. Reduced Dest/Driver.
+  // Date, Ship#, Dest, Driver, Trk#, Price, Weight, Amount (Freight), Rate (Comm), Commission
+  const colWidths = [60, 70, 80, 80, 50, 55, 60, 65, 50, 65]; // Adjusted for Price, ensure sum fits
   let currentX = startX;
 
   doc.fontSize(9); // Smaller font for table
-  const headers = ['Date', 'Shipment #', 'Destination', 'Driver', 'Truck #', 'Weight', 'Amount', 'Rate', 'Commission'];
+  const headers = ['Date', 'Shipment #', 'Destination', 'Driver', 'Trk #', 'Price', 'Weight', 'Amount', 'Comm Rate', 'Commission'];
   
   headers.forEach((header, i) => {
     doc.text(header, currentX, tableTop, {
         width: colWidths[i],
         lineBreak: false,
-        align: (i >= 5 ? 'right' : 'left') // Align headers consistent with data
+        align: (i >= 5 ? 'right' : 'left') // Price, Weight, Amount, Comm Rate, Commission right-aligned
     });
     currentX += colWidths[i];
   });
@@ -136,14 +159,15 @@ const generateCommissionReportPdf = (reportData, res) => {
       item.destination || 'N/A',
       item.driverName || item.driverUsername || 'N/A',
       item.truckNumber || 'N/A',
-      item.weight != null ? item.weight.toLocaleString() : 'N/A',
-      item.amount != null ? '$' + item.amount.toFixed(2) : 'N/A',
+      item.price != null ? formatCurrency(item.price) : 'N/A', // Format Price
+      item.weight != null ? item.weight.toLocaleString() : 'N/A', // Weight is not currency
+      item.amount != null ? formatCurrency(item.amount) : 'N/A', // Amount (Freight Cost)
       item.commissionRate != null ? (item.commissionRate * 100).toFixed(0) + '%' : 'N/A',
-      item.commissionAmount != null ? '$' + item.commissionAmount.toFixed(2) : 'N/A'
+      item.commissionAmount != null ? formatCurrency(item.commissionAmount) : 'N/A' // Commission Amount
     ];
 
     rowValues.forEach((value, i) => {
-      doc.text(value.toString(), currentX, rowY, { width: colWidths[i], lineBreak: false, align: (i >= 5 ? 'right' : 'left') }); // Align numeric columns to right
+      doc.text(value.toString(), currentX, rowY, { width: colWidths[i], lineBreak: false, align: (i >= 5 ? 'right' : 'left') });
       currentX += colWidths[i];
     });
     doc.moveDown(1.2); 
@@ -156,9 +180,11 @@ const generateCommissionReportPdf = (reportData, res) => {
   doc.moveTo(startX, tableBottom).lineTo(doc.page.width - startX, tableBottom).stroke();
   doc.moveDown();
 
-  // Total Commission
+  // Totals
+  const totalsX = doc.page.width - startX - 200; // Adjust X position for totals block
   doc.fontSize(10).font('Helvetica-Bold');
-  doc.text(`Total Commission: $${reportData.totalCommission.toFixed(2)}`, { align: 'right' });
+  doc.text(`Total Amount (Freight): ${formatCurrency(reportData.totalFreightAmount)}`, totalsX, undefined, { align: 'right', width: 200 });
+  doc.text(`Total Commission: ${formatCurrency(reportData.totalCommission)}`, totalsX, undefined, { align: 'right', width: 200 });
   doc.font('Helvetica');
 
   doc.end();
@@ -175,6 +201,7 @@ const generateCommissionReportPdf = (reportData, res) => {
         driverName: driverId ? (commissionReport.length > 0 ? commissionReport[0].driverName : 'N/A') : 'All Drivers',
         period: startDate && endDate ? `${new Date(startDate).toLocaleDateString()} - ${new Date(endDate).toLocaleDateString()}` : 'All Time',
         items: commissionReport,
+        totalFreightAmount: commissionReport.reduce((sum, item) => sum + (item.amount || 0), 0), // Sum of shipment.freightCost
         totalCommission: commissionReport.reduce((sum, item) => sum + (item.commissionAmount || 0), 0)
       };
       generateCommissionReportPdf(pdfReportData, res);
@@ -223,16 +250,18 @@ const generateInvoicePdf = (reportData, res) => {
   const pageContentWidth = doc.page.width - startX - startX; // 512
 
   // Define relative widths, ensure they sum up to <= pageContentWidth
+  // New column order: Date, Shipping #, Destination, Driver, Trk #, Price, Weight, Amount
   const colWidthsConfig = [
-    { header: 'Date', width: 65, align: 'left' },          // Adjusted width
-    { header: 'Shipping #', width: 70, align: 'left' },
-    { header: 'Destination', width: 100, align: 'left' }, // Adjusted width
-    { header: 'Driver', width: 85, align: 'left' },      // Adjusted width
-    { header: 'Trk #', width: 40, align: 'left' },
-    { header: 'Weight', width: 60, align: 'right' },     // Adjusted width
-    { header: 'Amount', width: 70, align: 'right' }
+    { header: 'Date', width: 60, align: 'left' },
+    { header: 'Shipping #', width: 60, align: 'left' },
+    { header: 'Destination', width: 80, align: 'left' },
+    { header: 'Driver', width: 70, align: 'left' },
+    { header: 'Trk #', width: 35, align: 'left' },
+    { header: 'Price', width: 55, align: 'right' }, // New Price column
+    { header: 'Weight', width: 55, align: 'right' },
+    { header: 'Amount', width: 65, align: 'right' }
   ];
-  // Sum of new widths: 65+70+100+85+40+60+70 = 490. This fits within 512.
+  // Sum of new widths: 60+60+80+70+35+55+55+65 = 480. This fits within 512.
 
   doc.fontSize(10);
   let currentX = startX;
@@ -255,8 +284,9 @@ const generateInvoicePdf = (reportData, res) => {
         item.destination || 'N/A',
         item.driver || 'N/A',
         item.truckNumber || 'N/A',
-        item.weight != null ? item.weight.toFixed(2) : 'N/A', // Ensure toFixed for consistency
-        item.amount != null ? item.amount.toFixed(2) : 'N/A'  // Ensure toFixed for consistency
+        item.price != null ? formatCurrency(item.price) : 'N/A', // Price column
+        item.weight != null ? item.weight.toLocaleString() : 'N/A', // Weight, not currency
+        item.amount != null ? formatCurrency(item.amount) : 'N/A'   // Amount column
     ];
     rowValues.forEach((value, i) => {
         doc.text(value.toString(), currentX, rowY, { width: colWidthsConfig[i].width, align: colWidthsConfig[i].align, lineBreak: false });
@@ -272,26 +302,68 @@ const generateInvoicePdf = (reportData, res) => {
   const totalsX = 400;
   doc.fontSize(10);
   doc.text(`Total Items: ${reportData.totalItems}`, totalsX, undefined, { align: 'right' });
-  doc.text(`Subtotal: ${reportData.subTotal.toFixed(2)}`, totalsX, undefined, { align: 'right' });
-  doc.text(`Fuel Surcharge: ${reportData.fuelSurcharge.toFixed(2)}`, totalsX, undefined, { align: 'right' });
-  if (reportData.deposit > 0) {
-    doc.text(`Deposit: ${reportData.deposit.toFixed(2)}`, totalsX, undefined, { align: 'right' });
-  }
-  doc.font('Helvetica-Bold').text(`Invoice Total: ${reportData.invoiceTotal.toFixed(2)}`, totalsX, undefined, { align: 'right' });
+  doc.text(`Subtotal: ${formatCurrency(reportData.subTotal)}`, totalsX, undefined, { align: 'right' });
+  doc.text(`Fuel Surcharge: ${formatCurrency(reportData.fuelSurcharge)}`, totalsX, undefined, { align: 'right' });
+  // Deposit was removed from Invoice model, so this check might be redundant or need adjustment
+  // if (reportData.deposit > 0) {
+  //   doc.text(`Deposit: ${formatCurrency(reportData.deposit)}`, totalsX, undefined, { align: 'right' });
+  // }
+  doc.font('Helvetica-Bold').text(`Invoice Total: ${formatCurrency(reportData.invoiceTotal)}`, totalsX, undefined, { align: 'right' });
   doc.font('Helvetica');
   doc.moveDown(2);
+ 
+  const drawFooter = (docInstance, data) => {
+    const pageBottomMargin = 50; // Standard margin
+    const footerHeightEstimate = 100; // Approximate height needed for footer content
+    let footerStartY = docInstance.page.height - pageBottomMargin - footerHeightEstimate;
+    if (footerStartY < docInstance.y + 20) { // Ensure footer doesn't overlap content if content is too long
+        footerStartY = docInstance.y + 20; // Position it after current content if page is almost full
+    }
+    if (footerStartY > docInstance.page.height - pageBottomMargin - 20) { // Don't let it go too high if page is short
+        footerStartY = docInstance.page.height - pageBottomMargin - footerHeightEstimate;
+    }
 
-  // Footer
-  doc.fontSize(10).text(`Make all checks payable to: ${reportData.payableTo}`);
-  doc.moveDown();
-  doc.text(`If you have any questions concerning this invoice, contact:`);
-  doc.text(`${reportData.contactPerson} - ${reportData.contactPhone} - ${reportData.contactEmail}`);
-  doc.moveDown();
-  doc.text(reportData.brokerageAddressLine1);
-  doc.text(reportData.brokerageAddressLine2);
-  doc.text(`Phone: ${reportData.brokerageMainPhone}`);
-  doc.moveDown(2);
-  doc.fontSize(12).text(reportData.thankYouMessage, { align: 'center' });
+
+    // Thick black line above footer
+    docInstance.moveTo(startX, footerStartY - 10) // 10 points above the first line of text
+       .lineTo(docInstance.page.width - startX, footerStartY - 10)
+       .lineWidth(1.5)
+       .strokeColor('black')
+       .stroke();
+    
+    const footerTextX = startX; // Use page margins
+    const footerWidth = docInstance.page.width - startX * 2;
+
+    docInstance.fontSize(9).font('Helvetica');
+    let currentY = footerStartY;
+
+    const lines = [
+        "Make all checks payable to: Leek Brokerage Inc",
+        "If you have any questions concerning this invoice, contact:",
+        `${data.contactPerson} - ${data.contactPhone} - ${data.contactEmail}`,
+        data.brokerageAddressLine1,
+        data.brokerageAddressLine2,
+        `Phone: ${data.brokerageMainPhone}`
+    ];
+
+    lines.forEach(line => {
+        docInstance.text(line, footerTextX, currentY, { align: 'center', width: footerWidth });
+        currentY += docInstance.currentLineHeight() * 0.9; // Adjust spacing
+    });
+    
+    docInstance.moveDown(0.5); // Add a bit more space before the thank you
+    currentY = docInstance.y; // Recalculate Y after moveDown
+    docInstance.font('Helvetica-Bold').fontSize(10).text("Thank you for your business!", footerTextX, currentY, { align: 'center', width: footerWidth });
+    docInstance.font('Helvetica'); // Reset font
+  };
+
+  // Draw footer on the first page
+  drawFooter(doc, reportData);
+
+  // Register event to draw footer on subsequent pages
+  doc.on('pageAdded', () => {
+    drawFooter(doc, reportData);
+  });
 
   doc.end();
 };
@@ -329,7 +401,10 @@ const getInvoiceReport = async (req, res) => {
       payableTo: "Leek Brokerage Inc",
       addressLine1: "P.O. Box 20145",
       addressLine2: "Canton, Oh 44701",
-      mainPhone: "2312148200", // From Excel, seems like a typo, original was 330-324-5421 for James
+      mainPhone: "2312148200",
+      contactPerson: "James Randazzo", // Added from user request
+      contactPhone: "3303245421",   // Added from user request
+      contactEmail: "JR.leekbrokerage@gmail.com" // Added from user request
     };
 
     const reportData = {
@@ -342,18 +417,17 @@ const getInvoiceReport = async (req, res) => {
       shipmentDetails: invoice.shipments ? invoice.shipments.map(shipment => {
         const driverName = shipment.driver ? `${shipment.driver.firstName || ''} ${shipment.driver.lastName || ''}`.trim() || shipment.driver.username || 'N/A' : 'N/A';
         const destination = shipment.destination || {};
-        // const items = shipment.items || []; // shipment.items removed
-        const totalWeight = shipment.totalWeight || 0; // shipment.items removed
+        // Use the new 'rate' and 'weight' fields from the Shipment model
         
         return {
-            date: shipment.actualPickupDate || shipment.pickupDate,
+            date: shipment.deliveryDate || shipment.actualPickupDate || shipment.pickupDate, // Prefer deliveryDate
             shippingNumber: shipment.shipmentId || 'N/A',
             destination: `${destination.city || ''}, ${destination.state || ''}`.trim().replace(/^,|,$/g, '') || 'N/A',
             driver: driverName,
             truckNumber: shipment.truckNumber || 'N/A',
-            pricePerUnit: (totalWeight && totalWeight !== 0 && shipment.freightCost != null) ? (shipment.freightCost / totalWeight) : 0,
-            weight: totalWeight,
-            amount: shipment.freightCost != null ? shipment.freightCost : 0,
+            price: shipment.rate != null ? shipment.rate : 0, // New "Price" field from shipment.rate
+            weight: shipment.weight != null ? shipment.weight : 0, // New "weight" field
+            amount: shipment.freightCost != null ? shipment.freightCost : 0, // This is rate * weight
         };
       }) : [],
 
@@ -364,15 +438,14 @@ const getInvoiceReport = async (req, res) => {
       invoiceTotal: invoice.totalAmount != null ? invoice.totalAmount : 0,
 
       payableTo: brokerageInfo.payableTo,
-      // Using static contact info from brokerageInfo as per Excel example for "If you have questions"
-      contactPerson: brokerageInfo.contactPerson || "James Randazzo", // Fallback to Excel example
-      contactPhone: brokerageInfo.contactPhone || "3303245421",   // Fallback to Excel example
-      contactEmail: brokerageInfo.contactEmail || "JR.leekbrokerage@gmail.com", // Fallback to Excel example
+      contactPerson: brokerageInfo.contactPerson,
+      contactPhone: formatPhoneNumber(brokerageInfo.contactPhone),
+      contactEmail: brokerageInfo.contactEmail,
       brokerageAddressLine1: brokerageInfo.addressLine1,
       brokerageAddressLine2: brokerageInfo.addressLine2,
-      brokerageMainPhone: brokerageInfo.mainPhone,
+      brokerageMainPhone: formatPhoneNumber(brokerageInfo.mainPhone),
       dueUponReceipt: true, // As per Excel
-      thankYouMessage: "Thank you for your business!" // As per Excel
+      thankYouMessage: "Thank you for your business!" // This is now part of the structured footer
     };
 
     if (format === 'pdf') {

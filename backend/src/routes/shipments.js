@@ -6,7 +6,7 @@ const { authenticateToken, requireRole, requirePermission } = require('../middle
 
 // Validation rules (can be expanded)
 const createShipmentValidation = [
-  body('shipmentId').notEmpty().withMessage('Shipment ID is required').trim(),
+  body('shippingNumber').notEmpty().withMessage('Shipping Number is required').trim(), // Changed from shipmentId
   // Origin validation removed
   body('destination.street').notEmpty().withMessage('Destination street is required'),
   body('destination.city').notEmpty().withMessage('Destination city is required'),
@@ -20,7 +20,7 @@ const createShipmentValidation = [
 
 const updateShipmentValidation = [
   param('id').isMongoId().withMessage('Valid Shipment MongoDB ID is required'),
-  // Add specific field validations for update, often optional
+  body('shippingNumber').optional().notEmpty().withMessage('Shipping Number cannot be empty if provided').trim(), // Added for updating shippingNumber
   body('status').optional().isIn(['pending', 'assigned', 'in-transit', 'delayed', 'delivered', 'cancelled', 'on-hold']),
   body('driver').optional().isMongoId().withMessage('Valid Driver MongoDB ID is required for driver field'),
   // etc.

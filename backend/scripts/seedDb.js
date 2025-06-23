@@ -21,12 +21,12 @@ const sampleDriversData = [
     firstName: 'John',
     lastName: 'Driver',
     role: 'driver',
-    phone: '5550101001', // Updated phone format
+    phone: '5550101001', 
     commissionRate: 0.15,
     permissions: [
         { module: 'freight', actions: ['read', 'update'] },
         { module: 'drivers', actions: ['read'] },
-        { module: 'invoicing', actions: ['read'] } // Added invoicing read permission
+        { module: 'invoicing', actions: ['read'] } 
     ]
   },
   {
@@ -36,12 +36,12 @@ const sampleDriversData = [
     firstName: 'Jane',
     lastName: 'Driveress',
     role: 'driver',
-    phone: '5550102002', // Updated phone format
+    phone: '5550102002', 
     commissionRate: 0.12,
     permissions: [
         { module: 'freight', actions: ['read', 'update'] },
         { module: 'drivers', actions: ['read'] },
-        { module: 'invoicing', actions: ['read'] } // Added invoicing read permission
+        { module: 'invoicing', actions: ['read'] } 
     ]
   },
   {
@@ -51,12 +51,12 @@ const sampleDriversData = [
     firstName: 'Bob',
     lastName: 'Trucker',
     role: 'driver',
-    phone: '5550103003', // Updated phone format
+    phone: '5550103003', 
     commissionRate: 0.10,
     permissions: [
         { module: 'freight', actions: ['read', 'update'] },
         { module: 'drivers', actions: ['read'] },
-        { module: 'invoicing', actions: ['read'] } // Added invoicing read permission
+        { module: 'invoicing', actions: ['read'] } 
     ]
   }
 ];
@@ -70,370 +70,245 @@ const sampleCustomersData = [
 ];
 
 const sampleShipmentsData = (driverIds, customerIds) => [
-  // Shipments for John Driver
   {
-    shipmentId: 'SHJ0001', status: 'delivered', truckNumber: 'T-101',
-    // origin removed
+    shippingNumber: 'SHJ0001', status: 'delivered', truckNumber: 'T-101',
     destination: { street: '456 Destination Ave', city: 'Destination City', state: 'NV', zipCode: '89001', country: 'USA' },
-    deliveryDate: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000), // Was pickupDate, now represents scheduled/actual delivery
+    deliveryDate: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000), 
     actualPickupDate: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000),
     actualDeliveryDate: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000),
     driver: driverIds.john, customer: customerIds.alpha,
-    // items: [{ description: 'Scrap Metal A', quantity: 1, weight: 35000 }], // items removed
-    totalWeight: 35000,
-    freightCost: 280.00,
+    weight: 35000, rate: (280.00 / 35000), freightCost: 280.00,
   },
   {
-    shipmentId: 'SHJ0002', status: 'delivered', truckNumber: 'T-101',
-    // origin removed
+    shippingNumber: 'SHJ0002', status: 'delivered', truckNumber: 'T-101',
     destination: { street: '457 Destination Ave', city: 'Destination City', state: 'NV', zipCode: '89001', country: 'USA' },
-    deliveryDate: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000), // Was pickupDate
+    deliveryDate: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000), 
     actualPickupDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
     actualDeliveryDate: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
     driver: driverIds.john, customer: customerIds.alpha,
-    // items: [{ description: 'Scrap Metal B', quantity: 1, weight: 45000 }], // items removed
-    totalWeight: 45000,
-    freightCost: 360.00,
+    weight: 45000, rate: (360.00 / 45000), freightCost: 360.00,
   },
   {
-    shipmentId: 'SHJ0003', status: 'delivered', truckNumber: 'T-102',
-    // origin removed
+    shippingNumber: 'SHJ0003', status: 'delivered', truckNumber: 'T-102',
     destination: { street: '458 Destination Ave', city: 'Destination City', state: 'NV', zipCode: '89001', country: 'USA' },
-    deliveryDate: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000), // Was pickupDate
+    deliveryDate: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000), 
     actualPickupDate: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
     actualDeliveryDate: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
     driver: driverIds.john, customer: customerIds.gamma,
-    // items: [{ description: 'Scrap Metal C', quantity: 1, weight: 25000 }], // items removed
-    totalWeight: 25000,
-    freightCost: 200.00,
+    weight: 25000, rate: (200.00 / 25000), freightCost: 200.00,
   },
-
-  // Shipments for Jane Driveress
   {
-    shipmentId: 'SHJA001', status: 'delivered', truckNumber: 'T-201',
-    // origin removed
+    shippingNumber: 'SHJA001', status: 'delivered', truckNumber: 'T-201',
     destination: { street: '101 Target Ln', city: 'Targetown', state: 'TX', zipCode: '75001', country: 'USA' },
-    deliveryDate: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000), // Was pickupDate
+    deliveryDate: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000), 
     actualPickupDate: new Date(Date.now() - 9 * 24 * 60 * 60 * 1000),
     actualDeliveryDate: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000),
     driver: driverIds.jane, customer: customerIds.beta,
-    // items: [{ description: 'Industrial Parts', quantity: 1, weight: 52000 }], // items removed
-    totalWeight: 52000,
-    freightCost: 416.00,
+    weight: 52000, rate: (416.00 / 52000), freightCost: 416.00,
   },
   {
-    shipmentId: 'SHJA002', status: 'delivered', truckNumber: 'T-201',
-    // origin removed
+    shippingNumber: 'SHJA002', status: 'delivered', truckNumber: 'T-201',
     destination: { street: '102 Target Ln', city: 'Targetown', state: 'TX', zipCode: '75001', country: 'USA' },
-    deliveryDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // Was pickupDate
+    deliveryDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), 
     actualPickupDate: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000),
     actualDeliveryDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
     driver: driverIds.jane, customer: customerIds.beta,
-    // items: [{ description: 'Components', quantity: 1, weight: 15000 }], // items removed
-    totalWeight: 15000,
-    freightCost: 120.00,
+    weight: 15000, rate: (120.00 / 15000), freightCost: 120.00,
   },
-
-  // Shipments for Bob Trucker
   {
-    shipmentId: 'SHB0001', status: 'delivered', truckNumber: 'T-301',
-    // origin removed
+    shippingNumber: 'SHB0001', status: 'delivered', truckNumber: 'T-301',
     destination: { street: '654 End Ave', city: 'End City', state: 'GA', zipCode: '30001', country: 'USA' },
-    deliveryDate: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000), // Was pickupDate
+    deliveryDate: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000), 
     actualPickupDate: new Date(Date.now() - 12 * 24 * 60 * 60 * 1000),
     actualDeliveryDate: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000),
     driver: driverIds.bob, customer: customerIds.delta,
-    // items: [{ description: 'Raw Materials', quantity: 1, weight: 60000 }], // items removed
-    totalWeight: 60000,
-    freightCost: 480.00,
+    weight: 60000, rate: (480.00 / 60000), freightCost: 480.00,
   },
   {
-    shipmentId: 'SHB0002', status: 'delivered', truckNumber: 'T-302',
-    // origin removed
+    shippingNumber: 'SHB0002', status: 'delivered', truckNumber: 'T-302',
     destination: { street: '655 End Ave', city: 'End City', state: 'GA', zipCode: '30001', country: 'USA' },
-    deliveryDate: new Date(Date.now() - 0 * 24 * 60 * 60 * 1000), // Was pickupDate, set to today for in-transit
+    deliveryDate: new Date(Date.now() - 0 * 24 * 60 * 60 * 1000), 
     actualPickupDate: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
     driver: driverIds.bob, customer: customerIds.epsilon,
-    // items: [{ description: 'Finished Goods', quantity: 1, weight: 30000 }], // items removed
-    totalWeight: 30000,
-    freightCost: 240.00,
+    weight: 30000, rate: (240.00 / 30000), freightCost: 240.00,
   },
   {
-    shipmentId: 'SHB0003', status: 'delivered', truckNumber: 'T-301',
-    // origin removed
+    shippingNumber: 'SHB0003', status: 'delivered', truckNumber: 'T-301',
     destination: { street: '656 End Ave', city: 'End City', state: 'GA', zipCode: '30001', country: 'USA' },
-    deliveryDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000), // Was pickupDate, scheduled for future
+    deliveryDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000), 
     driver: driverIds.bob, customer: customerIds.delta,
-    // items: [{ description: 'Return Load', quantity: 1, weight: 10000 }], // items removed
-    totalWeight: 10000,
-    freightCost: 80.00,
+    weight: 10000, rate: (80.00 / 10000), freightCost: 80.00,
   },
-  // Additional shipments for pagination testing
   {
-    shipmentId: 'SHJ0004', status: 'delivered', truckNumber: 'T-103',
+    shippingNumber: 'SHJ0004', status: 'delivered', truckNumber: 'T-103',
     destination: { street: '777 Test St', city: 'Testville', state: 'CA', zipCode: '90211', country: 'USA' },
     deliveryDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),
     driver: driverIds.john, customer: customerIds.beta,
-    totalWeight: 22000, freightCost: 176.00,
+    weight: 22000, rate: (176.00 / 22000), freightCost: 176.00,
   },
   {
-    shipmentId: 'SHJA003', status: 'delivered', truckNumber: 'T-202',
+    shippingNumber: 'SHJA003', status: 'delivered', truckNumber: 'T-202',
     destination: { street: '888 Sample Rd', city: 'Sampleburg', state: 'AZ', zipCode: '85003', country: 'USA' },
     deliveryDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
     driver: driverIds.jane, customer: customerIds.gamma,
-    totalWeight: 33000, freightCost: 264.00,
+    weight: 33000, rate: (264.00 / 33000), freightCost: 264.00,
   },
   {
-    shipmentId: 'SHB0004', status: 'delivered', truckNumber: 'T-303',
+    shippingNumber: 'SHB0004', status: 'delivered', truckNumber: 'T-303',
     destination: { street: '999 Demo Ave', city: 'Demoville', state: 'FL', zipCode: '33002', country: 'USA' },
     deliveryDate: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000),
     actualPickupDate: new Date(Date.now() - 0.5 * 24 * 60 * 60 * 1000),
     driver: driverIds.bob, customer: customerIds.alpha,
-    totalWeight: 41000, freightCost: 328.00,
+    weight: 41000, rate: (328.00 / 41000), freightCost: 328.00,
   },
   {
-    shipmentId: 'SHJ0005', status: 'delivered', truckNumber: 'T-101',
+    shippingNumber: 'SHJ0005', status: 'delivered', truckNumber: 'T-101',
     destination: { street: '121 First St', city: 'First City', state: 'NV', zipCode: '89002', country: 'USA' },
     deliveryDate: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000),
     actualPickupDate: new Date(Date.now() - 17 * 24 * 60 * 60 * 1000),
     actualDeliveryDate: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000),
     driver: driverIds.john, customer: customerIds.delta,
-    totalWeight: 38000, freightCost: 304.00,
+    weight: 38000, rate: (304.00 / 38000), freightCost: 304.00,
   },
   {
-    shipmentId: 'SHJA004', status: 'delivered', truckNumber: 'T-202',
+    shippingNumber: 'SHJA004', status: 'delivered', truckNumber: 'T-202',
     destination: { street: '232 Second Ave', city: 'Secondtown', state: 'TX', zipCode: '75002', country: 'USA' },
     deliveryDate: new Date(Date.now() - 12 * 24 * 60 * 60 * 1000),
     actualPickupDate: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000),
     actualDeliveryDate: new Date(Date.now() - 12 * 24 * 60 * 60 * 1000),
     driver: driverIds.jane, customer: customerIds.epsilon,
-    totalWeight: 47000, freightCost: 376.00,
+    weight: 47000, rate: (376.00 / 47000), freightCost: 376.00,
   },
   {
-    shipmentId: 'SHB0005', status: 'delivered', truckNumber: 'T-301',
+    shippingNumber: 'SHB0005', status: 'delivered', truckNumber: 'T-301',
     destination: { street: '343 Third Blvd', city: 'Thirdville', state: 'GA', zipCode: '30002', country: 'USA' },
     deliveryDate: new Date(Date.now() + 8 * 24 * 60 * 60 * 1000),
     driver: driverIds.bob, customer: customerIds.beta,
-    totalWeight: 12000, freightCost: 96.00,
+    weight: 12000, rate: (96.00 / 12000), freightCost: 96.00,
   },
   {
-    shipmentId: 'SHJ0006', status: 'delivered', truckNumber: 'T-103',
+    shippingNumber: 'SHJ0006', status: 'delivered', truckNumber: 'T-103',
     destination: { street: '454 Fourth St', city: 'Fourthcity', state: 'CA', zipCode: '90212', country: 'USA' },
     deliveryDate: new Date(Date.now() + 6 * 24 * 60 * 60 * 1000),
     driver: driverIds.john, customer: customerIds.gamma,
-    totalWeight: 28000, freightCost: 224.00,
+    weight: 28000, rate: (224.00 / 28000), freightCost: 224.00,
   },
   {
-    shipmentId: 'SHJA005', status: 'delivered', truckNumber: 'T-201',
+    shippingNumber: 'SHJA005', status: 'delivered', truckNumber: 'T-201',
     destination: { street: '565 Fifth Ave', city: 'Fifthtown', state: 'AZ', zipCode: '85004', country: 'USA' },
     deliveryDate: new Date(Date.now() + 4 * 24 * 60 * 60 * 1000),
     actualPickupDate: new Date(Date.now() - 0.2 * 24 * 60 * 60 * 1000),
     driver: driverIds.jane, customer: customerIds.alpha,
-    totalWeight: 31000, freightCost: 248.00,
+    weight: 31000, rate: (248.00 / 31000), freightCost: 248.00,
   },
   {
-    shipmentId: 'SHB0006', status: 'delivered', truckNumber: 'T-303',
+    shippingNumber: 'SHB0006', status: 'delivered', truckNumber: 'T-303',
     destination: { street: '676 Sixth Ln', city: 'Sixthville', state: 'NV', zipCode: '89004', country: 'USA' },
     deliveryDate: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000),
     actualPickupDate: new Date(Date.now() - 22 * 24 * 60 * 60 * 1000),
     actualDeliveryDate: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000),
     driver: driverIds.bob, customer: customerIds.epsilon,
-    totalWeight: 55000, freightCost: 440.00,
+    weight: 55000, rate: (440.00 / 55000), freightCost: 440.00,
   },
   {
-    shipmentId: 'SHJ0007', status: 'delivered', truckNumber: 'T-102',
+    shippingNumber: 'SHJ0007', status: 'delivered', truckNumber: 'T-102',
     destination: { street: '787 Seventh Rd', city: 'Seventhburg', state: 'TX', zipCode: '75005', country: 'USA' },
     deliveryDate: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000),
     driver: driverIds.john, customer: customerIds.delta,
-    totalWeight: 19000, freightCost: 152.00,
+    weight: 19000, rate: (152.00 / 19000), freightCost: 152.00,
   },
-  // Added 12 more shipments to reach 30
   {
-    shipmentId: 'SHJA006', status: 'delivered', truckNumber: 'T-203',
+    shippingNumber: 'SHJA006', status: 'delivered', truckNumber: 'T-203',
     destination: { street: '898 Eighth Ave', city: 'Eighthville', state: 'FL', zipCode: '33006', country: 'USA' },
     deliveryDate: new Date(Date.now() + 12 * 24 * 60 * 60 * 1000),
     driver: driverIds.jane, customer: customerIds.alpha,
-    totalWeight: 25000, freightCost: 200.00,
+    weight: 25000, rate: (200.00 / 25000), freightCost: 200.00,
   },
   {
-    shipmentId: 'SHB0007', status: 'delivered', truckNumber: 'T-304',
+    shippingNumber: 'SHB0007', status: 'delivered', truckNumber: 'T-304',
     destination: { street: '101 Ninth St', city: 'Ninthburg', state: 'GA', zipCode: '30007', country: 'USA' },
     deliveryDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
     driver: driverIds.bob, customer: customerIds.beta,
-    totalWeight: 32000, freightCost: 256.00,
+    weight: 32000, rate: (256.00 / 32000), freightCost: 256.00,
   },
   {
-    shipmentId: 'SHJ0008', status: 'delivered', truckNumber: 'T-104',
+    shippingNumber: 'SHJ0008', status: 'delivered', truckNumber: 'T-104',
     destination: { street: '202 Tenth Rd', city: 'Tenthville', state: 'CA', zipCode: '90213', country: 'USA' },
     deliveryDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
     actualPickupDate: new Date(Date.now() - 0.1 * 24 * 60 * 60 * 1000),
     driver: driverIds.john, customer: customerIds.gamma,
-    totalWeight: 42000, freightCost: 336.00,
+    weight: 42000, rate: (336.00 / 42000), freightCost: 336.00,
   },
   {
-    shipmentId: 'SHJA007', status: 'delivered', truckNumber: 'T-201',
+    shippingNumber: 'SHJA007', status: 'delivered', truckNumber: 'T-201',
     destination: { street: '303 Eleventh Ave', city: 'Eleventh City', state: 'AZ', zipCode: '85005', country: 'USA' },
     deliveryDate: new Date(Date.now() - 25 * 24 * 60 * 60 * 1000),
     actualPickupDate: new Date(Date.now() - 27 * 24 * 60 * 60 * 1000),
     actualDeliveryDate: new Date(Date.now() - 25 * 24 * 60 * 60 * 1000),
     driver: driverIds.jane, customer: customerIds.delta,
-    totalWeight: 36000, freightCost: 288.00,
+    weight: 36000, rate: (288.00 / 36000), freightCost: 288.00,
   },
   {
-    shipmentId: 'SHB0008', status: 'delivered', truckNumber: 'T-302',
+    shippingNumber: 'SHB0008', status: 'delivered', truckNumber: 'T-302',
     destination: { street: '404 Twelfth St', city: 'Twelfthtown', state: 'NV', zipCode: '89005', country: 'USA' },
     deliveryDate: new Date(Date.now() + 18 * 24 * 60 * 60 * 1000),
     driver: driverIds.bob, customer: customerIds.epsilon,
-    totalWeight: 15000, freightCost: 120.00,
+    weight: 15000, rate: (120.00 / 15000), freightCost: 120.00,
   },
   {
-    shipmentId: 'SHJ0009', status: 'delivered', truckNumber: 'T-101',
+    shippingNumber: 'SHJ0009', status: 'delivered', truckNumber: 'T-101',
     destination: { street: '505 Thirteenth Blvd', city: 'Thirteenthville', state: 'TX', zipCode: '75006', country: 'USA' },
     deliveryDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
     driver: driverIds.john, customer: customerIds.alpha,
-    totalWeight: 29000, freightCost: 232.00,
+    weight: 29000, rate: (232.00 / 29000), freightCost: 232.00,
   },
   {
-    shipmentId: 'SHJA008', status: 'delivered', truckNumber: 'T-202',
+    shippingNumber: 'SHJA008', status: 'delivered', truckNumber: 'T-202',
     destination: { street: '606 Fourteenth Ln', city: 'Fourteenthburg', state: 'FL', zipCode: '33007', country: 'USA' },
     deliveryDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
     actualPickupDate: new Date(Date.now() - 0.3 * 24 * 60 * 60 * 1000),
     driver: driverIds.jane, customer: customerIds.beta,
-    totalWeight: 34000, freightCost: 272.00,
+    weight: 34000, rate: (272.00 / 34000), freightCost: 272.00,
   },
   {
-    shipmentId: 'SHB0009', status: 'delivered', truckNumber: 'T-303',
+    shippingNumber: 'SHB0009', status: 'delivered', truckNumber: 'T-303',
     destination: { street: '707 Fifteenth Rd', city: 'Fifteenth City', state: 'GA', zipCode: '30008', country: 'USA' },
     deliveryDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
     actualPickupDate: new Date(Date.now() - 32 * 24 * 60 * 60 * 1000),
     actualDeliveryDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
     driver: driverIds.bob, customer: customerIds.gamma,
-    totalWeight: 58000, freightCost: 464.00,
+    weight: 58000, rate: (464.00 / 58000), freightCost: 464.00,
   },
   {
-    shipmentId: 'SHJ0010', status: 'pending', truckNumber: 'T-102',
+    shippingNumber: 'SHJ0010', status: 'pending', truckNumber: 'T-102',
     destination: { street: '808 Sixteenth Ave', city: 'Sixteenthtown', state: 'CA', zipCode: '90214', country: 'USA' },
     deliveryDate: new Date(Date.now() + 20 * 24 * 60 * 60 * 1000),
     driver: driverIds.john, customer: customerIds.delta,
-    totalWeight: 21000, freightCost: 168.00,
+    weight: 21000, rate: (168.00 / 21000), freightCost: 168.00,
   },
   {
-    shipmentId: 'SHJA009', status: 'assigned', truckNumber: 'T-203',
+    shippingNumber: 'SHJA009', status: 'assigned', truckNumber: 'T-203',
     destination: { street: '909 Seventeenth St', city: 'Seventeenthville', state: 'AZ', zipCode: '85006', country: 'USA' },
     deliveryDate: new Date(Date.now() + 9 * 24 * 60 * 60 * 1000),
     driver: driverIds.jane, customer: customerIds.epsilon,
-    totalWeight: 27000, freightCost: 216.00,
+    weight: 27000, rate: (216.00 / 27000), freightCost: 216.00,
   },
   {
-    shipmentId: 'SHB0010', status: 'in-transit', truckNumber: 'T-304',
+    shippingNumber: 'SHB0010', status: 'in-transit', truckNumber: 'T-304',
     destination: { street: '111 Eighteenth Blvd', city: 'Eighteenthburg', state: 'NV', zipCode: '89006', country: 'USA' },
     deliveryDate: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000),
     actualPickupDate: new Date(Date.now() - 0.4 * 24 * 60 * 60 * 1000),
     driver: driverIds.bob, customer: customerIds.alpha,
-    totalWeight: 39000, freightCost: 312.00,
+    weight: 39000, rate: (312.00 / 39000), freightCost: 312.00,
   },
   {
-    shipmentId: 'SHJ0011', status: 'delivered', truckNumber: 'T-104',
+    shippingNumber: 'SHJ0011', status: 'delivered', truckNumber: 'T-104',
     destination: { street: '222 Nineteenth Ln', city: 'Nineteenth City', state: 'TX', zipCode: '75007', country: 'USA' },
     deliveryDate: new Date(Date.now() - 35 * 24 * 60 * 60 * 1000),
     actualPickupDate: new Date(Date.now() - 37 * 24 * 60 * 60 * 1000),
     actualDeliveryDate: new Date(Date.now() - 35 * 24 * 60 * 60 * 1000),
     driver: driverIds.john, customer: customerIds.beta,
-    totalWeight: 43000, freightCost: 344.00,
-  },
-  // Adding 12 more to reach 30
-  {
-    shipmentId: 'SHJA010', status: 'delivered', truckNumber: 'T-203',
-    destination: { street: '333 Twentieth St', city: 'Twentiethville', state: 'CA', zipCode: '90215', country: 'USA' },
-    deliveryDate: new Date(Date.now() - 40 * 24 * 60 * 60 * 1000),
-    actualPickupDate: new Date(Date.now() - 42 * 24 * 60 * 60 * 1000),
-    actualDeliveryDate: new Date(Date.now() - 40 * 24 * 60 * 60 * 1000),
-    driver: driverIds.jane, customer: customerIds.gamma,
-    totalWeight: 29000, freightCost: 232.00,
-  },
-  {
-    shipmentId: 'SHB0011', status: 'pending', truckNumber: 'T-301',
-    destination: { street: '444 Twentyfirst Ave', city: 'Twentyfirstburg', state: 'AZ', zipCode: '85007', country: 'USA' },
-    deliveryDate: new Date(Date.now() + 22 * 24 * 60 * 60 * 1000),
-    driver: driverIds.bob, customer: customerIds.delta,
-    totalWeight: 18000, freightCost: 144.00,
-  },
-  {
-    shipmentId: 'SHJ0012', status: 'assigned', truckNumber: 'T-104',
-    destination: { street: '555 Twentysecond Rd', city: 'Twentysecond City', state: 'NV', zipCode: '89007', country: 'USA' },
-    deliveryDate: new Date(Date.now() + 11 * 24 * 60 * 60 * 1000),
-    driver: driverIds.john, customer: customerIds.epsilon,
-    totalWeight: 37000, freightCost: 296.00,
-  },
-  {
-    shipmentId: 'SHJA011', status: 'in-transit', truckNumber: 'T-202',
-    destination: { street: '666 Twentythird St', city: 'Twentythirdtown', state: 'TX', zipCode: '75008', country: 'USA' },
-    deliveryDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),
-    actualPickupDate: new Date(Date.now() - 0.1 * 24 * 60 * 60 * 1000),
-    driver: driverIds.jane, customer: customerIds.alpha,
-    totalWeight: 44000, freightCost: 352.00,
-  },
-  {
-    shipmentId: 'SHB0012', status: 'delivered', truckNumber: 'T-303',
-    destination: { street: '777 Twentyfourth Ave', city: 'Twentyfourthville', state: 'FL', zipCode: '33008', country: 'USA' },
-    deliveryDate: new Date(Date.now() - 45 * 24 * 60 * 60 * 1000),
-    actualPickupDate: new Date(Date.now() - 47 * 24 * 60 * 60 * 1000),
-    actualDeliveryDate: new Date(Date.now() - 45 * 24 * 60 * 60 * 1000),
-    driver: driverIds.bob, customer: customerIds.beta,
-    totalWeight: 23000, freightCost: 184.00,
-  },
-  {
-    shipmentId: 'SHJ0013', status: 'pending', truckNumber: 'T-101',
-    destination: { street: '888 Twentyfifth Rd', city: 'Twentyfifthburg', state: 'GA', zipCode: '30009', country: 'USA' },
-    deliveryDate: new Date(Date.now() + 25 * 24 * 60 * 60 * 1000),
-    driver: driverIds.john, customer: customerIds.gamma,
-    totalWeight: 17000, freightCost: 136.00,
-  },
-  {
-    shipmentId: 'SHJA012', status: 'assigned', truckNumber: 'T-203',
-    destination: { street: '999 Twentysixth St', city: 'Twentysixth City', state: 'CA', zipCode: '90216', country: 'USA' },
-    deliveryDate: new Date(Date.now() + 13 * 24 * 60 * 60 * 1000),
-    driver: driverIds.jane, customer: customerIds.delta,
-    totalWeight: 30000, freightCost: 240.00,
-  },
-  {
-    shipmentId: 'SHB0013', status: 'in-transit', truckNumber: 'T-301',
-    destination: { street: '123 Twentyseventh Ave', city: 'Twentyseventhtown', state: 'AZ', zipCode: '85008', country: 'USA' },
-    deliveryDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
-    actualPickupDate: new Date(Date.now() - 0.2 * 24 * 60 * 60 * 1000),
-    driver: driverIds.bob, customer: customerIds.epsilon,
-    totalWeight: 48000, freightCost: 384.00,
-  },
-  {
-    shipmentId: 'SHJ0014', status: 'delivered', truckNumber: 'T-102',
-    destination: { street: '234 Twentyeighth Rd', city: 'Twentyeighthville', state: 'NV', zipCode: '89008', country: 'USA' },
-    deliveryDate: new Date(Date.now() - 50 * 24 * 60 * 60 * 1000),
-    actualPickupDate: new Date(Date.now() - 52 * 24 * 60 * 60 * 1000),
-    actualDeliveryDate: new Date(Date.now() - 50 * 24 * 60 * 60 * 1000),
-    driver: driverIds.john, customer: customerIds.alpha,
-    totalWeight: 26000, freightCost: 208.00,
-  },
-  {
-    shipmentId: 'SHJA013', status: 'pending', truckNumber: 'T-201',
-    destination: { street: '345 Twentyninth St', city: 'Twentyninthburg', state: 'TX', zipCode: '75009', country: 'USA' },
-    deliveryDate: new Date(Date.now() + 28 * 24 * 60 * 60 * 1000),
-    driver: driverIds.jane, customer: customerIds.beta,
-    totalWeight: 20000, freightCost: 160.00,
-  },
-  {
-    shipmentId: 'SHB0014', status: 'assigned', truckNumber: 'T-302',
-    destination: { street: '456 Thirtieth Ave', city: 'Thirtieth City', state: 'FL', zipCode: '33009', country: 'USA' },
-    deliveryDate: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000),
-    driver: driverIds.bob, customer: customerIds.gamma,
-    totalWeight: 33000, freightCost: 264.00,
-  },
-  {
-    shipmentId: 'SHJ0015', status: 'in-transit', truckNumber: 'T-103',
-    destination: { street: '567 Thirtyfirst Rd', city: 'Thirtyfirstville', state: 'GA', zipCode: '30010', country: 'USA' },
-    deliveryDate: new Date(Date.now() + 4 * 24 * 60 * 60 * 1000),
-    actualPickupDate: new Date(Date.now() - 0.3 * 24 * 60 * 60 * 1000),
-    driver: driverIds.john, customer: customerIds.delta,
-    totalWeight: 40000, freightCost: 320.00,
+    weight: 43000, rate: (344.00 / 43000), freightCost: 344.00,
   }
 ];
 
@@ -448,7 +323,7 @@ const sampleInvoicesData = (createdShipments, createdById) => {
   for (let i = 0; i < deliveredShipments.length && invoices.length < 30; i++) {
     const shipment = deliveredShipments[i];
     if (!shipment.customer) {
-        console.warn(`Shipment ${shipment.shipmentId} is missing a customer. Skipping invoice creation.`);
+        console.warn(`Shipment ${shipment.shippingNumber} is missing a customer. Skipping invoice creation.`); // Changed to shippingNumber
         continue;
     }
 
@@ -476,10 +351,9 @@ const sampleInvoicesData = (createdShipments, createdById) => {
       shipments: [shipment._id],
       subTotal: shipment.freightCost,
       fuelSurchargeRate: Math.random() * 0.1, // Random fuel surcharge up to 10%
-      // depositAmount: (status === 'partially-paid' || Math.random() < 0.1) ? shipment.freightCost * 0.25 : 0, // Removed
       status: status,
       createdBy: createdById,
-      notes: `Invoice for shipment ${shipment.shipmentId}. Notes for invoice #${invoiceCounter -1}.`
+      notes: `Invoice for shipment ${shipment.shippingNumber}. Notes for invoice #${invoiceCounter -1}.` // Changed to shippingNumber
     });
   }
   // Ensure we have at least the original 3 if the loop didn't generate enough
@@ -489,21 +363,21 @@ const sampleInvoicesData = (createdShipments, createdById) => {
             invoices.push({
                 invoiceNumber: `INV2025-${String(invoiceCounter++).padStart(3, '0')}`,
                 customer: baseShipments[0].customer, issueDate: new Date(), dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-                shipments: [baseShipments[0]._id], subTotal: baseShipments[0].freightCost, fuelSurchargeRate: 0.05, status: 'draft', createdBy: createdById, notes: `Fallback invoice for ${baseShipments[0].shipmentId}`
+                shipments: [baseShipments[0]._id], subTotal: baseShipments[0].freightCost, fuelSurchargeRate: 0.05, status: 'draft', createdBy: createdById, notes: `Fallback invoice for ${baseShipments[0].shippingNumber}` // Changed to shippingNumber
             });
         }
         if(baseShipments[1] && !invoices.find(inv => inv.shipments.includes(baseShipments[1]._id))) {
              invoices.push({
                 invoiceNumber: `INV2025-${String(invoiceCounter++).padStart(3, '0')}`,
                 customer: baseShipments[1].customer, issueDate: new Date(), dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-                shipments: [baseShipments[1]._id], subTotal: baseShipments[1].freightCost, fuelSurchargeRate: 0.07, status: 'sent', createdBy: createdById, notes: `Fallback invoice for ${baseShipments[1].shipmentId}`
+                shipments: [baseShipments[1]._id], subTotal: baseShipments[1].freightCost, fuelSurchargeRate: 0.07, status: 'sent', createdBy: createdById, notes: `Fallback invoice for ${baseShipments[1].shippingNumber}` // Changed to shippingNumber
             });
         }
         if(baseShipments[2] && !invoices.find(inv => inv.shipments.includes(baseShipments[2]._id))) {
             invoices.push({
                 invoiceNumber: `INV2025-${String(invoiceCounter++).padStart(3, '0')}`,
                 customer: baseShipments[2].customer, issueDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), dueDate: new Date(Date.now() + 28 * 24 * 60 * 60 * 1000),
-                shipments: [baseShipments[2]._id], subTotal: baseShipments[2].freightCost, status: 'paid', createdBy: createdById, notes: `Fallback invoice for ${baseShipments[2].shipmentId}`
+                shipments: [baseShipments[2]._id], subTotal: baseShipments[2].freightCost, status: 'paid', createdBy: createdById, notes: `Fallback invoice for ${baseShipments[2].shippingNumber}` // Changed to shippingNumber
             });
         }
     }
@@ -566,18 +440,18 @@ const performSeed = async () => {
     const createdShipments = await Shipment.insertMany(shipmentsToCreate);
     console.log(`${createdShipments.length} shipments created.`);
     
-    const shipmentMap = {}; // To map old shipmentId structure if needed by invoices, or pass full objects
-    createdShipments.forEach(s => shipmentMap[s.shipmentId] = s);
+    // const shipmentMap = {}; // To map old shipmentId structure if needed by invoices, or pass full objects
+    // createdShipments.forEach(s => shipmentMap[s.shipmentId] = s); // Changed to shippingNumber
 
 
     // 4. Create Invoices (now needs customerMap if we want to preserve billTo.name logic from old invoice data)
     // For simplicity, sampleInvoicesData now directly uses customerId from the shipment.
     console.log('Creating sample invoices...');
-    const customerObjects = {}; // For easy lookup if needed by sampleInvoicesData
-    createdCustomers.forEach(c => customerObjects[c._id.toString()] = c);
+    // const customerObjects = {}; // For easy lookup if needed by sampleInvoicesData
+    // createdCustomers.forEach(c => customerObjects[c._id.toString()] = c);
 
     // Pass all createdShipments to sampleInvoicesData, it will filter for 'delivered'
-    const invoicesToCreate = sampleInvoicesData(createdShipments, anExistingUserId);
+    const invoicesToCreate = sampleInvoicesData(createdShipments, anExistingUserId); // Pass createdShipments directly
     const createdInvoices = [];
     for (const invData of invoicesToCreate) {
         const invoice = new Invoice(invData);

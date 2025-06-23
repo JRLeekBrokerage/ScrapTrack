@@ -601,3 +601,17 @@ ul.tracking-history li:last-child {
     margin-left: 5px;
     margin-right: 5px;
 }
+
+/* Report Action Buttons Styling */
+.report-actions {
+    display: flex;
+    justify-content: flex-end; /* Align buttons to the right */
+    gap: 10px; /* Space between buttons */
+    margin-top: 20px; /* Space above the button group */
+}
+
+.report-actions .btn-primary,
+.report-actions .btn-secondary {
+    width: auto; /* Override default full-width for .btn-primary */
+    padding: 10px 20px; /* Standard button padding */
+}

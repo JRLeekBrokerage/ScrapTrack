@@ -13,6 +13,9 @@ const createShipment = async (req, res) => {
 
     const shipmentData = { ...req.body, createdBy: req.user._id };
 
+    // freightCost will be calculated by the Shipment model's pre-save hook
+    // based on rate and weight.
+
     // Optional: Validate driver if provided
     if (shipmentData.driver) {
       const driverUser = await User.findById(shipmentData.driver);
@@ -27,8 +30,8 @@ const createShipment = async (req, res) => {
     res.status(201).json({ success: true, message: 'Shipment created successfully', data: shipment });
   } catch (error) {
     console.error('Create shipment error:', error);
-    if (error.code === 11000) { // Duplicate key error (e.g. shipmentId)
-        return res.status(400).json({ success: false, message: 'Shipment ID already exists.', error: error.message });
+    if (error.code === 11000) { // Duplicate key error, likely for shippingNumber if it were unique
+        return res.status(400).json({ success: false, message: 'A shipment with this Shipping Number may already exist.', error: error.message });
     }
     res.status(500).json({ success: false, message: 'Failed to create shipment', error: error.message });
   }
@@ -136,6 +139,9 @@ const updateShipment = async (req, res) => {
 
     const updateData = { ...req.body, updatedBy: req.user._id };
 
+    // freightCost will be calculated by the Shipment model's pre-save hook
+    // if rate or weight are part of updateData.
+
     // Optional: Validate driver if provided and changed
     if (updateData.driver) {
         const driverUser = await User.findById(updateData.driver);
@@ -143,9 +149,10 @@ const updateShipment = async (req, res) => {
             return res.status(400).json({ success: false, message: 'Invalid driver ID or user is not a driver.' });
         }
     }
-    // Prevent changing shipmentId or createdBy
-    delete updateData.shipmentId;
+    // Prevent changing createdBy. _id (internal shipmentId) is protected by findByIdAndUpdate.
+    // shippingNumber can be updated if provided in updateData.
     delete updateData.createdBy;
+    // delete updateData.shipmentId; // This field is now shippingNumber in req.body
 
 
     const shipment = await Shipment.findByIdAndUpdate(req.params.id, updateData, { new: true, runValidators: true })

@@ -200,7 +200,7 @@ const updateInvoice = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Validation failed', errors: errors.array() });
     }
 
-    const { status, notes, dueDate, /* depositAmount, */ fuelSurchargeRate } = req.body; // depositAmount removed
+    const { invoiceNumber, status, notes, dueDate, /* depositAmount, */ fuelSurchargeRate } = req.body; // Added invoiceNumber, depositAmount removed
     const invoiceId = req.params.id;
 
     const invoice = await Invoice.findById(invoiceId);
@@ -226,6 +226,15 @@ const updateInvoice = async (req, res) => {
         invoice.fuelSurchargeAmount = parseFloat((invoice.subTotal * invoice.fuelSurchargeRate).toFixed(2));
         // Total amount calculation no longer subtracts depositAmount
         invoice.totalAmount = parseFloat((invoice.subTotal + invoice.fuelSurchargeAmount).toFixed(2));
+    }
+
+    if (invoiceNumber && invoice.invoiceNumber !== invoiceNumber) {
+        // Check if the new invoiceNumber already exists for a different invoice
+        const existingInvoiceWithNewNumber = await Invoice.findOne({ invoiceNumber: invoiceNumber, _id: { $ne: invoiceId } });
+        if (existingInvoiceWithNewNumber) {
+            return res.status(400).json({ success: false, message: 'Invoice number already exists.' });
+        }
+        invoice.invoiceNumber = invoiceNumber;
     }
 
     if (status) invoice.status = status;

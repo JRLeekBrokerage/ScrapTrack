@@ -44,6 +44,11 @@
                             <form id="invoice-form">
                                 <input type="hidden" id="invoice-edit-id" name="invoiceEditId">
 
+                                <div class="form-group" id="invoice-number-group" style="display: none;">
+                                    <label for="invoice-number-input">Invoice Number:</label>
+                                    <input type="text" id="invoice-number-input" name="invoiceNumber" required>
+                                </div>
+
                                 <div class="form-group">
                                     <label for="invoice-customer-select">Customer Name:</label>
                                     <select id="invoice-customer-select" name="customerName" required>
@@ -51,10 +56,7 @@
                                         <!-- Customer options will be populated by JavaScript -->
                                     </select>
                                 </div>
-                                <div class="form-group">
-                                    <label for="invoice-customer-contact-email">Customer Contact Email (Optional):</label>
-                                    <input type="email" id="invoice-customer-contact-email" name="customerContactEmail">
-                                </div>
+                                <!-- Customer Contact Email field removed -->
                                 
                                 <div class="form-group">
                                     <label for="invoice-shipments">Select Shipments (Delivered, Not Yet Invoiced):</label>

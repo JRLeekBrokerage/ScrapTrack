@@ -33,8 +33,8 @@
                                 <input type="hidden" id="shipment-db-id" name="shipmentDbId">
 
                                 <div class="form-group">
-                                    <label for="shipmentId">Shipment ID (e.g., SH12345):</label>
-                                    <input type="text" id="shipmentId" name="shipmentId" required>
+                                    <label for="shippingNumber">Shipping Number (e.g., SH12345):</label>
+                                    <input type="text" id="shippingNumber" name="shippingNumber" required>
                                 </div>
 
                                 <!-- Origin fieldset removed -->
@@ -97,12 +97,17 @@
                                     <input type="text" id="truckNumber" name="truckNumber" required>
                                 </div>
                                  <div class="form-group">
-                                    <label for="freightCost">Freight Cost (Optional):</label>
-                                    <input type="number" id="freightCost" name="freightCost" step="0.01" min="0">
+                                    <label for="weight">Weight (lbs):</label>
+                                    <input type="number" id="weight" name="weight" step="0.01" min="0" required>
                                 </div>
                                 <div class="form-group">
-                                    <label for="totalWeight">Total Weight (lbs):</label>
-                                    <input type="number" id="totalWeight" name="totalWeight" step="0.01" min="0">
+                                    <label for="rate">Rate (Price per unit, e.g., per lb or per ton):</label>
+                                    <input type="number" id="rate" name="rate" step="0.0001" min="0" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="calculatedFreightCost">Calculated Freight Cost:</label>
+                                    <input type="text" id="calculatedFreightCost" name="calculatedFreightCost" readonly style="background-color: #eee;">
+                                    <small>This is automatically calculated (Weight * Rate).</small>
                                 </div>
                                 
                                 <!-- Items fieldset removed -->

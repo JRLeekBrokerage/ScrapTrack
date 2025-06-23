@@ -78,6 +78,21 @@ class ShipmentsPage {
                 if (event.target === shipmentFormModal) this.closeShipmentFormModal();
             });
         }
+         // Event listeners for dynamic freight cost calculation
+        const weightInput = document.getElementById('weight');
+        const rateInput = document.getElementById('rate');
+        if (weightInput) weightInput.addEventListener('input', () => this.updateCalculatedFreightCost());
+        if (rateInput) rateInput.addEventListener('input', () => this.updateCalculatedFreightCost());
+    }
+
+    updateCalculatedFreightCost() {
+        const weight = parseFloat(document.getElementById('weight').value) || 0;
+        const rate = parseFloat(document.getElementById('rate').value) || 0;
+        const calculatedCost = weight * rate;
+        const calculatedFreightCostEl = document.getElementById('calculatedFreightCost');
+        if (calculatedFreightCostEl) {
+            calculatedFreightCostEl.value = calculatedCost.toFixed(2);
+        }
     }
 
     async handleLogout() {
@@ -98,6 +113,9 @@ class ShipmentsPage {
         document.getElementById('shipment-db-id').value = '';
         this.populateDriverDropdown();
         this.populateCustomerDropdown();
+        document.getElementById('weight').value = ''; 
+        document.getElementById('rate').value = '';   
+        this.updateCalculatedFreightCost(); 
         document.getElementById('shipment-form-modal').style.display = 'block'; 
     }
 
@@ -163,7 +181,7 @@ class ShipmentsPage {
             <thead>
                 <tr>
                     <th>Delivery Date</th>
-                    <th>Shipment ID</th>
+                    <th>Shipping Number</th>
                     <th>Destination</th>
                     <th>Customer</th>
                     <th>Status</th>
@@ -186,7 +204,7 @@ class ShipmentsPage {
 
             row.innerHTML = `
                 <td data-field="deliveryDate">${deliveryDateStr}</td>
-                <td data-field="shipmentId">${shipment.shipmentId || 'N/A'}</td>
+                <td data-field="shippingNumber">${shipment.shippingNumber || 'N/A'}</td>
                 <td data-field="destination">${destCityState}</td>
                 <td data-field="customer" data-value="${shipment.customer?._id || ''}">${customerNameStr}</td>
                 <td data-field="status" data-value="${statusStr}"><span class="status-badge status-${statusStr}">${statusStr}</span></td>
@@ -338,7 +356,7 @@ class ShipmentsPage {
     
     collectFormData(formData) { 
         return {
-            shipmentId: formData.get('shipmentId'),
+            shippingNumber: formData.get('shippingNumber'), 
             destination: {
                 street: formData.get('destination.street'),
                 city: formData.get('destination.city'),
@@ -350,8 +368,8 @@ class ShipmentsPage {
             status: formData.get('status'),
             driver: formData.get('driver') || null,
             truckNumber: formData.get('truckNumber'),
-            freightCost: parseFloat(formData.get('freightCost')) || null,
-            totalWeight: parseFloat(formData.get('totalWeight')) || null, 
+            weight: parseFloat(formData.get('weight')) || null,
+            rate: parseFloat(formData.get('rate')) || null,     
             notes: formData.get('notes')
         };
     }
@@ -406,7 +424,7 @@ class ShipmentsPage {
         form.reset();
 
         document.getElementById('shipment-db-id').value = shipment._id;
-        document.getElementById('shipmentId').value = shipment.shipmentId || '';
+        document.getElementById('shippingNumber').value = shipment.shippingNumber || ''; 
         
         if (shipment.destination) {
             document.getElementById('destination-street').value = shipment.destination.street || '';
@@ -420,8 +438,9 @@ class ShipmentsPage {
         document.getElementById('status').value = shipment.status || 'pending';
         this.populateDriverDropdown('driver', shipment.driver?._id || shipment.driver);
         document.getElementById('truckNumber').value = shipment.truckNumber || '';
-        document.getElementById('freightCost').value = shipment.freightCost != null ? shipment.freightCost : '';
-        document.getElementById('totalWeight').value = shipment.totalWeight != null ? shipment.totalWeight : ''; 
+        document.getElementById('weight').value = shipment.weight != null ? shipment.weight : ''; 
+        document.getElementById('rate').value = shipment.rate != null ? shipment.rate : '';   
+        this.updateCalculatedFreightCost(); 
         document.getElementById('shipment-notes').value = shipment.notes || '';
         
         document.getElementById('shipment-form-modal').style.display = 'block';
@@ -434,7 +453,7 @@ class ShipmentsPage {
             return;
         }
 
-        if (confirm(`Are you sure you want to delete Shipment ID: ${shipment.shipmentId || shipmentDbId}?`)) {
+        if (confirm(`Are you sure you want to delete Shipping Number: ${shipment.shippingNumber || shipmentDbId}?`)) { 
             try {
                 const response = await API.deleteShipment(shipmentDbId);
                 if (response && response.success) {
@@ -471,15 +490,16 @@ class ShipmentsPage {
         const customerName = shipment.customer ? shipment.customer.name : 'N/A';
         
         detailsContent.innerHTML = `
-            <p><strong>Shipment ID:</strong> ${shipment.shipmentId || 'N/A'}</p>
+            <p><strong>Shipping Number:</strong> ${shipment.shippingNumber || 'N/A'}</p> 
             <p><strong>Status:</strong> <span class="status-badge status-${shipment.status || 'unknown'}">${shipment.status || 'unknown'}</span></p>
             <p><strong>Delivery Date:</strong> ${shipment.deliveryDate ? new Date(shipment.deliveryDate).toLocaleDateString() : 'N/A'}</p>
             <p><strong>Destination:</strong> ${shipment.destination ? `${shipment.destination.street}, ${shipment.destination.city}, ${shipment.destination.state} ${shipment.destination.zipCode}` : 'N/A'}</p>
             <p><strong>Customer:</strong> ${customerName}</p>
             <p><strong>Driver:</strong> ${driverName}</p>
             <p><strong>Truck Number:</strong> ${shipment.truckNumber || 'N/A'}</p>
-            <p><strong>Freight Cost:</strong> ${shipment.freightCost != null ? '$' + shipment.freightCost.toFixed(2) : 'N/A'}</p>
-            <p><strong>Total Weight:</strong> ${shipment.totalWeight != null ? shipment.totalWeight + ' lbs' : 'N/A'}</p>
+            <p><strong>Weight:</strong> ${shipment.weight != null ? shipment.weight + ' lbs' : 'N/A'}</p> 
+            <p><strong>Rate:</strong> ${shipment.rate != null ? '$' + shipment.rate.toFixed(4) + '/lb' : 'N/A'}</p> 
+            <p><strong>Calculated Freight Cost:</strong> ${shipment.freightCost != null ? '$' + shipment.freightCost.toFixed(2) : 'N/A'}</p>
             <p><strong>Actual Pickup Date:</strong> ${shipment.actualPickupDate ? new Date(shipment.actualPickupDate).toLocaleString() : 'N/A'}</p>
             <p><strong>Actual Delivery Date:</strong> ${shipment.actualDeliveryDate ? new Date(shipment.actualDeliveryDate).toLocaleString() : 'N/A'}</p>
             <p><strong>Notes:</strong> ${shipment.notes || 'N/A'}</p>
@@ -550,9 +570,11 @@ class ShipmentsPage {
             let inputElement;
 
             switch (field) {
-                case 'shipmentId':
-                    inputElement = document.createElement('span'); 
-                    inputElement.textContent = shipment.shipmentId || '';
+                case 'shippingNumber': 
+                    inputElement = document.createElement('input'); 
+                    inputElement.type = 'text';
+                    inputElement.name = 'shippingNumber';
+                    inputElement.value = shipment.shippingNumber || '';
                     break;
                 case 'destination':
                     inputElement = document.createElement('input');
@@ -567,7 +589,6 @@ class ShipmentsPage {
                     inputElement.name = 'deliveryDate';
                     inputElement.value = shipment.deliveryDate ? new Date(shipment.deliveryDate).toISOString().split('T')[0] : '';
                     break;
-                // totalWeight is not inline editable from table
                 case 'customer':
                     inputElement = document.createElement('select');
                     inputElement.name = 'customer';
@@ -611,9 +632,6 @@ class ShipmentsPage {
                 default:
                     inputElement = document.createElement('span');
                     inputElement.textContent = cell.textContent; 
-                    if (field === 'totalWeight') { 
-                        inputElement.textContent = shipment.totalWeight != null ? shipment.totalWeight : 'N/A';
-                    }
                     break;
             }
             if (inputElement) {
@@ -658,10 +676,9 @@ class ShipmentsPage {
 
                 switch(field) {
                     case 'deliveryDate': cell.textContent = deliveryDateStr; break; 
-                    case 'shipmentId': cell.textContent = shipment.shipmentId || 'N/A'; break;
+                    case 'shippingNumber': cell.textContent = shipment.shippingNumber || 'N/A'; break; 
                     case 'destination': cell.textContent = destCityState; break;
                     case 'customer': cell.innerHTML = `<span>${customerNameStr}</span>`; break;
-                    // totalWeight cell removed from table display
                     case 'status': cell.innerHTML = `<div class="editable-cell-content"><span class="status-badge status-${statusStr}">${statusStr}</span></div>`; break;
                     case 'driver': cell.innerHTML = `<span>${driverNameStr}</span>`; break;
                 }
@@ -709,9 +726,7 @@ class ShipmentsPage {
                     city: parts[0] || '', 
                     state: parts[1] || '' 
                 };
-            } 
-            // totalWeight is not inline editable, so no need to handle it here for saving from inline edit
-             else {
+            } else {
                 updatedData[fieldName] = input.value === "" && (fieldName === "driver") ? null : input.value;
             }
         });

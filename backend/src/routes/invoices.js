@@ -21,6 +21,15 @@ const createInvoiceValidation = [ // Basic example, expand as per model
     // Add more validations for dueDate, fuelSurchargeRate, depositAmount etc.
 ];
 
+const updateInvoiceValidation = [
+  param('id').isMongoId().withMessage('Valid Invoice MongoDB ID is required'),
+  body('invoiceNumber').optional().notEmpty().withMessage('Invoice Number cannot be empty if provided').trim(),
+  body('status').optional().isIn(['draft', 'sent', 'paid', 'partially-paid', 'overdue', 'void']).withMessage('Invalid status value'),
+  body('dueDate').optional().isISO8601().toDate().withMessage('Invalid due date format'),
+  body('notes').optional().isString().trim(),
+  body('fuelSurchargeRate').optional().isFloat({ min: 0, max: 1 }).withMessage('Fuel surcharge rate must be between 0 and 1 (e.g., 0.05 for 5%)')
+];
+
 
 // POST /api/invoices - Create a new invoice
 router.post(
@@ -53,7 +62,7 @@ router.put(
     '/:id',
     authenticateToken,
     // requirePermission('invoicing', 'update'), // Temporarily bypassed
-    invoiceIdValidation, // Add body validations too
+    updateInvoiceValidation, // Changed to use updateInvoiceValidation
     updateInvoice
 );
 
