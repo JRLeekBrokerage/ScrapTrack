@@ -65,8 +65,8 @@ class API {
     }
 
     // Shipments
-    static async getShipments() {
-        return this.makeRequest('/shipments');
+    static async getShipments(queryParams = '') { // Added queryParams parameter
+        return this.makeRequest(`/shipments${queryParams}`); // Append queryParams
     }
 
     static async createShipment(shipmentData) {
@@ -94,8 +94,8 @@ class API {
     }
 
     // Invoices
-    static async getInvoices() {
-        return this.makeRequest('/invoices');
+    static async getInvoices(queryParams = '') { // Added queryParams parameter
+        return this.makeRequest(`/invoices${queryParams}`); // Append queryParams
     }
 
     static async createInvoice(invoiceData) {

@@ -9,17 +9,7 @@ const addressSchema = new Schema({
   country: { type: String, required: true, default: 'USA' }
 }, { _id: false });
 
-const shipmentItemSchema = new Schema({
-  description: { type: String, required: true },
-  quantity: { type: Number, required: true, min: 1 },
-  weight: { type: Number }, // Optional, in a consistent unit (e.g., lbs or kg)
-  dimensions: { // Optional
-    length: Number,
-    width: Number,
-    height: Number,
-    unit: { type: String, enum: ['in', 'cm'], default: 'in' }
-  }
-}, { _id: false });
+// shipmentItemSchema removed
 
 const shipmentSchema = new Schema({
   shipmentId: {
@@ -36,19 +26,16 @@ const shipmentSchema = new Schema({
     enum: ['pending', 'assigned', 'in-transit', 'delayed', 'delivered', 'cancelled', 'on-hold'],
     default: 'pending'
   },
-  origin: {
-    type: addressSchema,
-    required: true
-  },
+  // origin field removed
   destination: {
     type: addressSchema,
     required: true
   },
-  pickupDate: { // Scheduled pickup
+  deliveryDate: { // Renamed from pickupDate
     type: Date,
     required: true
   },
-  estimatedDeliveryDate: {
+  estimatedDeliveryDate: { // This field might become redundant or be used for a different purpose
     type: Date
   },
   actualPickupDate: {
@@ -67,11 +54,11 @@ const shipmentSchema = new Schema({
     ref: 'Customer',
     required: [true, 'Customer is required for a shipment.']
   },
-  items: [shipmentItemSchema],
-  totalWeight: { type: Number }, // Optional, could be calculated
-  totalVolume: { type: Number }, // Optional, could be calculated
+  // items field removed
+  // totalWeight field removed
+  // totalVolume field removed
   freightCost: { type: Number },
-  truckNumber: { type: String },
+  truckNumber: { type: String, required: true },
   commissionCalculatedDate: { type: Date },
   invoiceId: { type: Schema.Types.ObjectId, ref: 'Invoice' },
   trackingHistory: [{
@@ -100,11 +87,11 @@ const shipmentSchema = new Schema({
 shipmentSchema.index({ shipmentId: 1 });
 shipmentSchema.index({ status: 1 });
 shipmentSchema.index({ driver: 1 });
-shipmentSchema.index({ pickupDate: -1 });
+shipmentSchema.index({ deliveryDate: -1 }); // Updated index
 shipmentSchema.index({ 'customer.name': 1 });
 
 
 // TODO: Consider pre-save hook for validating driver role if a driver is assigned.
-// TODO: Consider pre-save hook for calculating totalWeight or totalVolume if items have individual weights/volumes.
+// Removed TODO for totalWeight/totalVolume calculation
 
 module.exports = mongoose.model('Shipment', shipmentSchema);

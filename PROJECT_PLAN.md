@@ -7,16 +7,52 @@ This document outlines the development plan for completing the LeekBrokerage Inc
 ## 2. Current Status Summary
 
 *   **Project Goal:** A trucking logistics management system.
-*   **Technology Stack:** Node.js/Express backend, Vanilla JS frontend, MongoDB database.
+*   **Technology Stack:** Node.js/Express backend, Vanilla JS frontend, MongoDB database (using in-memory for development, with persistent MongoDB configured in `.env`).
 *   **Database Status:**
-    *   Decision made to use MongoDB.
-    *   `README.md` updated to reflect MongoDB.
-    *   **Critical Issue:** The backend is **not currently configured to connect to MongoDB**.
+    *   MongoDB connection established and working (in-memory for dev, persistent setup in `.env`).
+    *   Mongoose schemas defined for `User`, `Shipment`, `Invoice`, `Customer`.
+    *   Seed script (`seedDb.js`) implemented to populate database on server start (dev mode) with sample data for all core entities.
 *   **Authentication & Authorization:**
-    *   User model, auth routes, controllers, and middleware are largely in place and well-developed.
-    *   **JWT secrets need to be configured in `.env`**.
-*   **Core Features (Shipments, Invoices, Drivers):** Planned but not yet implemented.
-*   **Frontend:** Basic structure exists; needs integration with backend APIs.
+    *   User model, auth routes (`/login`, `/register`, `/profile`), controllers, and `authenticateToken` middleware are functional. JWTs are used.
+    *   `requirePermission` and `requireRole` middleware exist but are temporarily bypassed on most routes for current development focus (all logged-in users have broad access). This needs to be revisited.
+    *   JWT secrets are configured in `.env`.
+*   **Backend Core Features (API Endpoints):**
+    *   **Shipments:** Full CRUD API endpoints implemented.
+    *   **Invoices:** Full CRUD API endpoints implemented.
+    *   **Users (Drivers):** Full CRUD API endpoints implemented (`/api/users`), separate from auth registration.
+    *   **Customers:** Full CRUD API endpoints implemented.
+    *   **Reports:**
+        *   Driver Commission Report (JSON and PDF) endpoint implemented.
+        *   Individual Invoice PDF Report endpoint implemented.
+*   **Frontend Core Features (UI & Integration):**
+    *   **Authentication Flow:** Login/logout functional. User info displayed.
+    *   **Shipments Page:**
+        *   Full CRUD functionality with a dedicated form (to be changed to modal).
+        *   Inline row-based editing implemented for Status, Customer, and Driver (DDLs).
+        *   Shipment details viewable in a modal.
+    *   **Invoices Page:**
+        *   Lists invoices, allows PDF view.
+        *   Full CRUD functionality with a modal form, including customer selection (DDL) and filtering available shipments by customer.
+    *   **Driver Commission Reports Page:**
+        *   Filters for report generation.
+        *   Displays commission data in a table.
+        *   PDF download of the report implemented.
+        *   "Add New Driver" button (previously on this page) removed; functionality consolidated to Driver Management.
+    *   **Driver Management Page (formerly User Management):**
+        *   Lists users (including drivers).
+        *   Modal form for creating/editing users (including driver-specific fields like commission rate).
+        *   Delete/deactivate user functionality.
+    *   **Customer Management Page:**
+        *   Lists customers.
+        *   Modal form for creating/editing customers (including address).
+        *   Deactivate customer functionality.
+*   **Outstanding Minor Bugs/Issues (as of 2025-06-22):**
+    *   Shipments Page: Inline editing dropdowns (Customer, Status, Driver) text might get cut off if options are too wide for the current column `min-width`. (Marked as low priority for now).
+*   **General UI/UX:**
+    *   Basic styling applied (tables, modals, buttons, forms, status badges).
+    *   Action button styles made consistent.
+    *   Table cell padding adjusted.
+    *   PDF report alignments improved.
 
 ## 3. Development Phases
 
@@ -67,50 +103,66 @@ For **Shipments, Invoices, and Drivers**:
 2.  **Frontend Testing:** Manually test user flows across browsers. Consider frontend unit/integration tests.
 3.  **Bug Fixing & UX Improvements:** Address bugs and refine user experience.
 
-## 4. Visual Plan (Mermaid Diagram)
+## 4. Completed Milestones (Summary)
+
+*   **Phase 1: Establish MongoDB Connection:** DONE.
+*   **Phase 2: Verify Authentication and User Management (Initial):** Backend auth is functional. JWT flow established. Basic user model in place.
+*   **Phase 3: Develop Core Features (Data Models & API Routes):** DONE. Schemas, routes, and controllers for Shipments, Invoices, Users (including Drivers), and Customers are implemented.
+*   **Phase 4: Frontend Integration (Initial Core Features):**
+    *   Shipment CRUD (with inline row editing for Status, Customer, Driver; details modal).
+    *   Invoice CRUD (listing, PDF view, create/edit modal with customer & shipment selection).
+    *   Driver Commission Reports (view, PDF download).
+    *   Driver/User Management (listing, create/edit modal, delete/deactivate).
+    *   Customer Management (listing, create/edit modal, deactivate).
+    *   Basic styling and UX improvements implemented.
+
+## 5. Next Steps for V1 / MVP Polish
+
+1.  **Shipment Creation UX Enhancement (High Priority Client Request):**
+    *   Change the "Add New Shipment" on the Shipments page from a full-page form section to a modal overlaying the shipments grid.
+2.  **Shipment ID vs. Shipping Number (High Priority Client Request):**
+    *   Backend:
+        *   Modify `Shipment` model: `shipmentId` becomes an internal, non-editable GUID (auto-generated or UUID).
+        *   Add a new field `shippingNumber` (String, user-editable, potentially unique but can be discussed).
+    *   Frontend (`shipments.js`, `shipments.html`):
+        *   The current "Shipment ID" field in forms and tables becomes "Shipping Number" and is free-text editable (for new) or editable (for existing).
+        *   The true `shipmentId` (GUID) is used for API calls but not displayed prominently or editable by users.
+    *   Update seed data and all relevant controllers/services.
+3.  **Refine "Driver Management" Page (User/Driver CRUD):**
+    *   Ensure all necessary fields for managing users who are drivers (e.g., commission rate, truck assignment if that becomes a feature) are easily editable.
+    *   Review deactivation vs. deletion logic.
+4.  **Enhance "Shipping Details Implementation":**
+    *   Review the content and layout of the shipment details modal for completeness and clarity.
+    *   Ensure all important fields from the `Shipment` model are displayed logically.
+5.  **Styling and UX Improvements (Ongoing):**
+    *   Continue to refine the overall look and feel.
+    *   Improve form layouts and validation feedback.
+    *   Ensure consistent navigation and user experience across all pages.
+    *   Address minor UI bugs (e.g., perfect dropdown text visibility in inline edits if still an issue).
+6.  **Permissions and Roles (Post-MVP or as part of V1 Polish):**
+    *   Define clear roles (e.g., 'manager', 'admin').
+    *   Implement and enforce `requirePermission` and `requireRole` middleware rigorously for all API endpoints.
+    *   Update seed data to include users with appropriate roles and permissions for testing.
+    *   Consider UI changes based on user role (e.g., hiding certain buttons/sections).
+7.  **Comprehensive Testing:**
+    *   Thorough manual testing of all user flows.
+    *   API endpoint testing (e.g., with Postman).
+8.  **Documentation:**
+    *   Update `README.md` with current setup and run instructions.
+    *   Brief user guide for the administrative manager.
+
+## 6. Visual Plan (Mermaid Diagram - Simplified for Current State)
 
 ```mermaid
 graph TD
-    A[Start: Assess App] --> B{DB Mismatch?};
-    B -- Yes --> C[Decide DB: MongoDB];
-    C --> D[Update README for MongoDB - Done];
-    D --> E{DB Connection Configured?};
-    E -- No --> Phase1_Fix_DB_Connection;
-
-    subgraph Phase1_Fix_DB_Connection [Phase 1: Fix DB Connection]
-        direction LR
-        F1[Modify backend/config/database.js for Mongoose] --> F2[Update backend/src/server.js to call connectDB];
-        F2 --> F3[Update .env.example & .env for MongoDB & JWT Secrets];
-        F3 --> F4[Test DB Connection];
-    end
-
-    Phase1_Fix_DB_Connection --> G[DB Connection Working];
-
-    subgraph Phase2_Verify_Auth [Phase 2: Verify Authentication]
-        direction LR
-        G --> H1[Review auth middleware - Done];
-        H1 --> H2[Test Register/Login];
-        H2 --> H3[Verify JWT Flow & Permissions];
-    end
-    
-    Phase2_Verify_Auth --> I[Auth System Verified];
-
-    subgraph Phase3_Core_Features [Phase 3: Develop Core Features]
-        direction TB
-        I --> J1[Define Mongoose Schemas (Shipments, Invoices, Drivers)];
-        J1 --> J2[Create API Routes & CRUD Controllers w/ AuthZ];
-        J2 --> J3[Integrate Routes in server.js];
-    end
-
-    Phase3_Core_Features --> K[Core Backend Features Implemented];
-
-    subgraph Phase4_Frontend_Integration [Phase 4: Frontend Integration]
-        direction TB
-        K --> L1[Update frontend/src/js/api.js];
-        L1 --> L2[Implement frontend/src/js/auth.js logic];
-        L2 --> L3[Develop UI for Core Features];
-    end
-    
-    Phase4_Frontend_Integration --> M[Frontend Integrated];
-    M --> N[Phase 5: Testing & Refinement];
-    N --> O[App Complete];
+    A[Setup & Backend Core Done] --> B[Frontend Core CRUD Implemented];
+    B --> C{Client Feedback V1};
+    C --> D[Enhance Shipment Add (Modal)];
+    D --> E[Refactor Shipment ID vs. Shipping Number];
+    E --> F[Refine Driver Management CRUD];
+    F --> G[Enhance Shipping Details View];
+    G --> H[Ongoing Styling & UX];
+    H --> I[Formalize Permissions];
+    I --> J[Comprehensive Testing];
+    J --> K[V1 Release Candidate];
+```

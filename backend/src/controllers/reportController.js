@@ -58,7 +58,7 @@ const getDriverCommissionReport = async (req, res) => {
 
     const commissionReport = shipments.filter(shipment => shipment.driver && shipment.driver.commissionRate != null)
       .map(shipment => {
-        const actualWeight = shipment.totalWeight || (shipment.items ? shipment.items.reduce((acc, item) => acc + (item.weight || 0), 0) : 0);
+        const actualWeight = shipment.totalWeight || 0; // shipment.items removed
         const effectiveWeightForPayment = Math.max(actualWeight, MINIMUM_PAYMENT_WEIGHT);
         
         // Calculate the base amount for commission based on the new rules
@@ -342,8 +342,8 @@ const getInvoiceReport = async (req, res) => {
       shipmentDetails: invoice.shipments ? invoice.shipments.map(shipment => {
         const driverName = shipment.driver ? `${shipment.driver.firstName || ''} ${shipment.driver.lastName || ''}`.trim() || shipment.driver.username || 'N/A' : 'N/A';
         const destination = shipment.destination || {};
-        const items = shipment.items || [];
-        const totalWeight = shipment.totalWeight || items.reduce((acc, item) => acc + (item.weight || 0), 0) || 0;
+        // const items = shipment.items || []; // shipment.items removed
+        const totalWeight = shipment.totalWeight || 0; // shipment.items removed
         
         return {
             date: shipment.actualPickupDate || shipment.pickupDate,

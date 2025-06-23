@@ -38,7 +38,7 @@ const createShipment = async (req, res) => {
 const getAllShipments = async (req, res) => {
   try {
     // Basic find. Add pagination, sorting, filtering later.
-    // Example: /api/shipments?status=pending&sortBy=pickupDate:desc&page=1&limit=10
+    // Example: /api/shipments?status=pending&sortBy=deliveryDate:desc&page=1&limit=10
     // Added 'invoiced' and 'customer' query parameters
     const { status, driver, sortBy, page = 1, limit = 20, invoiced, customer } = req.query;
     const query = {};
@@ -72,7 +72,7 @@ const getAllShipments = async (req, res) => {
         const parts = sortBy.split(':');
         sortOptions[parts[0]] = parts[1] === 'desc' ? -1 : 1;
     } else {
-        sortOptions.createdAt = -1; // Default sort
+        sortOptions.deliveryDate = -1; // Default sort by deliveryDate descending
     }
 
     const shipments = await Shipment.find(query)

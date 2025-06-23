@@ -24,118 +24,101 @@
                 </nav>
 
                 <main id="main-content-shipments">
-                    <!-- Add/Edit Shipment Form (hidden by default) -->
-                    <div id="shipment-form-section" class="form-section" style="display: none;">
-                        <h2 id="shipment-form-title">Add New Shipment</h2>
-                        <form id="shipment-form">
-                            <input type="hidden" id="shipment-db-id" name="shipmentDbId">
+                    <!-- Add/Edit Shipment Modal (hidden by default) -->
+                    <div id="shipment-form-modal" class="modal" style="display: none;">
+                        <div class="modal-content">
+                            <span class="close-btn" id="close-shipment-form-modal-btn">&times;</span>
+                            <h2 id="shipment-form-title">Add New Shipment</h2>
+                            <form id="shipment-form">
+                                <input type="hidden" id="shipment-db-id" name="shipmentDbId">
 
-                            <div class="form-group">
-                                <label for="shipmentId">Shipment ID (e.g., SH12345):</label>
-                                <input type="text" id="shipmentId" name="shipmentId" required>
-                            </div>
+                                <div class="form-group">
+                                    <label for="shipmentId">Shipment ID (e.g., SH12345):</label>
+                                    <input type="text" id="shipmentId" name="shipmentId" required>
+                                </div>
 
-                            <fieldset>
-                                <legend>Origin</legend>
-                                <div class="form-group">
-                                    <label for="origin-street">Street:</label>
-                                    <input type="text" id="origin-street" name="origin.street" required>
-                                </div>
-                                <div class="form-group">
-                                    <label for="origin-city">City:</label>
-                                    <input type="text" id="origin-city" name="origin.city" required>
-                                </div>
-                                <div class="form-group">
-                                    <label for="origin-state">State:</label>
-                                    <input type="text" id="origin-state" name="origin.state" required>
-                                </div>
-                                <div class="form-group">
-                                    <label for="origin-zipCode">Zip Code:</label>
-                                    <input type="text" id="origin-zipCode" name="origin.zipCode" required>
-                                </div>
-                            </fieldset>
+                                <!-- Origin fieldset removed -->
 
-                            <fieldset>
-                                <legend>Destination</legend>
-                                <div class="form-group">
-                                    <label for="destination-street">Street:</label>
-                                    <input type="text" id="destination-street" name="destination.street" required>
-                                </div>
-                                <div class="form-group">
-                                    <label for="destination-city">City:</label>
-                                    <input type="text" id="destination-city" name="destination.city" required>
-                                </div>
-                                <div class="form-group">
-                                    <label for="destination-state">State:</label>
-                                    <input type="text" id="destination-state" name="destination.state" required>
-                                </div>
-                                <div class="form-group">
-                                    <label for="destination-zipCode">Zip Code:</label>
-                                    <input type="text" id="destination-zipCode" name="destination.zipCode" required>
-                                </div>
-                            </fieldset>
+                                <fieldset>
+                                    <legend>Destination</legend>
+                                    <div class="form-group">
+                                        <label for="destination-street">Street:</label>
+                                        <input type="text" id="destination-street" name="destination.street" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="destination-city">City:</label>
+                                        <input type="text" id="destination-city" name="destination.city" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="destination-state">State:</label>
+                                        <input type="text" id="destination-state" name="destination.state" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="destination-zipCode">Zip Code:</label>
+                                        <input type="text" id="destination-zipCode" name="destination.zipCode" required>
+                                    </div>
+                                </fieldset>
 
-                            <div class="form-group">
-                                <label for="shipment-customer-select">Customer:</label>
-                                <select id="shipment-customer-select" name="customer" required>
-                                    <option value="">-- Select Customer --</option>
-                                    <!-- Customer options will be populated by JavaScript -->
-                                </select>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="pickupDate">Pickup Date:</label>
-                                <input type="date" id="pickupDate" name="pickupDate" required>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="status">Status:</label>
-                                <select id="status" name="status">
-                                    <option value="pending">Pending</option>
-                                    <option value="assigned">Assigned</option>
-                                    <option value="in-transit">In-Transit</option>
-                                    <option value="delayed">Delayed</option>
-                                    <option value="delivered">Delivered</option>
-                                    <option value="cancelled">Cancelled</option>
-                                    <option value="on-hold">On-Hold</option>
-                                </select>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="driver">Driver (Optional, Assign Later):</label>
-                                <select id="driver" name="driver">
-                                    <option value="">-- Select Driver --</option>
-                                    <!-- Driver options will be populated dynamically -->
-                                </select>
-                            </div>
-                             <div class="form-group">
-                                <label for="truckNumber">Truck Number (Optional):</label>
-                                <input type="text" id="truckNumber" name="truckNumber">
-                            </div>
-                             <div class="form-group">
-                                <label for="freightCost">Freight Cost (Optional):</label>
-                                <input type="number" id="freightCost" name="freightCost" step="0.01" min="0">
-                            </div>
-                            
-                            <fieldset>
-                                <legend>Items</legend>
-                                <div id="items-container">
-                                    <!-- Item entry will be added here -->
+                                <div class="form-group">
+                                    <label for="shipment-customer-select">Customer:</label>
+                                    <select id="shipment-customer-select" name="customer" required>
+                                        <option value="">-- Select Customer --</option>
+                                        <!-- Customer options will be populated by JavaScript -->
+                                    </select>
                                 </div>
-                                <button type="button" id="add-item-btn" class="btn-secondary">Add Item</button>
-                            </fieldset>
-                             <div class="form-group">
-                                <label for="shipment-notes">Notes (Optional):</label>
-                                <textarea id="shipment-notes" name="notes" rows="3"></textarea>
-                            </div>
+                                
+                                <div class="form-group">
+                                    <label for="deliveryDate">Delivery Date:</label>
+                                    <input type="date" id="deliveryDate" name="deliveryDate" required>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="status">Status:</label>
+                                    <select id="status" name="status">
+                                        <option value="pending">Pending</option>
+                                        <option value="assigned">Assigned</option>
+                                        <option value="in-transit">In-Transit</option>
+                                        <option value="delayed">Delayed</option>
+                                        <option value="delivered">Delivered</option>
+                                        <option value="cancelled">Cancelled</option>
+                                        <option value="on-hold">On-Hold</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="driver">Driver (Optional, Assign Later):</label>
+                                    <select id="driver" name="driver">
+                                        <option value="">-- Select Driver --</option>
+                                        <!-- Driver options will be populated dynamically -->
+                                    </select>
+                                </div>
+                                 <div class="form-group">
+                                    <label for="truckNumber">Truck Number:</label>
+                                    <input type="text" id="truckNumber" name="truckNumber" required>
+                                </div>
+                                 <div class="form-group">
+                                    <label for="freightCost">Freight Cost (Optional):</label>
+                                    <input type="number" id="freightCost" name="freightCost" step="0.01" min="0">
+                                </div>
+                                <div class="form-group">
+                                    <label for="totalWeight">Total Weight (lbs):</label>
+                                    <input type="number" id="totalWeight" name="totalWeight" step="0.01" min="0">
+                                </div>
+                                
+                                <!-- Items fieldset removed -->
+                                 <div class="form-group">
+                                    <label for="shipment-notes">Notes (Optional):</label>
+                                    <textarea id="shipment-notes" name="notes" rows="3"></textarea>
+                                </div>
 
 
-                            <div class="form-actions">
-                                <button type="submit" class="btn-primary">Save Shipment</button>
-                                <button type="button" id="cancel-shipment-form-btn" class="btn-secondary">Cancel</button>
-                            </div>
-                            <div id="shipment-form-error" class="error-message" style="display: none;"></div>
-                        </form>
+                                <div class="form-actions">
+                                    <button type="submit" class="btn-primary">Save Shipment</button>
+                                    <button type="button" id="cancel-shipment-form-btn" class="btn-secondary">Cancel</button>
+                                </div>
+                                <div id="shipment-form-error" class="error-message" style="display: none;"></div>
+                            </form>
+                        </div>
                     </div>
 
                     <!-- Shipments List -->
@@ -144,6 +127,9 @@
                         <div id="shipments-table-container">
                             <!-- Table will be generated by JavaScript -->
                             <p id="loading-shipments-msg">Loading shipments...</p>
+                        </div>
+                        <div id="shipments-pagination-controls" class="pagination-controls">
+                            <!-- Pagination controls will be rendered here by JavaScript -->
                         </div>
                     </div>
                 </main>

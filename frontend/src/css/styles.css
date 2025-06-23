@@ -99,7 +99,7 @@ body {
 /* Buttons */
 .btn-primary, .btn-secondary {
     padding: 12px 24px;
-    border: none;
+    border: none; /* Explicitly remove border for base buttons */
     border-radius: 5px;
     font-size: 16px;
     cursor: pointer;
@@ -273,8 +273,10 @@ body {
     padding: 6px 10px;
     font-size: 0.85em;
     margin-right: 5px;
-    min-width: 70px; /* Ensure buttons have some width */
+    min-width: 70px;
     text-align: center;
+    border: none; /* Remove border from table action buttons */
+    border-radius: 3px;
 }
 
 .btn-edit {
@@ -457,4 +459,145 @@ ul.tracking-history li {
 }
 ul.tracking-history li:last-child {
     border-bottom: none;
+}
+/* Inline Editing Styles */
+.editable-cell {
+    position: relative; /* For positioning edit controls if needed */
+    cursor: pointer;
+}
+
+.editable-cell-content {
+    padding: 2px 0; /* Adjust as needed for display text */
+    min-height: 20px; /* Ensure it has some height even if empty for clickability */
+}
+
+.inline-edit-controls {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    /* margin-top: 2px; /* Removed, cell padding should handle */
+    /* position: absolute; /* Removed */
+    width: 100%; /* Make control group take full cell width */
+    background-color: transparent; /* Assuming cell itself has background if needed */
+    /* padding: 2px; /* Removed, let select padding handle it */
+    border-radius: 3px;
+}
+
+.inline-edit-controls select,
+.inline-edit-controls input[type="text"] {
+    width: 100%; /* Make select/input take full width of its container */
+    box-sizing: border-box; /* Include padding and border in the element's total width and height */
+    padding: 4px 6px;
+    font-size: 0.9em; /* Keep font size consistent */
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    /* flex-grow: 1; /* Not needed if width is 100% */
+}
+
+/* Ensure these styles take precedence for inline buttons */
+.inline-edit-controls button.btn-action.btn-save-row,
+.inline-edit-controls button.btn-action.btn-cancel-row {
+    padding: 4px 8px !important;
+    font-size: 0.8em !important;
+    line-height: 1.2 !important;
+    margin-right: 0;
+    border: none !important; /* Remove border from inline edit buttons */
+    border-radius: 3px !important;
+}
+
+.btn-save-inline {
+    background-color: #27ae60; 
+    color: white;
+}
+.btn-save-inline:hover {
+    background-color: #229954;
+}
+
+.btn-cancel-inline {
+    background-color: #95a5a6; 
+    color: white;
+}
+.btn-cancel-inline:hover {
+    background-color: #7f8c8d;
+}
+
+/* Row-based Inline Editing Styles */
+.data-table tr.row-editing {
+    background-color: #fff9e6; /* Light yellow background for editing row */
+}
+
+.data-table tr.row-editing td {
+    vertical-align: top; /* Align top for cells with multi-line inputs or selects */
+}
+
+/* Styling for input elements directly within table cells during row edit */
+.data-table tr.row-editing input[type="text"],
+.data-table tr.row-editing input[type="date"],
+.data-table tr.row-editing select {
+    width: 100%;
+    padding: 6px;
+    font-size: 0.9em;
+    border: 1px solid #3498db; /* Highlight focused inputs */
+    border-radius: 3px;
+    box-sizing: border-box;
+}
+
+.data-table tr.row-editing input[readonly] {
+    background-color: #f0f0f0;
+    cursor: not-allowed;
+}
+
+
+.btn-save-row {
+    background-color: #27ae60; /* Green */
+    color: white;
+}
+.btn-save-row:hover {
+    background-color: #229954;
+}
+
+/* .btn-cancel-row specific color removed, will now use .btn-secondary style (gray)
+   as btn-secondary class was added to the button in JS.
+   If a different color is desired for cancel than default secondary, re-add style here. */
+/* Specific column width adjustments for readability */
+.data-table th.column-customer,
+.data-table td.column-customer {
+    min-width: 200px; /* Further Increased width */
+}
+
+.data-table th.column-status,
+.data-table td.column-status {
+    min-width: 150px; /* Further Increased width */
+}
+
+.data-table th.column-driver,
+.data-table td.column-driver {
+    min-width: 200px; /* Further Increased width */
+}
+/* Styling for the Actions cell in tables */
+.data-table td.actions-cell {
+    /* display: flex; /* Optional: if you want to use flex properties for button alignment */
+    /* flex-wrap: wrap; /* Allows buttons to wrap to next line */
+    /* gap: 5px; /* Space between buttons, works with display:flex */
+    padding-top: 8px; /* Add some padding to the top of the cell */
+    padding-bottom: 8px; /* Add some padding to the bottom for consistency */
+}
+
+/* Ensure buttons in actions cell have some bottom margin if they wrap */
+.data-table td.actions-cell .btn-action {
+    margin-bottom: 5px; /* Add a little space below each button for when they wrap */
+}
+.data-table td.actions-cell .btn-action:last-child {
+    margin-bottom: 0; /* No bottom margin for the last button in the cell */
+}
+/* Pagination Controls Styling */
+.pagination-controls {
+    text-align: center; /* Center the buttons and page info */
+    margin-top: 20px; /* Add space above the controls */
+    margin-bottom: 20px; /* Add space below the controls */
+}
+
+.pagination-controls button {
+    margin-left: 5px;
+    margin-right: 5px;
 }

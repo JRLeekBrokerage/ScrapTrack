@@ -6,6 +6,9 @@ class InvoicesPage {
         this.editingInvoiceId = null;
         this.availableShipments = [];
         this.allCustomers = []; // Stores all active customers for the dropdown
+        this.currentPage = 1;
+        this.totalPages = 1;
+        this.limit = 10; // Records per page
         this.init();
     }
 
@@ -21,14 +24,10 @@ class InvoicesPage {
     }
 
     async loadInitialInvoicePageData() {
-        console.log('[invoices.js] Entering loadInitialInvoicePageData...');
         try {
             await this.loadAllCustomersForDropdown();
-            console.log('[invoices.js] loadAllCustomersForDropdown completed.');
             await this.loadAvailableShipmentsForForm();
-            console.log('[invoices.js] loadAvailableShipmentsForForm completed.');
-            await this.loadInvoices();
-            console.log('[invoices.js] loadInvoices completed.');
+            await this.loadInvoices(); // Loads initial page
         } catch (error) {
             console.error('[invoices.js] Error in loadInitialInvoicePageData:', error);
         }
@@ -90,38 +89,79 @@ class InvoicesPage {
         }
     }
 
-    async loadInvoices() {
+    async loadInvoices(page = 1) {
+        this.currentPage = page;
         const loadingMsg = document.getElementById('loading-invoices-msg');
         const tableContainer = document.getElementById('invoices-table-container');
+        const paginationControlsContainer = document.getElementById('invoices-pagination-controls');
         
         if (loadingMsg) loadingMsg.style.display = 'block';
         if (tableContainer) tableContainer.innerHTML = '';
+        if (paginationControlsContainer) paginationControlsContainer.innerHTML = '';
 
         try {
-            // Assuming API.getInvoices() exists and returns { data: [...] } or similar
-            const response = await API.getInvoices();
-            console.log('API response from getInvoices:', response); // Log the raw response
-            if (response && Array.isArray(response.data)) {
-                this.invoices = response.data;
-            } else if (response && Array.isArray(response.invoices)) {
-                this.invoices = response.invoices;
-            } else if (Array.isArray(response)) {
-                this.invoices = response;
-            }
-             else {
-                console.error('Unexpected response structure for invoices:', response);
-                this.invoices = [];
+            const response = await API.getInvoices(`?sortBy=issueDate:desc&page=${this.currentPage}&limit=${this.limit}`);
+            console.log('[invoices.js] loadInvoices: Raw API Response:', JSON.stringify(response, null, 2)); // Log the ENTIRE response
+            this.invoices = (response && Array.isArray(response.data)) ? response.data : [];
+            
+            if (response && response.pagination) {
+                console.log('[invoices.js] loadInvoices: Received response.pagination object:', JSON.stringify(response.pagination, null, 2));
+                this.currentPage = parseInt(response.pagination.currentPage, 10);
+                this.totalPages = parseInt(response.pagination.totalPages, 10);
+                console.log(`[invoices.js] loadInvoices: Set currentPage=${this.currentPage}, totalPages=${this.totalPages} from response.pagination. totalInvoices from API: ${response.pagination.totalInvoices}`);
+            } else {
+                console.warn('[invoices.js] loadInvoices: response.pagination not found or invalid. Using fallback calculation.');
+                const totalInvoicesFallback = this.invoices.length > 0 ? (this.currentPage * this.limit) : 0;
+                this.totalPages = Math.ceil(totalInvoicesFallback / this.limit) || 1;
+                console.log(`[invoices.js] loadInvoices: Fallback calculated totalPages=${this.totalPages} based on current page item count.`);
+                if(this.invoices.length === 0 && this.currentPage > 1) {
+                    console.log('[invoices.js] loadInvoices: Current page empty, attempting to load page 1.');
+                    return this.loadInvoices(1);
+                }
             }
 
             if (loadingMsg) loadingMsg.style.display = 'none';
             this.renderInvoicesTable();
+            this.renderPaginationControls();
         } catch (error) {
             console.error('Failed to load invoices:', error);
             if (loadingMsg) loadingMsg.style.display = 'none';
             if (tableContainer) tableContainer.innerHTML = '<p class="error-message">Error loading invoices. Please try again later.</p>';
             this.invoices = [];
-            this.renderInvoicesTable(); // Attempt to render (will show "no invoices")
+            this.renderInvoicesTable();
+            this.renderPaginationControls();
         }
+    }
+
+    renderPaginationControls() {
+        const container = document.getElementById('invoices-pagination-controls');
+        if (!container) {
+            return;
+        }
+        container.innerHTML = '';
+
+        if (this.totalPages <= 1) {
+            return;
+        }
+
+        const prevButton = document.createElement('button');
+        prevButton.textContent = 'Previous';
+        prevButton.className = 'btn-secondary';
+        prevButton.disabled = this.currentPage === 1;
+        prevButton.addEventListener('click', () => this.loadInvoices(this.currentPage - 1));
+        container.appendChild(prevButton);
+
+        const pageInfo = document.createElement('span');
+        pageInfo.textContent = ` Page ${this.currentPage} of ${this.totalPages} `;
+        pageInfo.style.margin = "0 10px";
+        container.appendChild(pageInfo);
+
+        const nextButton = document.createElement('button');
+        nextButton.textContent = 'Next';
+        nextButton.className = 'btn-secondary';
+        nextButton.disabled = this.currentPage === this.totalPages;
+        nextButton.addEventListener('click', () => this.loadInvoices(this.currentPage + 1));
+        container.appendChild(nextButton);
     }
 
     renderInvoicesTable() {
@@ -167,7 +207,7 @@ class InvoicesPage {
                 <td>${issueDateStr}</td>
                 <td>${dueDateStr}</td>
                 <td>${totalAmountStr}</td>
-                <td><span class="status-badge status-${statusStr}">${statusStr}</span></td>
+                <td class="invoice-status-cell editable-cell" data-invoice-id="${invoice._id}" data-current-status="${statusStr}"><span class="status-badge status-${statusStr}">${statusStr}</span></td>
                 <td>
                     <button class="btn-action btn-view-pdf" data-id="${invoice._id}">View PDF</button>
                     <button class="btn-action btn-edit btn-edit-invoice" data-id="${invoice._id}">Edit</button>
@@ -175,8 +215,26 @@ class InvoicesPage {
                 </td>
             `;
             row.querySelector('.btn-view-pdf').addEventListener('click', (e) => this.handleViewInvoicePdf(e.target.dataset.id));
-            row.querySelector('.btn-edit-invoice').addEventListener('click', (e) => this.openEditInvoiceModal(e.target.dataset.id));
+            
+            const editButton = row.querySelector('.btn-edit-invoice');
+            if (editButton && this.isInvoiceEditable(statusStr)) {
+                editButton.addEventListener('click', (e) => {
+                    if (invoice.status && invoice.status.toLowerCase() === 'draft') {
+                        this.openEditInvoiceModal(e.target.dataset.id);
+                    } else {
+                        alert("Only 'Draft' invoices can be fully edited. Other statuses allow inline status change only.");
+                    }
+                });
+            } else if (editButton) {
+                editButton.disabled = true;
+            }
+
             row.querySelector('.btn-delete-invoice').addEventListener('click', (e) => this.handleDeleteInvoice(e.target.dataset.id));
+
+            const statusCell = row.querySelector('.invoice-status-cell.editable-cell');
+            if (statusCell) {
+                statusCell.addEventListener('click', (e) => this.handleInvoiceStatusCellClick(e, invoice));
+            }
         });
 
         tableContainer.innerHTML = '';
@@ -189,28 +247,16 @@ class InvoicesPage {
             return;
         }
         try {
-            // The API.makeRequest needs to handle blob response for PDF
-            // We'll adjust API.js or add a specific method if needed.
-            // For now, construct the URL and open in new tab.
-            // This relies on the browser handling the PDF stream.
-            // For a more robust solution, fetch as blob and create object URL.
-
             const token = localStorage.getItem('authToken');
             if (!token) {
                 alert('Authentication token not found. Please log in again.');
-                Auth.logout(); // Force logout
+                Auth.logout(); 
                 window.location.href = 'index.html';
                 return;
             }
             
-            // Construct URL for the PDF report
             const reportUrl = `${API_BASE_URL}/reports/invoice/${invoiceId}?format=pdf`;
 
-            // Option 1: Direct navigation (simplest, relies on browser PDF handling & auth cookie if set)
-            // window.open(reportUrl, '_blank'); 
-            // This won't work if auth is Bearer token in header, as browser won't send it.
-
-            // Option 2: Fetch with token and create blob URL (more robust for Bearer token)
             const response = await fetch(reportUrl, {
                 method: 'GET',
                 headers: {
@@ -226,7 +272,7 @@ class InvoicesPage {
             const blob = await response.blob();
             const pdfUrl = URL.createObjectURL(blob);
             window.open(pdfUrl, '_blank');
-            URL.revokeObjectURL(pdfUrl); // Clean up the object URL after opening
+            URL.revokeObjectURL(pdfUrl); 
 
         } catch (error) {
             console.error('Failed to view/download invoice PDF:', error);
@@ -234,13 +280,11 @@ class InvoicesPage {
         }
     }
 
-    // Invoice Modal Logic
     openCreateInvoiceModal() {
         this.editingInvoiceId = null;
         document.getElementById('invoice-form-title').textContent = 'Create New Invoice';
         document.getElementById('invoice-form').reset();
         document.getElementById('invoice-status-group').style.display = 'none';
-        // this.populateCustomerDropdown(); // Called by loadAllCustomersForDropdown
         this.populateShipmentsDropdown(null);
         document.getElementById('invoice-customer-contact-email').value = '';
         document.getElementById('invoice-form-modal').style.display = 'block';
@@ -260,24 +304,21 @@ class InvoicesPage {
 
         document.getElementById('invoice-edit-id').value = invoice._id;
         
-        // this.populateCustomerDropdown(); // Called by loadAllCustomersForDropdown
         const customerIdToSelect = invoice.customer && invoice.customer._id ? invoice.customer._id : invoice.customer;
         document.getElementById('invoice-customer-select').value = customerIdToSelect || '';
         
         const selectedCustomerInEdit = this.allCustomers.find(c => c._id === customerIdToSelect);
         document.getElementById('invoice-customer-contact-email').value = selectedCustomerInEdit ? (selectedCustomerInEdit.contactEmail || '') : (invoice.customer && invoice.customer.contactEmail ? invoice.customer.contactEmail : '');
 
-        // For editing, shipments are usually fixed, but we might allow changing status or notes.
-        // Disabling shipment selection for edit for now, as changing shipments on an existing invoice is complex.
         const shipmentSelect = document.getElementById('invoice-shipments-select');
-        shipmentSelect.innerHTML = ''; // Clear it
+        shipmentSelect.innerHTML = ''; 
         if(invoice.shipments && invoice.shipments.length > 0) {
             invoice.shipments.forEach(ship => {
                 const option = document.createElement('option');
-                option.value = ship._id || ship; // Seeded data might just have ID, populated might have object
+                option.value = ship._id || ship; 
                 option.textContent = `Shipment ID: ${ship.shipmentId || ship._id} (Already Invoiced)`;
                 option.selected = true;
-                option.disabled = true; // Cannot change shipments on existing invoice via this simple form
+                option.disabled = true; 
                 shipmentSelect.appendChild(option);
             });
         }
@@ -293,26 +334,24 @@ class InvoicesPage {
         
         const statusGroup = document.getElementById('invoice-status-group');
         const statusSelect = document.getElementById('invoice-status');
-        statusSelect.value = invoice.status || 'draft';
-        statusGroup.style.display = 'block'; // Show status for editing
+        statusSelect.value = invoice.status || 'draft'; 
+        statusGroup.style.display = 'block'; 
 
         document.getElementById('invoice-form-modal').style.display = 'block';
     }
 
     closeInvoiceModal() {
         document.getElementById('invoice-form-modal').style.display = 'none';
-        document.getElementById('invoice-shipments-select').disabled = false; // Re-enable for next create
+        document.getElementById('invoice-shipments-select').disabled = false; 
     }
 
     async loadAvailableShipmentsForForm(customerId = null) {
-        console.log(`[invoices.js] Entering loadAvailableShipmentsForForm, customerId: ${customerId}`);
         try {
             let query = '/shipments?status=delivered&invoiced=false';
             if (customerId) {
-                query += `&customer=${customerId}`; // Filter by customer ID
+                query += `&customer=${customerId}`; 
             }
             const response = await API.makeRequest(query);
-            console.log(`[invoices.js] API response from getAvailableShipments (customer: ${customerId}):`, response); // New log
             
             if (response && Array.isArray(response.data)) {
                 this.availableShipments = response.data;
@@ -329,10 +368,8 @@ class InvoicesPage {
     }
 
     async loadAllCustomersForDropdown() {
-        console.log('[invoices.js] Entering loadAllCustomersForDropdown...');
         try {
             const response = await API.getCustomers('?isActive=true');
-            console.log('[invoices.js] API response from getCustomers:', response);
             if (response && Array.isArray(response.data)) {
                 this.allCustomers = response.data;
             } else {
@@ -365,11 +402,8 @@ class InvoicesPage {
                 if(customer.contactEmail) option.dataset.contactEmail = customer.contactEmail;
                 selectElement.appendChild(option);
             });
-        } else {
-            console.log('[invoices.js] No customers to populate in dropdown.');
         }
-
-        // Try to restore previous selection if it's still valid
+        
         if (this.allCustomers.find(c => c._id === currentVal)) {
              selectElement.value = currentVal;
         }
@@ -394,9 +428,8 @@ class InvoicesPage {
     populateShipmentsDropdown() {
         const selectElement = document.getElementById('invoice-shipments-select');
         if (!selectElement) return;
-        selectElement.innerHTML = ''; // Clear existing options
+        selectElement.innerHTML = ''; 
 
-        // availableShipments is now filtered by loadAvailableShipmentsForForm based on customer selection
         if (this.availableShipments.length === 0) {
             const selectedCustomerName = document.getElementById('invoice-customer-select').selectedOptions[0]?.textContent;
             const message = selectedCustomerName && selectedCustomerName !== '-- Select Customer --'
@@ -424,6 +457,220 @@ class InvoicesPage {
         });
     }
 
+        isStatusInlineEditable(status) {
+            if (!status) {
+                return false;
+            }
+            const statusToCheck = status.toLowerCase();
+            const editableStatuses = ['draft', 'sent', 'partially-paid', 'overdue'];
+            const isEditable = editableStatuses.includes(statusToCheck);
+            return isEditable;
+        }
+
+    isInvoiceEditable(status) {
+        return status && status.toLowerCase() === 'draft';
+    }
+
+    handleInvoiceStatusCellClick(event, invoice) {
+        const cell = event.currentTarget;
+        const statusToCheck = cell.dataset.currentStatus; 
+
+        const isEditable = this.isStatusInlineEditable(statusToCheck);
+        const isAlreadyEditingCell = cell.classList.contains('cell-is-editing');
+
+        if (!isEditable || isAlreadyEditingCell) {
+            return;
+        }
+
+        const currentInvoiceStatusLower = statusToCheck ? statusToCheck.toLowerCase() : '';
+        if (currentInvoiceStatusLower === 'draft') {
+            this.openEditInvoiceModal(invoice._id);
+            return;
+        }
+
+        const currentlyEditingOtherCell = document.querySelector('td.cell-is-editing');
+        if (currentlyEditingOtherCell && currentlyEditingOtherCell !== cell) {
+            this.cancelInvoiceStatusEdit(currentlyEditingOtherCell);
+        }
+        this.startInvoiceStatusEdit(cell, invoice); 
+    }
+
+    startInvoiceStatusEdit(cell, invoice) {
+        if (cell.classList.contains('cell-is-editing')) {
+            return;
+        }
+
+        cell.classList.add('cell-is-editing');
+        const statusSpan = cell.querySelector('.status-badge');
+        
+        if (!statusSpan) {
+            cell.classList.remove('cell-is-editing');
+            return;
+        }
+
+        cell.dataset.originalStatusText = statusSpan.textContent; 
+        cell.dataset.originalStatusClass = statusSpan.className;
+        
+        statusSpan.style.display = 'none';
+
+        const selectElement = this.createInvoiceStatusSelect(cell.dataset.currentStatus, invoice._id, cell);
+
+        if (!selectElement) {
+            statusSpan.style.display = '';
+            cell.classList.remove('cell-is-editing');
+            delete cell.dataset.originalStatusText;
+            delete cell.dataset.originalStatusClass;
+            return;
+        }
+        
+        cell.appendChild(selectElement);
+        selectElement.focus();
+    }
+
+    createInvoiceStatusSelect(currentStatus, invoiceId, cell) { 
+        const statusMapToBackend = {
+            'Draft': 'draft',
+            'Sent': 'sent',
+            'Paid': 'paid',
+            'Partially Paid': 'partially-paid',
+            'Overdue': 'overdue',
+            'Void': 'void'
+        };
+        const statusMapToDisplay = { 
+            'draft': 'Draft',
+            'sent': 'Sent',
+            'paid': 'Paid',
+            'partially-paid': 'Partially Paid',
+            'overdue': 'Overdue',
+            'void': 'Void'
+        };
+
+        const currentDisplayStatus = statusMapToDisplay[currentStatus] || currentStatus;
+        const select = document.createElement('select');
+
+        let allowedStatuses = []; 
+        switch (currentDisplayStatus) { 
+            case 'Draft': 
+                allowedStatuses = ['Sent', 'Void'];
+                break;
+            case 'Sent':
+                allowedStatuses = ['Paid', 'Partially Paid', 'Overdue', 'Void', 'Draft'];
+                break;
+            case 'Partially Paid':
+                allowedStatuses = ['Paid', 'Overdue', 'Void', 'Sent'];
+                break;
+            case 'Overdue':
+                allowedStatuses = ['Paid', 'Partially Paid', 'Void', 'Sent'];
+                break;
+            default:
+                return null;
+        }
+
+        const defaultOption = document.createElement('option');
+        defaultOption.value = statusMapToBackend[currentDisplayStatus] || currentStatus; 
+        defaultOption.textContent = currentDisplayStatus; 
+        defaultOption.selected = true;
+        select.appendChild(defaultOption);
+
+        allowedStatuses.forEach(displayStatus => { 
+            if (displayStatus === currentDisplayStatus) return; 
+            const option = document.createElement('option');
+            option.value = statusMapToBackend[displayStatus] || displayStatus.toLowerCase().replace(' ', '-'); 
+            option.textContent = displayStatus; 
+            select.appendChild(option);
+        });
+        
+        if (select.options.length <= 1) {
+            return null;
+        }
+
+
+        select.addEventListener('change', async (event) => {
+            await this.saveInvoiceStatusChange(invoiceId, event.target.value, cell);
+        });
+
+        select.addEventListener('blur', () => {
+            setTimeout(() => {
+                if (cell.classList.contains('cell-is-editing') && cell.contains(select)) {
+                    this.cancelInvoiceStatusEdit(cell);
+                }
+            }, 150); 
+        });
+        
+        select.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') {
+                this.cancelInvoiceStatusEdit(cell);
+            }
+        });
+
+        return select;
+    }
+
+    async saveInvoiceStatusChange(invoiceId, newStatusValue, cell) { 
+        const currentBackendStatusInCell = cell.dataset.currentStatus;
+
+        if (newStatusValue === currentBackendStatusInCell) {
+            this.cancelInvoiceStatusEdit(cell);
+            return;
+        }
+
+        try {
+            const response = await API.updateInvoice(invoiceId, { status: newStatusValue });
+            if (response && response.success && response.data) {
+                const invoiceIndex = this.invoices.findIndex(inv => inv._id === invoiceId);
+                if (invoiceIndex > -1) {
+                    this.invoices[invoiceIndex].status = newStatusValue; 
+                }
+                cell.dataset.currentStatus = newStatusValue; 
+                alert('Invoice status updated successfully!');
+                this.cancelInvoiceStatusEdit(cell); 
+                this.renderInvoicesTable(); 
+            } else {
+                throw new Error(response.message || 'Failed to update invoice status.');
+            }
+        } catch (error) {
+            console.error('Failed to save invoice status:', error);
+            alert(`Error updating status: ${error.message}`);
+            this.cancelInvoiceStatusEdit(cell);
+        }
+    }
+
+    cancelInvoiceStatusEdit(cell) {
+        if (!cell.classList.contains('cell-is-editing')) return; 
+
+        const selectElement = cell.querySelector('select');
+        if (selectElement) {
+            cell.removeChild(selectElement);
+        }
+
+        const statusSpan = cell.querySelector('.status-badge');
+        if (statusSpan) {
+            const backendStatus = cell.dataset.currentStatus;
+            const statusMapToDisplay = {
+                'draft': 'Draft', 'sent': 'Sent', 'paid': 'Paid',
+                'partially-paid': 'Partially Paid', 'overdue': 'Overdue', 'void': 'Void'
+            };
+            const displayStatus = statusMapToDisplay[backendStatus] || backendStatus; 
+
+            statusSpan.textContent = displayStatus;
+            statusSpan.className = `status-badge status-${backendStatus.toLowerCase()}`; 
+            statusSpan.style.display = ''; 
+        } else if (cell.dataset.originalStatusText && cell.dataset.originalStatusClass) {
+            const backendStatus = cell.dataset.currentStatus || (cell.dataset.originalStatusText ? cell.dataset.originalStatusText.toLowerCase().replace(' ', '-') : 'unknown');
+             const statusMapToDisplay = {
+                'draft': 'Draft', 'sent': 'Sent', 'paid': 'Paid',
+                'partially-paid': 'Partially Paid', 'overdue': 'Overdue', 'void': 'Void'
+            };
+            const displayStatus = statusMapToDisplay[backendStatus] || backendStatus;
+
+            cell.innerHTML = `<span class="${cell.dataset.originalStatusClass || `status-badge status-${backendStatus.toLowerCase()}`}">${displayStatus}</span>`;
+        }
+        
+        delete cell.dataset.originalStatusText;
+        delete cell.dataset.originalStatusClass;
+        cell.classList.remove('cell-is-editing');
+    }
+
     async handleInvoiceFormSubmit(event) {
         event.preventDefault();
         const form = event.target;
@@ -434,8 +681,7 @@ class InvoicesPage {
         const selectedShipmentIds = Array.from(document.getElementById('invoice-shipments-select').selectedOptions).map(opt => opt.value);
 
         const invoiceData = {
-            customerId: document.getElementById('invoice-customer-select').value, // This is customerId
-            // customerContactEmail is not part of invoice model, it's on Customer model
+            customerId: document.getElementById('invoice-customer-select').value, 
             shipmentIds: selectedShipmentIds,
             dueDate: formData.get('dueDate') || null,
             fuelSurchargeRate: parseFloat(formData.get('fuelSurchargeRate')) || 0,
@@ -444,7 +690,7 @@ class InvoicesPage {
         };
         
         if (this.editingInvoiceId) {
-            invoiceData.status = formData.get('status'); // Only include status if editing
+            invoiceData.status = formData.get('status'); 
         }
 
 
@@ -455,7 +701,7 @@ class InvoicesPage {
         try {
             let response;
             if (this.editingInvoiceId) {
-                if (invoiceData.shipmentIds.length === 0) delete invoiceData.shipmentIds; // Don't send empty array if not changing
+                if (invoiceData.shipmentIds.length === 0) delete invoiceData.shipmentIds; 
                 response = await API.updateInvoice(this.editingInvoiceId, invoiceData);
             } else {
                 if (selectedShipmentIds.length === 0) {
@@ -467,8 +713,8 @@ class InvoicesPage {
             if (response && response.success) {
                 alert(`Invoice ${this.editingInvoiceId ? 'updated' : 'created'} successfully!`);
                 this.closeInvoiceModal();
-                this.loadInvoices(); // Refresh the list
-                if (!this.editingInvoiceId) { // If creating, refresh available shipments
+                this.loadInvoices(); 
+                if (!this.editingInvoiceId) { 
                     this.loadAvailableShipmentsForForm();
                 }
             } else {
@@ -496,8 +742,8 @@ class InvoicesPage {
                 const response = await API.deleteInvoice(invoiceId);
                 if (response && response.success) {
                     alert('Invoice deleted successfully!');
-                    this.loadInvoices(); // Refresh the list
-                    this.loadAvailableShipmentsForForm(); // Refresh, as shipments might become available
+                    this.loadInvoices(); 
+                    this.loadAvailableShipmentsForForm(); 
                 } else {
                     throw new Error(response.message || 'Failed to delete invoice.');
                 }

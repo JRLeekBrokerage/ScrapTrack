@@ -113,10 +113,16 @@ const createInvoice = async (req, res) => {
 const getAllInvoices = async (req, res) => {
   try {
     // Basic find. Add pagination, filtering (by status, customer), sorting later.
-    const { status, customerName, sortBy, page = 1, limit = 20 } = req.query;
+    const { status, customerName, sortBy } = req.query;
+    const page = parseInt(req.query.page, 10) || 1;
+    const queryLimit = parseInt(req.query.limit, 10) || 20; // Use req.query.limit here
+
     const query = {};
     if (status) query.status = status;
-    if (customerName) query['billTo.name'] = new RegExp(customerName, 'i'); // Case-insensitive search
+    // Note: billTo.name is not directly on Invoice model anymore, customer is a ref.
+    // If filtering by customer name is needed, it requires a more complex query or pre-aggregation.
+    // For now, removing customerName filter from here to avoid errors, or it needs to be adapted.
+    // if (customerName) query['customer.name'] = new RegExp(customerName, 'i'); // This would require a lookup or $lookup
 
     const sortOptions = {};
     if (sortBy) {
@@ -126,34 +132,35 @@ const getAllInvoices = async (req, res) => {
         sortOptions.issueDate = -1; // Default sort
     }
     
-    console.log('[getAllInvoices] Query object:', JSON.stringify(query));
-    console.log('[getAllInvoices] Sort options:', JSON.stringify(sortOptions));
-    console.log('[getAllInvoices] Page:', page, 'Limit:', limit);
+    // console.log('[getAllInvoices] Query object:', JSON.stringify(query));
+    // console.log('[getAllInvoices] Sort options:', JSON.stringify(sortOptions));
+    // console.log('[getAllInvoices] Page:', page, 'Limit:', queryLimit);
 
     const invoices = await Invoice.find(query)
-      .populate('shipments', 'shipmentId freightCost customer') // Also populate customer from shipment for context if needed
-      .populate('customer', 'name contactEmail') // Populate the main customer for the invoice
+      .populate('shipments', 'shipmentId freightCost customer')
+      .populate('customer', 'name contactEmail')
       .populate('createdBy', 'username')
       .sort(sortOptions)
-      .limit(parseInt(limit))
-      .skip((parseInt(page) - 1) * parseInt(limit))
+      .limit(queryLimit) // Use the parsed queryLimit
+      .skip((page - 1) * queryLimit) // Use the parsed page and queryLimit
       .lean();
     
-    console.log('[getAllInvoices] Found invoices count:', invoices.length);
-    // console.log('[getAllInvoices] First found invoice (if any):', invoices.length > 0 ? invoices[0] : 'None');
-
+    // console.log('[getAllInvoices] Found invoices count:', invoices.length);
 
     const totalInvoices = await Invoice.countDocuments(query);
-    console.log('[getAllInvoices] Total documents matching query in DB:', totalInvoices);
+    console.log(`[invoiceController.js] getAllInvoices: req.query.limit = ${req.query.limit}, parsed queryLimit = ${queryLimit}, totalInvoices = ${totalInvoices}`);
     
+    const calculatedTotalPages = Math.ceil(totalInvoices / queryLimit);
+    console.log(`[invoiceController.js] getAllInvoices: Calculated totalPages = ${calculatedTotalPages}`);
+
     res.json({
       success: true,
       data: invoices,
       pagination: {
-        currentPage: parseInt(page),
-        totalPages: Math.ceil(totalInvoices / parseInt(limit)),
+        currentPage: page,
+        totalPages: calculatedTotalPages,
         totalInvoices,
-        limit: parseInt(limit)
+        limit: queryLimit
       }
     });
   } catch (error) {

@@ -7,15 +7,13 @@ const { authenticateToken, requireRole, requirePermission } = require('../middle
 // Validation rules (can be expanded)
 const createShipmentValidation = [
   body('shipmentId').notEmpty().withMessage('Shipment ID is required').trim(),
-  body('origin.street').notEmpty().withMessage('Origin street is required'),
-  body('origin.city').notEmpty().withMessage('Origin city is required'),
-  body('origin.state').notEmpty().withMessage('Origin state is required'),
-  body('origin.zipCode').notEmpty().withMessage('Origin zip code is required'),
+  // Origin validation removed
   body('destination.street').notEmpty().withMessage('Destination street is required'),
   body('destination.city').notEmpty().withMessage('Destination city is required'),
   body('destination.state').notEmpty().withMessage('Destination state is required'),
   body('destination.zipCode').notEmpty().withMessage('Destination zip code is required'),
-  body('pickupDate').isISO8601().toDate().withMessage('Valid pickup date is required'),
+  body('deliveryDate').isISO8601().toDate().withMessage('Valid delivery date is required'),
+  body('truckNumber').notEmpty().withMessage('Truck number is required').trim(),
   body('customer.name').notEmpty().withMessage('Customer name is required'),
   // Add more validations for items, status, etc. as needed
 ];
