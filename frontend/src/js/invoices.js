@@ -262,8 +262,27 @@ class InvoicesPage {
 
             const blob = await response.blob();
             const pdfUrl = URL.createObjectURL(blob);
-            window.open(pdfUrl, '_blank');
-            URL.revokeObjectURL(pdfUrl); 
+            
+            // Extract filename from Content-Disposition header
+            let filename = `Invoice_${invoiceId}.pdf`; // Default filename
+            const disposition = response.headers.get('Content-Disposition');
+            if (disposition && disposition.indexOf('attachment') !== -1) {
+                const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+                const matches = filenameRegex.exec(disposition);
+                if (matches != null && matches[1]) {
+                    filename = matches[1].replace(/['"]/g, '');
+                }
+            }
+
+            // Create a link and trigger download
+            const link = document.createElement('a');
+            link.href = pdfUrl;
+            link.setAttribute('download', filename); // Set the desired filename
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link); // Clean up
+
+            URL.revokeObjectURL(pdfUrl); // Release the object URL
 
         } catch (error) {
             console.error('Failed to view/download invoice PDF:', error);
@@ -278,7 +297,7 @@ class InvoicesPage {
         document.getElementById('invoice-status-group').style.display = 'none';
         document.getElementById('invoice-number-group').style.display = 'none'; // Hide invoice number for new invoices
         this.populateShipmentsDropdown(null);
-        document.getElementById('invoice-fuel-surcharge-rate').value = '0'; 
+        // document.getElementById('invoice-fuel-surcharge-rate').value = '0'; // Field removed from HTML
         document.getElementById('invoice-form-modal').style.display = 'block';
     }
 
@@ -323,8 +342,8 @@ class InvoicesPage {
         if (invoice.dueDate) {
             document.getElementById('invoice-due-date').value = new Date(invoice.dueDate).toISOString().split('T')[0];
         }
-        const decimalFuelSurchargeRate = invoice.fuelSurchargeRate || 0;
-        document.getElementById('invoice-fuel-surcharge-rate').value = (decimalFuelSurchargeRate * 100).toFixed(1); 
+        // const decimalFuelSurchargeRate = invoice.fuelSurchargeRate || 0; // Field removed from HTML
+        // document.getElementById('invoice-fuel-surcharge-rate').value = (decimalFuelSurchargeRate * 100).toFixed(1); // Field removed from HTML
         
         document.getElementById('invoice-notes').value = invoice.notes || '';
         
@@ -668,10 +687,10 @@ class InvoicesPage {
         const selectedShipmentIds = Array.from(document.getElementById('invoice-shipments-select').selectedOptions).map(opt => opt.value);
 
         const invoiceData = {
-            customerId: document.getElementById('invoice-customer-select').value, 
+            customerId: document.getElementById('invoice-customer-select').value,
             shipmentIds: selectedShipmentIds,
             dueDate: formData.get('dueDate') || null,
-            fuelSurchargeRate: (parseFloat(formData.get('fuelSurchargeRate')) / 100) || 0,
+            // fuelSurchargeRate is now determined by the backend based on the customer
             notes: formData.get('notes')
         };
         
@@ -688,9 +707,11 @@ class InvoicesPage {
         try {
             let response;
             if (this.editingInvoiceId) {
-                if (invoiceData.shipmentIds.length === 0 && !invoiceData.invoiceNumber && !invoiceData.status && !invoiceData.dueDate && !invoiceData.notes && invoiceData.fuelSurchargeRate === (this.invoices.find(inv => inv._id === this.editingInvoiceId)?.fuelSurchargeRate || 0) ) {
-                    // If only shipments were potentially changed and none are selected for an existing invoice,
-                    // it might mean no actual update is needed unless other fields are also being changed.
+                // For updates, fuelSurchargeRate is not sent from client; it's fixed on the invoice or recalculated if subTotal changes.
+                // The check below for fuelSurchargeRate equality is no longer needed as it's not part of client-sent invoiceData for update.
+                if (invoiceData.shipmentIds.length === 0 && !invoiceData.invoiceNumber && !invoiceData.status && !invoiceData.dueDate && !invoiceData.notes ) {
+                    // If only shipments were potentially changed (not possible with current UI for edit)
+                    // and no other fields changed, this condition might be met.
                     // However, the current logic disables shipment selection on edit.
                     // This block might need refinement based on exact desired update behavior.
                     // For now, if no shipments and no other changes, we might skip the API call or send it.

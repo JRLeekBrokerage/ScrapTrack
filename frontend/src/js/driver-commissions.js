@@ -187,7 +187,7 @@ class DriverCommissionsPage {
                 <tr>
                     <th>Date</th>
                     <th>Shipment #</th>
-                    <th>Destination</th>
+                    <th>Pick-up/Dest.</th>
                     <th>Driver</th>
                     <th>Truck #</th>
                     <th>Weight</th>
@@ -207,7 +207,7 @@ class DriverCommissionsPage {
             row.innerHTML = `
                 <td>${item.date ? new Date(item.date).toLocaleDateString() : 'N/A'}</td>
                 <td>${item.shipmentId || 'N/A'}</td>
-                <td>${item.destination || 'N/A'}</td>
+                <td>${item.pickupDestination || 'N/A'}</td>
                 <td>${item.driverName || item.driverUsername || 'N/A'}</td>
                 <td>${item.truckNumber || 'N/A'}</td>
                 <td>${item.weight != null ? item.weight.toLocaleString() : 'N/A'}</td>
@@ -275,7 +275,7 @@ class DriverCommissionsPage {
             
             // Extract filename from content-disposition header if possible, otherwise use a default
             const disposition = response.headers.get('content-disposition');
-            let filename = 'DriverCommissionReport.pdf';
+            let filename = 'DriverCommissionReport.pdf'; // Default filename
             if (disposition && disposition.indexOf('attachment') !== -1) {
                 const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
                 const matches = filenameRegex.exec(disposition);

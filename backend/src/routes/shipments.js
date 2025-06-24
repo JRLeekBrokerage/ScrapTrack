@@ -6,23 +6,25 @@ const { authenticateToken, requireRole, requirePermission } = require('../middle
 
 // Validation rules (can be expanded)
 const createShipmentValidation = [
-  body('shippingNumber').notEmpty().withMessage('Shipping Number is required').trim(), // Changed from shipmentId
-  // Origin validation removed
-  body('destination.street').notEmpty().withMessage('Destination street is required'),
-  body('destination.city').notEmpty().withMessage('Destination city is required'),
-  body('destination.state').notEmpty().withMessage('Destination state is required'),
-  body('destination.zipCode').notEmpty().withMessage('Destination zip code is required'),
+  body('shippingNumber').notEmpty().withMessage('Shipping Number is required').trim(),
+  body('origin.city').notEmpty().withMessage('Origin city is required').trim(),
+  body('destination.city').notEmpty().withMessage('Destination city is required').trim(),
+  // Optional address fields (street, state, zipCode, country) are not explicitly validated here but will be accepted if provided
   body('deliveryDate').isISO8601().toDate().withMessage('Valid delivery date is required'),
   body('truckNumber').notEmpty().withMessage('Truck number is required').trim(),
-  body('customer.name').notEmpty().withMessage('Customer name is required'),
-  // Add more validations for items, status, etc. as needed
+  body('customer').isMongoId().withMessage('Valid Customer ID is required'), // Assuming customer is sent as ID
+  // Add more validations for status, etc. as needed
 ];
 
 const updateShipmentValidation = [
   param('id').isMongoId().withMessage('Valid Shipment MongoDB ID is required'),
-  body('shippingNumber').optional().notEmpty().withMessage('Shipping Number cannot be empty if provided').trim(), // Added for updating shippingNumber
+  body('shippingNumber').optional().notEmpty().withMessage('Shipping Number cannot be empty if provided').trim(),
+  body('origin.city').optional().notEmpty().withMessage('Origin city cannot be empty if origin is provided').trim(),
+  body('destination.city').optional().notEmpty().withMessage('Destination city cannot be empty if destination is provided').trim(),
   body('status').optional().isIn(['pending', 'assigned', 'in-transit', 'delayed', 'delivered', 'cancelled', 'on-hold']),
   body('driver').optional().isMongoId().withMessage('Valid Driver MongoDB ID is required for driver field'),
+  body('truckNumber').optional().notEmpty().withMessage('Truck number cannot be empty if provided').trim(),
+  body('customer').optional().isMongoId().withMessage('Valid Customer ID is required if provided'),
   // etc.
 ];
 

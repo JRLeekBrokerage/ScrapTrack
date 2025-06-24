@@ -24,7 +24,6 @@
                 </nav>
 
                 <main id="main-content-shipments">
-                    <!-- Add/Edit Shipment Modal (hidden by default) -->
                     <div id="shipment-form-modal" class="modal" style="display: none;">
                         <div class="modal-content">
                             <span class="close-btn" id="close-shipment-form-modal-btn">&times;</span>
@@ -37,13 +36,31 @@
                                     <input type="text" id="shippingNumber" name="shippingNumber" required>
                                 </div>
 
-                                <!-- Origin fieldset removed -->
+                                <fieldset>
+                                    <legend>Origin</legend>
+                                    <div class="form-group">
+                                        <label for="origin-street">Street:</label>
+                                        <input type="text" id="origin-street" name="origin.street">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="origin-city">City:</label>
+                                        <input type="text" id="origin-city" name="origin.city" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="origin-state">State:</label>
+                                        <input type="text" id="origin-state" name="origin.state">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="origin-zipCode">Zip Code:</label>
+                                        <input type="text" id="origin-zipCode" name="origin.zipCode">
+                                    </div>
+                                </fieldset>
 
                                 <fieldset>
                                     <legend>Destination</legend>
                                     <div class="form-group">
                                         <label for="destination-street">Street:</label>
-                                        <input type="text" id="destination-street" name="destination.street" required>
+                                        <input type="text" id="destination-street" name="destination.street">
                                     </div>
                                     <div class="form-group">
                                         <label for="destination-city">City:</label>
@@ -51,11 +68,11 @@
                                     </div>
                                     <div class="form-group">
                                         <label for="destination-state">State:</label>
-                                        <input type="text" id="destination-state" name="destination.state" required>
+                                        <input type="text" id="destination-state" name="destination.state">
                                     </div>
                                     <div class="form-group">
                                         <label for="destination-zipCode">Zip Code:</label>
-                                        <input type="text" id="destination-zipCode" name="destination.zipCode" required>
+                                        <input type="text" id="destination-zipCode" name="destination.zipCode">
                                     </div>
                                 </fieldset>
 
@@ -63,7 +80,6 @@
                                     <label for="shipment-customer-select">Customer:</label>
                                     <select id="shipment-customer-select" name="customer" required>
                                         <option value="">-- Select Customer --</option>
-                                        <!-- Customer options will be populated by JavaScript -->
                                     </select>
                                 </div>
                                 
@@ -89,7 +105,6 @@
                                     <label for="driver">Driver (Optional, Assign Later):</label>
                                     <select id="driver" name="driver">
                                         <option value="">-- Select Driver --</option>
-                                        <!-- Driver options will be populated dynamically -->
                                     </select>
                                 </div>
                                  <div class="form-group">
@@ -110,7 +125,6 @@
                                     <small>This is automatically calculated (Weight * Rate).</small>
                                 </div>
                                 
-                                <!-- Items fieldset removed -->
                                  <div class="form-group">
                                     <label for="shipment-notes">Notes (Optional):</label>
                                     <textarea id="shipment-notes" name="notes" rows="3"></textarea>
@@ -130,11 +144,9 @@
                     <div id="shipments-list-section">
                         <h2>Current Shipments</h2>
                         <div id="shipments-table-container">
-                            <!-- Table will be generated by JavaScript -->
                             <p id="loading-shipments-msg">Loading shipments...</p>
                         </div>
                         <div id="shipments-pagination-controls" class="pagination-controls">
-                            <!-- Pagination controls will be rendered here by JavaScript -->
                         </div>
                     </div>
                 </main>
@@ -142,13 +154,11 @@
         </div>
     </div>
 
-    <!-- Shipment Details Modal (Hidden by default) -->
     <div id="shipment-details-modal" class="modal" style="display: none;">
         <div class="modal-content">
             <span class="close-btn" id="close-shipment-details-modal-btn">&times;</span>
             <h2>Shipment Details</h2>
             <div id="shipment-details-content">
-                <!-- Details will be populated by JavaScript -->
                 <p>Loading details...</p>
             </div>
         </div>

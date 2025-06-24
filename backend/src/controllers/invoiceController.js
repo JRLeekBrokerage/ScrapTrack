@@ -1,5 +1,6 @@
 const Invoice = require('../models/Invoice');
 const Shipment = require('../models/Shipment');
+const Customer = require('../models/Customer'); // Added Customer model import
 const User = require('../models/User'); // For createdBy
 const { validationResult } = require('express-validator');
 const mongoose = require('mongoose');
@@ -27,8 +28,8 @@ const createInvoice = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Validation failed', errors: errors.array() });
     }
 
-    // Expect customerId instead of customerName, customerContactEmail
-    const { shipmentIds, customerId, dueDate, fuelSurchargeRate = 0, /* depositAmount = 0, */ notes } = req.body; // depositAmount removed
+    // Expect customerId. fuelSurchargeRate will be fetched from the customer.
+    const { shipmentIds, customerId, dueDate, /* fuelSurchargeRate = 0, */ /* depositAmount = 0, */ notes } = req.body; // depositAmount removed, fuelSurchargeRate from req.body removed
 
     if (!customerId) {
         return res.status(400).json({ success: false, message: 'Customer ID is required.' });
@@ -37,8 +38,15 @@ const createInvoice = async (req, res) => {
       return res.status(400).json({ success: false, message: 'At least one shipment ID is required.' });
     }
 
+    // Fetch the customer to get their fuelSurchargeRate
+    const customer = await Customer.findById(customerId);
+    if (!customer) {
+        return res.status(404).json({ success: false, message: 'Customer not found.' });
+    }
+    const customerFuelSurchargeRate = customer.fuelSurchargeRate || 0;
+
     // Fetch and validate shipments
-    const shipments = await Shipment.find({ 
+    const shipments = await Shipment.find({
       _id: { $in: shipmentIds.map(id => new mongoose.Types.ObjectId(id)) },
       status: 'delivered',
       invoiceId: null, // Ensure not already invoiced
@@ -64,13 +72,14 @@ const createInvoice = async (req, res) => {
         });
     }
     
-    // Customer is now validated by the shipment query using customerId
+    // Customer is now validated by the shipment query using customerId, and fetched above.
 
     const subTotal = shipments.reduce((sum, shipment) => sum + (shipment.freightCost || 0), 0);
-    const numericFuelSurchargeRate = parseFloat(fuelSurchargeRate) || 0;
+    // Use customerFuelSurchargeRate fetched from the Customer document
+    // const numericFuelSurchargeRate = parseFloat(fuelSurchargeRate) || 0; // Removed, using customer's rate
     // const numericDepositAmount = parseFloat(depositAmount) || 0; // Removed
 
-    const fuelSurchargeAmount = parseFloat((subTotal * numericFuelSurchargeRate).toFixed(2));
+    const fuelSurchargeAmount = parseFloat((subTotal * customerFuelSurchargeRate).toFixed(2));
     // Total amount calculation no longer subtracts depositAmount
     const totalAmount = parseFloat((subTotal + fuelSurchargeAmount).toFixed(2));
     const invoiceNumber = await getNextInvoiceNumber();
@@ -82,7 +91,7 @@ const createInvoice = async (req, res) => {
       dueDate: dueDate ? new Date(dueDate) : undefined,
       shipments: shipmentIds.map(id => new mongoose.Types.ObjectId(id)),
       subTotal,
-      fuelSurchargeRate: numericFuelSurchargeRate,
+      fuelSurchargeRate: customerFuelSurchargeRate, // Save the customer's rate to the invoice
       fuelSurchargeAmount,
       // depositAmount: numericDepositAmount, // Removed
       totalAmount,
@@ -200,7 +209,8 @@ const updateInvoice = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Validation failed', errors: errors.array() });
     }
 
-    const { invoiceNumber, status, notes, dueDate, /* depositAmount, */ fuelSurchargeRate } = req.body; // Added invoiceNumber, depositAmount removed
+    // fuelSurchargeRate is not updatable directly on the invoice; it's set from customer at creation.
+    const { invoiceNumber, status, notes, dueDate /*, depositAmount */ } = req.body; // fuelSurchargeRate removed from req.body
     const invoiceId = req.params.id;
 
     const invoice = await Invoice.findById(invoiceId);
@@ -209,12 +219,10 @@ const updateInvoice = async (req, res) => {
     }
 
     // Recalculate totals if relevant fields change
-    let needsRecalculation = false;
+    let needsRecalculation = false; // This might be true if subTotal could change, but not from fuelSurchargeRate here.
     // Deposit amount related check removed
-    if (fuelSurchargeRate !== undefined && invoice.fuelSurchargeRate !== parseFloat(fuelSurchargeRate)) {
-        invoice.fuelSurchargeRate = parseFloat(fuelSurchargeRate);
-        needsRecalculation = true;
-    }
+    // The block for updating invoice.fuelSurchargeRate from req.body is removed.
+    // It's set at creation and should not change, or if it must, it's a more complex operation (e.g., if customer changes).
     
     // If subTotal could change on update (not typical for existing invoice), add:
     // if (req.body.subTotal !== undefined && invoice.subTotal !== parseFloat(req.body.subTotal)) {

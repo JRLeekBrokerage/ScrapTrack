@@ -2,11 +2,11 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const addressSchema = new Schema({
-  street: { type: String, required: true },
+  street: { type: String }, // No longer required
   city: { type: String, required: true },
-  state: { type: String, required: true },
-  zipCode: { type: String, required: true },
-  country: { type: String, required: true, default: 'USA' }
+  state: { type: String }, // No longer required
+  zipCode: { type: String }, // No longer required
+  country: { type: String, default: 'USA' } // No longer required, but has default
 }, { _id: false });
 
 // shipmentItemSchema removed
@@ -25,7 +25,10 @@ const shipmentSchema = new Schema({
     enum: ['pending', 'assigned', 'in-transit', 'delayed', 'delivered', 'cancelled', 'on-hold'],
     default: 'pending'
   },
-  // origin field removed
+  origin: { // Added origin field back
+    type: addressSchema,
+    required: true
+  },
   destination: {
     type: addressSchema,
     required: true

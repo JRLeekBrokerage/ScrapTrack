@@ -72,6 +72,7 @@ const sampleCustomersData = [
 const sampleShipmentsData = (driverIds, customerIds) => [
   {
     shippingNumber: 'SHJ0001', status: 'delivered', truckNumber: 'T-101',
+    origin: { city: 'Originville', state: 'CA' },
     destination: { street: '456 Destination Ave', city: 'Destination City', state: 'NV', zipCode: '89001', country: 'USA' },
     deliveryDate: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000), 
     actualPickupDate: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000),
@@ -81,6 +82,7 @@ const sampleShipmentsData = (driverIds, customerIds) => [
   },
   {
     shippingNumber: 'SHJ0002', status: 'delivered', truckNumber: 'T-101',
+    origin: { city: 'Originville', state: 'CA' },
     destination: { street: '457 Destination Ave', city: 'Destination City', state: 'NV', zipCode: '89001', country: 'USA' },
     deliveryDate: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000), 
     actualPickupDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
@@ -90,6 +92,7 @@ const sampleShipmentsData = (driverIds, customerIds) => [
   },
   {
     shippingNumber: 'SHJ0003', status: 'delivered', truckNumber: 'T-102',
+    origin: { city: 'Originville', state: 'CA' },
     destination: { street: '458 Destination Ave', city: 'Destination City', state: 'NV', zipCode: '89001', country: 'USA' },
     deliveryDate: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000), 
     actualPickupDate: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
@@ -99,6 +102,7 @@ const sampleShipmentsData = (driverIds, customerIds) => [
   },
   {
     shippingNumber: 'SHJA001', status: 'delivered', truckNumber: 'T-201',
+    origin: { city: 'Sourceburg', state: 'AZ' },
     destination: { street: '101 Target Ln', city: 'Targetown', state: 'TX', zipCode: '75001', country: 'USA' },
     deliveryDate: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000), 
     actualPickupDate: new Date(Date.now() - 9 * 24 * 60 * 60 * 1000),
@@ -108,6 +112,7 @@ const sampleShipmentsData = (driverIds, customerIds) => [
   },
   {
     shippingNumber: 'SHJA002', status: 'delivered', truckNumber: 'T-201',
+    origin: { city: 'Sourceburg', state: 'AZ' },
     destination: { street: '102 Target Ln', city: 'Targetown', state: 'TX', zipCode: '75001', country: 'USA' },
     deliveryDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), 
     actualPickupDate: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000),
@@ -117,6 +122,7 @@ const sampleShipmentsData = (driverIds, customerIds) => [
   },
   {
     shippingNumber: 'SHB0001', status: 'delivered', truckNumber: 'T-301',
+    origin: { city: 'Startville', state: 'FL' },
     destination: { street: '654 End Ave', city: 'End City', state: 'GA', zipCode: '30001', country: 'USA' },
     deliveryDate: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000), 
     actualPickupDate: new Date(Date.now() - 12 * 24 * 60 * 60 * 1000),
@@ -126,6 +132,7 @@ const sampleShipmentsData = (driverIds, customerIds) => [
   },
   {
     shippingNumber: 'SHB0002', status: 'delivered', truckNumber: 'T-302',
+    origin: { city: 'Startville', state: 'FL' },
     destination: { street: '655 End Ave', city: 'End City', state: 'GA', zipCode: '30001', country: 'USA' },
     deliveryDate: new Date(Date.now() - 0 * 24 * 60 * 60 * 1000), 
     actualPickupDate: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
@@ -134,6 +141,7 @@ const sampleShipmentsData = (driverIds, customerIds) => [
   },
   {
     shippingNumber: 'SHB0003', status: 'delivered', truckNumber: 'T-301',
+    origin: { city: 'Startville', state: 'FL' },
     destination: { street: '656 End Ave', city: 'End City', state: 'GA', zipCode: '30001', country: 'USA' },
     deliveryDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000), 
     driver: driverIds.bob, customer: customerIds.delta,
@@ -141,6 +149,7 @@ const sampleShipmentsData = (driverIds, customerIds) => [
   },
   {
     shippingNumber: 'SHJ0004', status: 'delivered', truckNumber: 'T-103',
+    origin: { city: 'Testville', state: 'CA' },
     destination: { street: '777 Test St', city: 'Testville', state: 'CA', zipCode: '90211', country: 'USA' },
     deliveryDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),
     driver: driverIds.john, customer: customerIds.beta,
@@ -148,6 +157,7 @@ const sampleShipmentsData = (driverIds, customerIds) => [
   },
   {
     shippingNumber: 'SHJA003', status: 'delivered', truckNumber: 'T-202',
+    origin: { city: 'Sampleburg', state: 'AZ' },
     destination: { street: '888 Sample Rd', city: 'Sampleburg', state: 'AZ', zipCode: '85003', country: 'USA' },
     deliveryDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
     driver: driverIds.jane, customer: customerIds.gamma,
@@ -155,6 +165,7 @@ const sampleShipmentsData = (driverIds, customerIds) => [
   },
   {
     shippingNumber: 'SHB0004', status: 'delivered', truckNumber: 'T-303',
+    origin: { city: 'Demoville', state: 'FL' },
     destination: { street: '999 Demo Ave', city: 'Demoville', state: 'FL', zipCode: '33002', country: 'USA' },
     deliveryDate: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000),
     actualPickupDate: new Date(Date.now() - 0.5 * 24 * 60 * 60 * 1000),
@@ -163,6 +174,7 @@ const sampleShipmentsData = (driverIds, customerIds) => [
   },
   {
     shippingNumber: 'SHJ0005', status: 'delivered', truckNumber: 'T-101',
+    origin: { city: 'First City', state: 'NV' },
     destination: { street: '121 First St', city: 'First City', state: 'NV', zipCode: '89002', country: 'USA' },
     deliveryDate: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000),
     actualPickupDate: new Date(Date.now() - 17 * 24 * 60 * 60 * 1000),
@@ -172,6 +184,7 @@ const sampleShipmentsData = (driverIds, customerIds) => [
   },
   {
     shippingNumber: 'SHJA004', status: 'delivered', truckNumber: 'T-202',
+    origin: { city: 'Secondtown', state: 'TX' },
     destination: { street: '232 Second Ave', city: 'Secondtown', state: 'TX', zipCode: '75002', country: 'USA' },
     deliveryDate: new Date(Date.now() - 12 * 24 * 60 * 60 * 1000),
     actualPickupDate: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000),
@@ -181,6 +194,7 @@ const sampleShipmentsData = (driverIds, customerIds) => [
   },
   {
     shippingNumber: 'SHB0005', status: 'delivered', truckNumber: 'T-301',
+    origin: { city: 'Thirdville', state: 'GA' },
     destination: { street: '343 Third Blvd', city: 'Thirdville', state: 'GA', zipCode: '30002', country: 'USA' },
     deliveryDate: new Date(Date.now() + 8 * 24 * 60 * 60 * 1000),
     driver: driverIds.bob, customer: customerIds.beta,
@@ -188,6 +202,7 @@ const sampleShipmentsData = (driverIds, customerIds) => [
   },
   {
     shippingNumber: 'SHJ0006', status: 'delivered', truckNumber: 'T-103',
+    origin: { city: 'Fourthcity', state: 'CA' },
     destination: { street: '454 Fourth St', city: 'Fourthcity', state: 'CA', zipCode: '90212', country: 'USA' },
     deliveryDate: new Date(Date.now() + 6 * 24 * 60 * 60 * 1000),
     driver: driverIds.john, customer: customerIds.gamma,
@@ -195,6 +210,7 @@ const sampleShipmentsData = (driverIds, customerIds) => [
   },
   {
     shippingNumber: 'SHJA005', status: 'delivered', truckNumber: 'T-201',
+    origin: { city: 'Fifthtown', state: 'AZ' },
     destination: { street: '565 Fifth Ave', city: 'Fifthtown', state: 'AZ', zipCode: '85004', country: 'USA' },
     deliveryDate: new Date(Date.now() + 4 * 24 * 60 * 60 * 1000),
     actualPickupDate: new Date(Date.now() - 0.2 * 24 * 60 * 60 * 1000),
@@ -203,6 +219,7 @@ const sampleShipmentsData = (driverIds, customerIds) => [
   },
   {
     shippingNumber: 'SHB0006', status: 'delivered', truckNumber: 'T-303',
+    origin: { city: 'Sixthville', state: 'NV' },
     destination: { street: '676 Sixth Ln', city: 'Sixthville', state: 'NV', zipCode: '89004', country: 'USA' },
     deliveryDate: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000),
     actualPickupDate: new Date(Date.now() - 22 * 24 * 60 * 60 * 1000),
@@ -212,6 +229,7 @@ const sampleShipmentsData = (driverIds, customerIds) => [
   },
   {
     shippingNumber: 'SHJ0007', status: 'delivered', truckNumber: 'T-102',
+    origin: { city: 'Seventhburg', state: 'TX' },
     destination: { street: '787 Seventh Rd', city: 'Seventhburg', state: 'TX', zipCode: '75005', country: 'USA' },
     deliveryDate: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000),
     driver: driverIds.john, customer: customerIds.delta,
@@ -219,6 +237,7 @@ const sampleShipmentsData = (driverIds, customerIds) => [
   },
   {
     shippingNumber: 'SHJA006', status: 'delivered', truckNumber: 'T-203',
+    origin: { city: 'Eighthville', state: 'FL' },
     destination: { street: '898 Eighth Ave', city: 'Eighthville', state: 'FL', zipCode: '33006', country: 'USA' },
     deliveryDate: new Date(Date.now() + 12 * 24 * 60 * 60 * 1000),
     driver: driverIds.jane, customer: customerIds.alpha,
@@ -226,6 +245,7 @@ const sampleShipmentsData = (driverIds, customerIds) => [
   },
   {
     shippingNumber: 'SHB0007', status: 'delivered', truckNumber: 'T-304',
+    origin: { city: 'Ninthburg', state: 'GA' },
     destination: { street: '101 Ninth St', city: 'Ninthburg', state: 'GA', zipCode: '30007', country: 'USA' },
     deliveryDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
     driver: driverIds.bob, customer: customerIds.beta,
@@ -233,6 +253,7 @@ const sampleShipmentsData = (driverIds, customerIds) => [
   },
   {
     shippingNumber: 'SHJ0008', status: 'delivered', truckNumber: 'T-104',
+    origin: { city: 'Tenthville', state: 'CA' },
     destination: { street: '202 Tenth Rd', city: 'Tenthville', state: 'CA', zipCode: '90213', country: 'USA' },
     deliveryDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
     actualPickupDate: new Date(Date.now() - 0.1 * 24 * 60 * 60 * 1000),
@@ -241,6 +262,7 @@ const sampleShipmentsData = (driverIds, customerIds) => [
   },
   {
     shippingNumber: 'SHJA007', status: 'delivered', truckNumber: 'T-201',
+    origin: { city: 'Eleventh City', state: 'AZ' },
     destination: { street: '303 Eleventh Ave', city: 'Eleventh City', state: 'AZ', zipCode: '85005', country: 'USA' },
     deliveryDate: new Date(Date.now() - 25 * 24 * 60 * 60 * 1000),
     actualPickupDate: new Date(Date.now() - 27 * 24 * 60 * 60 * 1000),
@@ -250,6 +272,7 @@ const sampleShipmentsData = (driverIds, customerIds) => [
   },
   {
     shippingNumber: 'SHB0008', status: 'delivered', truckNumber: 'T-302',
+    origin: { city: 'Twelfthtown', state: 'NV' },
     destination: { street: '404 Twelfth St', city: 'Twelfthtown', state: 'NV', zipCode: '89005', country: 'USA' },
     deliveryDate: new Date(Date.now() + 18 * 24 * 60 * 60 * 1000),
     driver: driverIds.bob, customer: customerIds.epsilon,
@@ -257,6 +280,7 @@ const sampleShipmentsData = (driverIds, customerIds) => [
   },
   {
     shippingNumber: 'SHJ0009', status: 'delivered', truckNumber: 'T-101',
+    origin: { city: 'Thirteenthville', state: 'TX' },
     destination: { street: '505 Thirteenth Blvd', city: 'Thirteenthville', state: 'TX', zipCode: '75006', country: 'USA' },
     deliveryDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
     driver: driverIds.john, customer: customerIds.alpha,
@@ -264,6 +288,7 @@ const sampleShipmentsData = (driverIds, customerIds) => [
   },
   {
     shippingNumber: 'SHJA008', status: 'delivered', truckNumber: 'T-202',
+    origin: { city: 'Fourteenthburg', state: 'FL' },
     destination: { street: '606 Fourteenth Ln', city: 'Fourteenthburg', state: 'FL', zipCode: '33007', country: 'USA' },
     deliveryDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
     actualPickupDate: new Date(Date.now() - 0.3 * 24 * 60 * 60 * 1000),
@@ -272,6 +297,7 @@ const sampleShipmentsData = (driverIds, customerIds) => [
   },
   {
     shippingNumber: 'SHB0009', status: 'delivered', truckNumber: 'T-303',
+    origin: { city: 'Fifteenth City', state: 'GA' },
     destination: { street: '707 Fifteenth Rd', city: 'Fifteenth City', state: 'GA', zipCode: '30008', country: 'USA' },
     deliveryDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
     actualPickupDate: new Date(Date.now() - 32 * 24 * 60 * 60 * 1000),
@@ -281,6 +307,7 @@ const sampleShipmentsData = (driverIds, customerIds) => [
   },
   {
     shippingNumber: 'SHJ0010', status: 'pending', truckNumber: 'T-102',
+    origin: { city: 'Sixteenthtown', state: 'CA' },
     destination: { street: '808 Sixteenth Ave', city: 'Sixteenthtown', state: 'CA', zipCode: '90214', country: 'USA' },
     deliveryDate: new Date(Date.now() + 20 * 24 * 60 * 60 * 1000),
     driver: driverIds.john, customer: customerIds.delta,
@@ -288,6 +315,7 @@ const sampleShipmentsData = (driverIds, customerIds) => [
   },
   {
     shippingNumber: 'SHJA009', status: 'assigned', truckNumber: 'T-203',
+    origin: { city: 'Seventeenthville', state: 'AZ' },
     destination: { street: '909 Seventeenth St', city: 'Seventeenthville', state: 'AZ', zipCode: '85006', country: 'USA' },
     deliveryDate: new Date(Date.now() + 9 * 24 * 60 * 60 * 1000),
     driver: driverIds.jane, customer: customerIds.epsilon,
@@ -295,6 +323,7 @@ const sampleShipmentsData = (driverIds, customerIds) => [
   },
   {
     shippingNumber: 'SHB0010', status: 'in-transit', truckNumber: 'T-304',
+    origin: { city: 'Eighteenthburg', state: 'NV' },
     destination: { street: '111 Eighteenth Blvd', city: 'Eighteenthburg', state: 'NV', zipCode: '89006', country: 'USA' },
     deliveryDate: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000),
     actualPickupDate: new Date(Date.now() - 0.4 * 24 * 60 * 60 * 1000),
@@ -303,6 +332,7 @@ const sampleShipmentsData = (driverIds, customerIds) => [
   },
   {
     shippingNumber: 'SHJ0011', status: 'delivered', truckNumber: 'T-104',
+    origin: { city: 'Nineteenth City', state: 'TX' },
     destination: { street: '222 Nineteenth Ln', city: 'Nineteenth City', state: 'TX', zipCode: '75007', country: 'USA' },
     deliveryDate: new Date(Date.now() - 35 * 24 * 60 * 60 * 1000),
     actualPickupDate: new Date(Date.now() - 37 * 24 * 60 * 60 * 1000),
@@ -317,67 +347,64 @@ const sampleInvoicesData = (createdShipments, createdById) => {
   const invoiceStatuses = ['draft', 'sent', 'paid', 'partially-paid', 'overdue', 'void'];
   let invoiceCounter = 1;
 
-  // Use only delivered shipments for invoices initially
   const deliveredShipments = createdShipments.filter(s => s.status === 'delivered');
 
   for (let i = 0; i < deliveredShipments.length && invoices.length < 30; i++) {
     const shipment = deliveredShipments[i];
     if (!shipment.customer) {
-        console.warn(`Shipment ${shipment.shippingNumber} is missing a customer. Skipping invoice creation.`); // Changed to shippingNumber
+        console.warn(`Shipment ${shipment.shippingNumber} is missing a customer. Skipping invoice creation.`);
         continue;
     }
 
-    const issueDate = new Date(Date.now() - (i * 3) * 24 * 60 * 60 * 1000); // Vary issue dates
+    const issueDate = new Date(Date.now() - (i * 3) * 24 * 60 * 60 * 1000); 
     const dueDate = new Date(issueDate.getTime() + 30 * 24 * 60 * 60 * 1000);
     
-    // Cycle through statuses, but make 'paid' and 'void' less frequent for more open invoices
     let status = invoiceStatuses[i % invoiceStatuses.length];
-    if ((status === 'paid' || status === 'void') && Math.random() < 0.6) { // Reduce frequency of final statuses
-        status = (i % 3 === 0) ? 'sent' : 'draft'; // Default to sent or draft
+    if ((status === 'paid' || status === 'void') && Math.random() < 0.6) { 
+        status = (i % 3 === 0) ? 'sent' : 'draft'; 
     }
-    if (status === 'overdue' && dueDate > new Date()) { // Don't make future due dates overdue
+    if (status === 'overdue' && dueDate > new Date()) { 
         status = 'sent';
     }
-    if (status === 'paid' && i % 5 !== 0) { // Make 'paid' less frequent
+    if (status === 'paid' && i % 5 !== 0) { 
         status = 'sent';
     }
 
 
     invoices.push({
       invoiceNumber: `INV2025-${String(invoiceCounter++).padStart(3, '0')}`,
-      customer: shipment.customer, // customerId from the shipment
+      customer: shipment.customer, 
       issueDate: issueDate,
       dueDate: dueDate,
       shipments: [shipment._id],
       subTotal: shipment.freightCost,
-      fuelSurchargeRate: Math.random() * 0.1, // Random fuel surcharge up to 10%
+      fuelSurchargeRate: Math.random() * 0.1, 
       status: status,
       createdBy: createdById,
-      notes: `Invoice for shipment ${shipment.shippingNumber}. Notes for invoice #${invoiceCounter -1}.` // Changed to shippingNumber
+      notes: `Invoice for shipment ${shipment.shippingNumber}. Notes for invoice #${invoiceCounter -1}.`
     });
   }
-  // Ensure we have at least the original 3 if the loop didn't generate enough
    if (invoices.length < 3 && deliveredShipments.length >= 3) {
         const baseShipments = [deliveredShipments[0], deliveredShipments[1], deliveredShipments[2]];
-        if(!invoices.find(inv => inv.shipments.includes(baseShipments[0]._id))) {
+        if(baseShipments[0] && !invoices.find(inv => inv.shipments.includes(baseShipments[0]._id))) {
             invoices.push({
                 invoiceNumber: `INV2025-${String(invoiceCounter++).padStart(3, '0')}`,
                 customer: baseShipments[0].customer, issueDate: new Date(), dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-                shipments: [baseShipments[0]._id], subTotal: baseShipments[0].freightCost, fuelSurchargeRate: 0.05, status: 'draft', createdBy: createdById, notes: `Fallback invoice for ${baseShipments[0].shippingNumber}` // Changed to shippingNumber
+                shipments: [baseShipments[0]._id], subTotal: baseShipments[0].freightCost, fuelSurchargeRate: 0.05, status: 'draft', createdBy: createdById, notes: `Fallback invoice for ${baseShipments[0].shippingNumber}`
             });
         }
         if(baseShipments[1] && !invoices.find(inv => inv.shipments.includes(baseShipments[1]._id))) {
              invoices.push({
                 invoiceNumber: `INV2025-${String(invoiceCounter++).padStart(3, '0')}`,
                 customer: baseShipments[1].customer, issueDate: new Date(), dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-                shipments: [baseShipments[1]._id], subTotal: baseShipments[1].freightCost, fuelSurchargeRate: 0.07, status: 'sent', createdBy: createdById, notes: `Fallback invoice for ${baseShipments[1].shippingNumber}` // Changed to shippingNumber
+                shipments: [baseShipments[1]._id], subTotal: baseShipments[1].freightCost, fuelSurchargeRate: 0.07, status: 'sent', createdBy: createdById, notes: `Fallback invoice for ${baseShipments[1].shippingNumber}`
             });
         }
         if(baseShipments[2] && !invoices.find(inv => inv.shipments.includes(baseShipments[2]._id))) {
             invoices.push({
                 invoiceNumber: `INV2025-${String(invoiceCounter++).padStart(3, '0')}`,
                 customer: baseShipments[2].customer, issueDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), dueDate: new Date(Date.now() + 28 * 24 * 60 * 60 * 1000),
-                shipments: [baseShipments[2]._id], subTotal: baseShipments[2].freightCost, status: 'paid', createdBy: createdById, notes: `Fallback invoice for ${baseShipments[2].shippingNumber}` // Changed to shippingNumber
+                shipments: [baseShipments[2]._id], subTotal: baseShipments[2].freightCost, status: 'paid', createdBy: createdById, notes: `Fallback invoice for ${baseShipments[2].shippingNumber}`
             });
         }
     }
@@ -393,19 +420,26 @@ const performSeed = async () => {
   try {
     if (CLEAR_EXISTING_DATA) {
       console.log('Clearing existing data for seed...');
-      // Clear only data relevant to this seed to avoid wiping unrelated collections
       await User.deleteMany({ username: { $in: sampleDriversData.map(d => d.username) } });
-      // Update Shipment and Invoice clearing to be more robust or clear all if it's purely for seeding
-      await Shipment.deleteMany({}); // Clearing all shipments for fresh seed
-      await Invoice.deleteMany({});  // Clearing all invoices for fresh seed
-      await Customer.deleteMany({}); // Clearing all customers for fresh seed
+      await Shipment.deleteMany({}); 
+      await Invoice.deleteMany({});  
+      await Customer.deleteMany({}); 
       console.log('Existing sample data cleared.');
     }
 
     // 1. Create Customers
     console.log('Creating sample customers...');
-    const createdCustomers = await Customer.insertMany(sampleCustomersData.map(c => ({...c, createdBy: null}))); // Assuming admin/system creates customers initially
+    const customersWithFuelRate = sampleCustomersData.map(c => {
+      const randomFuelRate = Math.random() * (0.35 - 0.15) + 0.15; // Random rate between 0.15 and 0.35
+      return {
+        ...c,
+        fuelSurchargeRate: parseFloat(randomFuelRate.toFixed(4)), // Store with a few decimal places
+        createdBy: null
+      };
+    });
+    const createdCustomers = await Customer.insertMany(customersWithFuelRate);
     console.log(`${createdCustomers.length} customers created.`);
+    createdCustomers.forEach(c => console.log(`Customer: ${c.name}, Fuel Surcharge Rate: ${c.fuelSurchargeRate}`)); // Log created rates
     const customerIds = {
         alpha: createdCustomers.find(c => c.name === 'Alpha Corp')._id,
         beta: createdCustomers.find(c => c.name === 'Beta LLC')._id,
@@ -417,7 +451,7 @@ const performSeed = async () => {
     // 2. Create Drivers
     console.log('Hashing sample driver passwords...');
     const processedDriversData = await Promise.all(sampleDriversData.map(async (driver) => {
-      const salt = await bcrypt.genSalt(10); // Or 12, matching your pre-save hook if desired
+      const salt = await bcrypt.genSalt(10); 
       const hashedPassword = await bcrypt.hash(driver.password, salt);
       return { ...driver, password: hashedPassword };
     }));
@@ -430,44 +464,29 @@ const performSeed = async () => {
         jane: createdDrivers.find(d => d.username === 'janedriver')._id,
         bob: createdDrivers.find(d => d.username === 'bobtrucker')._id,
     };
-    // For 'createdBy' fields, you might want to fetch an existing admin/system user
-    // or create one if it doesn't exist. For simplicity, using the first driver's ID.
-    const anExistingUserId = createdDrivers.length > 0 ? createdDrivers[0]._id : null; // Handle case of no drivers
+    const anExistingUserId = createdDrivers.length > 0 ? createdDrivers[0]._id : null; 
 
-    // 3. Create Shipments (now needs customerIds)
+    // 3. Create Shipments
     console.log('Creating sample shipments...');
     const shipmentsToCreate = sampleShipmentsData(driverIds, customerIds).map(s => ({...s, createdBy: anExistingUserId }));
     const createdShipments = await Shipment.insertMany(shipmentsToCreate);
     console.log(`${createdShipments.length} shipments created.`);
     
-    // const shipmentMap = {}; // To map old shipmentId structure if needed by invoices, or pass full objects
-    // createdShipments.forEach(s => shipmentMap[s.shipmentId] = s); // Changed to shippingNumber
-
-
-    // 4. Create Invoices (now needs customerMap if we want to preserve billTo.name logic from old invoice data)
-    // For simplicity, sampleInvoicesData now directly uses customerId from the shipment.
+    // 4. Create Invoices
     console.log('Creating sample invoices...');
-    // const customerObjects = {}; // For easy lookup if needed by sampleInvoicesData
-    // createdCustomers.forEach(c => customerObjects[c._id.toString()] = c);
-
-    // Pass all createdShipments to sampleInvoicesData, it will filter for 'delivered'
-    const invoicesToCreate = sampleInvoicesData(createdShipments, anExistingUserId); // Pass createdShipments directly
+    const invoicesToCreate = sampleInvoicesData(createdShipments, anExistingUserId); 
     const createdInvoices = [];
     for (const invData of invoicesToCreate) {
         const invoice = new Invoice(invData);
-        // The pre-save hook in Invoice.js will calculate fuelSurchargeAmount and totalAmount
         await invoice.save();
         createdInvoices.push(invoice);
     }
     console.log(`${createdInvoices.length} invoices created.`);
 
-    // Verify invoices in DB immediately after saving in seed
     const invoicesInDbAfterSeed = await Invoice.find({});
     console.log(`[performSeed] Verification: Found ${invoicesInDbAfterSeed.length} invoices in DB immediately after saving.`);
-    // invoicesInDbAfterSeed.forEach(inv => console.log(`[performSeed] Invoice in DB: ${inv.invoiceNumber}, ID: ${inv._id}`));
 
 
-    // Log the IDs of the created invoices
     if (createdInvoices.length > 0) {
       console.log("--- Created Invoice IDs ---");
       createdInvoices.forEach(inv => {
@@ -485,12 +504,10 @@ const performSeed = async () => {
   }
 };
 
-// If run directly (node scripts/seedDb.js), connect and seed.
-// This part is now mainly for testing the seed script against a persistent DB if needed.
 if (require.main === module) {
   console.log('Running seedDb.js directly. This will attempt to connect to MongoDB based on .env settings.');
   
-  let mongodInstance; // To hold in-memory server if used by direct run
+  let mongodInstance; 
 
   const connectAndSeed = async () => {
     let mongoURI_direct_run;
@@ -529,4 +546,4 @@ if (require.main === module) {
   connectAndSeed();
 }
 
-module.exports = { performSeed }; // Export the seeding function
+module.exports = { performSeed };

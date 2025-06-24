@@ -59,14 +59,14 @@ const getDriverCommissionReport = async (req, res) => {
       }
     }
     
-    // Find shipments and populate driver details to access commissionRate
+    // Find shipments and populate driver and customer details
     const shipments = await Shipment.find(matchConditions)
       .populate({
         path: 'driver',
-        select: 'username firstName lastName email commissionRate role', // Ensure commissionRate is selected
-        match: { role: 'driver' } // Ensure the populated user is actually a driver
+        select: 'username firstName lastName email commissionRate role',
+        match: { role: 'driver' }
       })
-      .sort({ actualDeliveryDate: 1 }); // Sort by delivery date
+      .sort({ actualDeliveryDate: 1 });
 
     if (!shipments || shipments.length === 0) {
       return res.status(200).json({ success: true, message: 'No shipments found matching criteria for commission report.', data: [] });
@@ -87,24 +87,23 @@ const getDriverCommissionReport = async (req, res) => {
         const commissionBaseAmount = effectiveWeightForPayment * PAYMENT_RATE_PER_POUND;
 
         const commissionAmount = commissionBaseAmount * (shipment.driver.commissionRate || 0);
+
+        const originCity = shipment.origin && shipment.origin.city ? shipment.origin.city : 'N/A';
+        const destCity = shipment.destination && shipment.destination.city ? shipment.destination.city : 'N/A';
+        const pickupDestCombined = `${originCity} / ${destCity}`;
         
         return {
           date: shipment.actualDeliveryDate || shipment.estimatedDeliveryDate || shipment.pickupDate,
           shipmentId: shipment.shipmentId,
-          destination: shipment.destination ? `${shipment.destination.city}, ${shipment.destination.state}` : 'N/A',
+          pickupDestination: pickupDestCombined,
           driverName: shipment.driver ? `${shipment.driver.firstName} ${shipment.driver.lastName}` : 'N/A',
           driverUsername: shipment.driver ? shipment.driver.username : 'N/A',
           truckNumber: shipment.truckNumber || 'N/A',
-          price: shipment.rate != null ? parseFloat(shipment.rate.toFixed(4)) : 0, // Price (rate from shipment)
-          weight: actualWeight, // Show actual weight hauled
-          // effectiveWeightForPayment: effectiveWeightForPayment, // This is for driver payment logic, not customer invoice amount
+          price: shipment.rate != null ? parseFloat(shipment.rate.toFixed(4)) : 0,
+          weight: actualWeight,
           amount: shipment.freightCost != null ? parseFloat(shipment.freightCost.toFixed(2)) : 0, // This is the freightCost (rate * weight)
-          commissionRate: shipment.driver.commissionRate, // This is driver's commission rate
-          commissionAmount: parseFloat(commissionAmount.toFixed(2)), // This is driver's actual commission
-          // Note: The 'amount' field here now represents shipment.freightCost.
-          // The 'commissionBaseAmount' used for calculating driver's commission might be different
-          // and is based on PAYMENT_RATE_PER_POUND and MINIMUM_PAYMENT_WEIGHT.
-          // For the report's "Amount" column, shipment.freightCost is more appropriate.
+          commissionRate: shipment.driver.commissionRate,
+          commissionAmount: parseFloat(commissionAmount.toFixed(2))
         };
       });
 // Helper function to generate Commission Report PDF
@@ -129,12 +128,13 @@ const generateCommissionReportPdf = (reportData, res) => {
   // Table Header
   const tableTop = doc.y;
   const startX = 50;
-  // Date, Ship#, Dest, Driver, Trk#, Price, Weight, Amount (Freight), Rate (Comm), Commission
-  const colWidths = [60, 70, 80, 80, 50, 55, 60, 65, 50, 65]; // Adjusted for Price, ensure sum fits
+  // Date, Ship#, Pick-up/Dest, Driver, Trk#, Price, Weight, Amount (Freight), Rate (Comm), Commission
+  // Adjusted width for Pick-up/Dest from 80 to 100, reduced Driver from 80 to 60 to compensate. Total width remains similar.
+  const colWidths = [60, 70, 100, 60, 50, 55, 60, 65, 50, 65];
   let currentX = startX;
 
   doc.fontSize(9); // Smaller font for table
-  const headers = ['Date', 'Shipment #', 'Destination', 'Driver', 'Trk #', 'Price', 'Weight', 'Amount', 'Comm Rate', 'Commission'];
+  const headers = ['Date', 'Shipment #', 'Pick-up/Dest.', 'Driver', 'Trk #', 'Price', 'Weight', 'Amount', 'Comm Rate', 'Commission'];
   
   headers.forEach((header, i) => {
     doc.text(header, currentX, tableTop, {
@@ -156,7 +156,7 @@ const generateCommissionReportPdf = (reportData, res) => {
     const rowValues = [
       item.date ? new Date(item.date).toLocaleDateString() : 'N/A',
       item.shipmentId || 'N/A',
-      item.destination || 'N/A',
+      item.pickupDestination || 'N/A', // Changed from item.destination
       item.driverName || item.driverUsername || 'N/A',
       item.truckNumber || 'N/A',
       item.price != null ? formatCurrency(item.price) : 'N/A', // Format Price
@@ -184,6 +184,7 @@ const generateCommissionReportPdf = (reportData, res) => {
   const totalsX = doc.page.width - startX - 200; // Adjust X position for totals block
   doc.fontSize(10).font('Helvetica-Bold');
   doc.text(`Total Amount (Freight): ${formatCurrency(reportData.totalFreightAmount)}`, totalsX, undefined, { align: 'right', width: 200 });
+
   doc.text(`Total Commission: ${formatCurrency(reportData.totalCommission)}`, totalsX, undefined, { align: 'right', width: 200 });
   doc.font('Helvetica');
 
@@ -201,7 +202,7 @@ const generateCommissionReportPdf = (reportData, res) => {
         driverName: driverId ? (commissionReport.length > 0 ? commissionReport[0].driverName : 'N/A') : 'All Drivers',
         period: startDate && endDate ? `${new Date(startDate).toLocaleDateString()} - ${new Date(endDate).toLocaleDateString()}` : 'All Time',
         items: commissionReport,
-        totalFreightAmount: commissionReport.reduce((sum, item) => sum + (item.amount || 0), 0), // Sum of shipment.freightCost
+        totalFreightAmount: commissionReport.reduce((sum, item) => sum + (item.amount || 0), 0),
         totalCommission: commissionReport.reduce((sum, item) => sum + (item.commissionAmount || 0), 0)
       };
       generateCommissionReportPdf(pdfReportData, res);
@@ -219,9 +220,23 @@ const generateCommissionReportPdf = (reportData, res) => {
 const generateInvoicePdf = (reportData, res) => {
   const doc = new PDFDocument({ margin: 50, size: 'LETTER' });
 
+  // Format InvoiceDate for filename (MMDDYY)
+  const invoiceDateObj = new Date(reportData.invoiceDate);
+  const month = (invoiceDateObj.getMonth() + 1).toString().padStart(2, '0');
+  const day = invoiceDateObj.getDate().toString().padStart(2, '0');
+  const year = invoiceDateObj.getFullYear().toString().slice(-2); // Get last two digits of year
+  const formattedInvoiceDate = `${month}${day}${year}`;
+
+  // Sanitize CustomerName for filename (remove spaces and non-alphanumeric)
+  const sanitizedCustomerName = (reportData.billTo || 'UnknownCustomer')
+    .replace(/\s+/g, '') // Remove all spaces
+    .replace(/[^a-zA-Z0-9]/g, ''); // Remove non-alphanumeric characters
+
+  const newFilename = `${sanitizedCustomerName}${formattedInvoiceDate}.pdf`;
+
   // Set headers for PDF download
   res.setHeader('Content-Type', 'application/pdf');
-  res.setHeader('Content-Disposition', `attachment; filename=Invoice-${reportData.invoiceNumber}.pdf`);
+  res.setHeader('Content-Disposition', `attachment; filename=${newFilename}`);
   doc.pipe(res);
 
   // --- PDF Content ---
@@ -250,12 +265,13 @@ const generateInvoicePdf = (reportData, res) => {
   const pageContentWidth = doc.page.width - startX - startX; // 512
 
   // Define relative widths, ensure they sum up to <= pageContentWidth
-  // New column order: Date, Shipping #, Destination, Driver, Trk #, Price, Weight, Amount
+  // New column order: Date, Shipping #, Pick-up/Dest., Driver, Trk #, Price, Weight, Amount
+  // Adjusted width for Pick-up/Dest. from 80 to 100, Driver from 70 to 50.
   const colWidthsConfig = [
     { header: 'Date', width: 60, align: 'left' },
     { header: 'Shipping #', width: 60, align: 'left' },
-    { header: 'Destination', width: 80, align: 'left' },
-    { header: 'Driver', width: 70, align: 'left' },
+    { header: 'Pick-up/Dest.', width: 100, align: 'left' },
+    { header: 'Driver', width: 50, align: 'left' },
     { header: 'Trk #', width: 35, align: 'left' },
     { header: 'Price', width: 55, align: 'right' }, // New Price column
     { header: 'Weight', width: 55, align: 'right' },
@@ -281,7 +297,7 @@ const generateInvoicePdf = (reportData, res) => {
     const rowValues = [
         item.date ? new Date(item.date).toLocaleDateString() : 'N/A',
         item.shippingNumber || 'N/A',
-        item.destination || 'N/A',
+        item.pickupDestination || 'N/A', // Changed from item.destination
         item.driver || 'N/A',
         item.truckNumber || 'N/A',
         item.price != null ? formatCurrency(item.price) : 'N/A', // Price column
@@ -303,7 +319,11 @@ const generateInvoicePdf = (reportData, res) => {
   doc.fontSize(10);
   doc.text(`Total Items: ${reportData.totalItems}`, totalsX, undefined, { align: 'right' });
   doc.text(`Subtotal: ${formatCurrency(reportData.subTotal)}`, totalsX, undefined, { align: 'right' });
-  doc.text(`Fuel Surcharge: ${formatCurrency(reportData.fuelSurcharge)}`, totalsX, undefined, { align: 'right' });
+  if (reportData.fuelSurchargeRatePercentage != null && reportData.fuelSurcharge != null) {
+   doc.text(`Fuel Surcharge ${reportData.fuelSurchargeRatePercentage}% : ${formatCurrency(reportData.fuelSurcharge)}`, totalsX, undefined, { align: 'right' });
+  } else if (reportData.fuelSurcharge != null) { // Fallback if rate is not available for some reason
+   doc.text(`Fuel Surcharge : ${formatCurrency(reportData.fuelSurcharge)}`, totalsX, undefined, { align: 'right' });
+  }
   // Deposit was removed from Invoice model, so this check might be redundant or need adjustment
   // if (reportData.deposit > 0) {
   //   doc.text(`Deposit: ${formatCurrency(reportData.deposit)}`, totalsX, undefined, { align: 'right' });
@@ -416,13 +436,17 @@ const getInvoiceReport = async (req, res) => {
 
       shipmentDetails: invoice.shipments ? invoice.shipments.map(shipment => {
         const driverName = shipment.driver ? `${shipment.driver.firstName || ''} ${shipment.driver.lastName || ''}`.trim() || shipment.driver.username || 'N/A' : 'N/A';
+        const origin = shipment.origin || {};
         const destination = shipment.destination || {};
+        const originCity = origin.city || 'N/A';
+        const destCity = destination.city || 'N/A';
+        const pickupDestCombined = `${originCity} / ${destCity}`;
         // Use the new 'rate' and 'weight' fields from the Shipment model
         
         return {
             date: shipment.deliveryDate || shipment.actualPickupDate || shipment.pickupDate, // Prefer deliveryDate
             shippingNumber: shipment.shipmentId || 'N/A',
-            destination: `${destination.city || ''}, ${destination.state || ''}`.trim().replace(/^,|,$/g, '') || 'N/A',
+            pickupDestination: pickupDestCombined, // Changed from destination
             driver: driverName,
             truckNumber: shipment.truckNumber || 'N/A',
             price: shipment.rate != null ? shipment.rate : 0, // New "Price" field from shipment.rate
@@ -434,6 +458,7 @@ const getInvoiceReport = async (req, res) => {
       totalItems: invoice.shipments ? invoice.shipments.length : 0,
       subTotal: invoice.subTotal != null ? invoice.subTotal : 0,
       fuelSurcharge: invoice.fuelSurchargeAmount != null ? invoice.fuelSurchargeAmount : 0,
+      fuelSurchargeRatePercentage: invoice.fuelSurchargeRate != null ? (invoice.fuelSurchargeRate * 100).toFixed(0) : null, // Added for display
       deposit: invoice.depositAmount != null ? invoice.depositAmount : 0,
       invoiceTotal: invoice.totalAmount != null ? invoice.totalAmount : 0,
 

@@ -46,7 +46,7 @@
 
                                 <div class="form-group" id="invoice-number-group" style="display: none;">
                                     <label for="invoice-number-input">Invoice Number:</label>
-                                    <input type="text" id="invoice-number-input" name="invoiceNumber" required>
+                                    <input type="text" id="invoice-number-input" name="invoiceNumber">
                                 </div>
 
                                 <div class="form-group">
@@ -69,14 +69,6 @@
                                 <div class="form-group">
                                     <label for="invoice-due-date">Due Date (Optional):</label>
                                     <input type="date" id="invoice-due-date" name="dueDate">
-                                </div>
-                                <div class="form-group">
-                                    <label for="invoice-fuel-surcharge-rate">Fuel Surcharge Rate:</label>
-                                    <div style="display: flex; align-items: center;">
-                                        <input type="number" id="invoice-fuel-surcharge-rate" name="fuelSurchargeRate" step="1" min="0" value="0" style="flex-grow: 1; margin-right: 5px;">
-                                        <span style="margin-left: 5px;">%</span>
-                                    </div>
-                                    <small>Enter as a whole number (e.g., 5 for 5%). Arrows increment by 1%.</small>
                                 </div>
                                 <div class="form-group">
                                     <label for="invoice-notes">Notes (Optional):</label>

@@ -118,6 +118,7 @@ class CustomersPage {
                     <th>Contact Email</th>
                     <th>Contact Phone</th>
                     <th>Address</th>
+                    <th>Fuel Surcharge Rate</th>
                     <th>Notes</th>
                     <th>Actions</th>
                 </tr>
@@ -146,6 +147,7 @@ class CustomersPage {
                 <td>${customer.contactEmail || 'N/A'}</td>
                 <td>${customer.contactPhone || 'N/A'}</td>
                 <td>${addressString}</td>
+                <td>${customer.fuelSurchargeRate != null ? (customer.fuelSurchargeRate * 100).toFixed(1) + '%' : 'N/A'}</td>
                 <td>${customer.notes || ''}</td>
                 <td>
                     <button class="btn-action btn-edit btn-edit-customer" data-id="${customer._id}">Edit</button>
@@ -165,6 +167,7 @@ class CustomersPage {
         document.getElementById('customer-form-title').textContent = 'Add New Customer';
         document.getElementById('customer-form').reset();
         document.getElementById('customer-isActive').value = 'true'; // Default to active
+        document.getElementById('customer-fuelSurchargeRate').value = ''; // Clear fuel surcharge rate for new customer
         document.getElementById('customer-form-modal').style.display = 'block';
     }
 
@@ -196,6 +199,7 @@ class CustomersPage {
         document.getElementById('customer-contactPhone').value = custData.contactPhone || '';
         document.getElementById('customer-notes').value = custData.notes || '';
         document.getElementById('customer-isActive').value = custData.isActive === false ? 'false' : 'true';
+        document.getElementById('customer-fuelSurchargeRate').value = custData.fuelSurchargeRate != null ? (custData.fuelSurchargeRate * 100).toFixed(1) : '';
 
         if (custData.primaryAddress) {
             document.getElementById('customer-address-street').value = custData.primaryAddress.street || '';
@@ -226,6 +230,7 @@ class CustomersPage {
             contactPhone: formData.get('contactPhone'),
             notes: formData.get('notes'),
             isActive: formData.get('isActive') === 'true',
+            fuelSurchargeRate: formData.get('fuelSurchargeRate') ? parseFloat(formData.get('fuelSurchargeRate')) / 100 : 0,
             primaryAddress: {
                 street: formData.get('primaryAddress.street'),
                 city: formData.get('primaryAddress.city'),

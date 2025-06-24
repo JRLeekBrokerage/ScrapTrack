@@ -36,6 +36,10 @@ const customerSchema = new Schema({
     type: Boolean,
     default: true
   },
+  fuelSurchargeRate: { // Rate as a decimal, e.g., 0.10 for 10%
+   type: Number,
+   default: 0
+  },
   // Consider adding fields like 'accountNumber', 'paymentTerms', etc. later
   createdBy: {
     type: Schema.Types.ObjectId,

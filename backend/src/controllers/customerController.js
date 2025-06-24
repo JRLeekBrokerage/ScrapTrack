@@ -9,7 +9,7 @@ const createCustomer = async (req, res) => {
             return res.status(400).json({ success: false, message: 'Validation failed', errors: errors.array() });
         }
 
-        const { name, contactEmail, contactPhone, primaryAddress, notes } = req.body;
+        const { name, contactEmail, contactPhone, primaryAddress, notes, fuelSurchargeRate } = req.body;
         
         // Check if customer name already exists
         const existingCustomer = await Customer.findOne({ name });
@@ -23,6 +23,7 @@ const createCustomer = async (req, res) => {
             contactPhone,
             primaryAddress,
             notes,
+            fuelSurchargeRate, // Added fuelSurchargeRate
             createdBy: req.user._id // Assuming createdBy is desired
         };
 

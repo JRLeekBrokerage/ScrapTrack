@@ -182,7 +182,7 @@ class ShipmentsPage {
                 <tr>
                     <th>Delivery Date</th>
                     <th>Shipping Number</th>
-                    <th>Destination</th>
+                    <th>Pick-up/Destination</th>
                     <th>Customer</th>
                     <th>Status</th>
                     <th>Driver</th>
@@ -196,7 +196,10 @@ class ShipmentsPage {
             const row = tbody.insertRow();
             row.dataset.shipmentId = shipment._id; 
 
-            const destCityState = shipment.destination ? `${shipment.destination.city || ''}, ${shipment.destination.state || ''}`.trim() : 'N/A';
+            const originCity = shipment.origin && shipment.origin.city ? shipment.origin.city : 'N/A';
+            const destCity = shipment.destination && shipment.destination.city ? shipment.destination.city : 'N/A';
+            const pickupDestCombined = `${originCity} / ${destCity}`;
+
             const deliveryDateStr = shipment.deliveryDate ? new Date(shipment.deliveryDate).toLocaleDateString() : 'N/A'; 
             const customerNameStr = shipment.customer && shipment.customer.name ? shipment.customer.name : 'N/A';
             const statusStr = shipment.status || 'unknown';
@@ -205,7 +208,7 @@ class ShipmentsPage {
             row.innerHTML = `
                 <td data-field="deliveryDate">${deliveryDateStr}</td>
                 <td data-field="shippingNumber">${shipment.shippingNumber || 'N/A'}</td>
-                <td data-field="destination">${destCityState}</td>
+                <td data-field="pickupDestination">${pickupDestCombined}</td>
                 <td data-field="customer" data-value="${shipment.customer?._id || ''}">${customerNameStr}</td>
                 <td data-field="status" data-value="${statusStr}"><span class="status-badge status-${statusStr}">${statusStr}</span></td>
                 <td data-field="driver" data-value="${shipment.driver?._id || ''}">${driverNameStr}</td>
@@ -224,6 +227,7 @@ class ShipmentsPage {
             row.querySelector('.btn-delete').addEventListener('click', () => this.handleDeleteShipment(shipment._id));
             row.querySelector('.btn-details').addEventListener('click', () => this.showShipmentDetails(shipment._id));
 
+            // Event listeners for inline editing (excluding the new combined cell)
             const customerCell = row.querySelector('td[data-field="customer"]');
             if (customerCell) {
                 customerCell.addEventListener('click', (e) => {
@@ -248,19 +252,17 @@ class ShipmentsPage {
                     }
                 });
             }
-
-            const destinationCell = row.querySelector('td[data-field="destination"]');
-            if (destinationCell) {
-                destinationCell.addEventListener('click', (e) => {
+            const deliveryDateCell = row.querySelector('td[data-field="deliveryDate"]');
+            if (deliveryDateCell) {
+                deliveryDateCell.addEventListener('click', (e) => {
                     if (e.target.tagName === 'TD' || e.target.tagName === 'SPAN') {
                         this.toggleRowEditMode(shipment._id, row);
                     }
                 });
             }
-
-            const deliveryDateCell = row.querySelector('td[data-field="deliveryDate"]');
-            if (deliveryDateCell) {
-                deliveryDateCell.addEventListener('click', (e) => {
+             const shippingNumberCell = row.querySelector('td[data-field="shippingNumber"]');
+            if (shippingNumberCell) {
+                shippingNumberCell.addEventListener('click', (e) => {
                     if (e.target.tagName === 'TD' || e.target.tagName === 'SPAN') {
                         this.toggleRowEditMode(shipment._id, row);
                     }
@@ -357,6 +359,12 @@ class ShipmentsPage {
     collectFormData(formData) { 
         return {
             shippingNumber: formData.get('shippingNumber'), 
+            origin: { // Added origin back
+                street: formData.get('origin.street'),
+                city: formData.get('origin.city'),
+                state: formData.get('origin.state'),
+                zipCode: formData.get('origin.zipCode')
+            },
             destination: {
                 street: formData.get('destination.street'),
                 city: formData.get('destination.city'),
@@ -426,6 +434,12 @@ class ShipmentsPage {
         document.getElementById('shipment-db-id').value = shipment._id;
         document.getElementById('shippingNumber').value = shipment.shippingNumber || ''; 
         
+        if (shipment.origin) { // Populate origin fields
+            document.getElementById('origin-street').value = shipment.origin.street || '';
+            document.getElementById('origin-city').value = shipment.origin.city || '';
+            document.getElementById('origin-state').value = shipment.origin.state || '';
+            document.getElementById('origin-zipCode').value = shipment.origin.zipCode || '';
+        }
         if (shipment.destination) {
             document.getElementById('destination-street').value = shipment.destination.street || '';
             document.getElementById('destination-city').value = shipment.destination.city || '';
@@ -488,12 +502,15 @@ class ShipmentsPage {
 
         const driverName = shipment.driver ? (shipment.driver.fullName || `${shipment.driver.firstName || ''} ${shipment.driver.lastName || ''}`.trim() || shipment.driver.username) : 'N/A';
         const customerName = shipment.customer ? shipment.customer.name : 'N/A';
+        const originCity = shipment.origin && shipment.origin.city ? shipment.origin.city : 'N/A';
+        const destinationCity = shipment.destination && shipment.destination.city ? shipment.destination.city : 'N/A';
         
         detailsContent.innerHTML = `
             <p><strong>Shipping Number:</strong> ${shipment.shippingNumber || 'N/A'}</p> 
             <p><strong>Status:</strong> <span class="status-badge status-${shipment.status || 'unknown'}">${shipment.status || 'unknown'}</span></p>
             <p><strong>Delivery Date:</strong> ${shipment.deliveryDate ? new Date(shipment.deliveryDate).toLocaleDateString() : 'N/A'}</p>
-            <p><strong>Destination:</strong> ${shipment.destination ? `${shipment.destination.street}, ${shipment.destination.city}, ${shipment.destination.state} ${shipment.destination.zipCode}` : 'N/A'}</p>
+            <p><strong>Origin City:</strong> ${originCity}</p>
+            <p><strong>Destination City:</strong> ${destinationCity}</p>
             <p><strong>Customer:</strong> ${customerName}</p>
             <p><strong>Driver:</strong> ${driverName}</p>
             <p><strong>Truck Number:</strong> ${shipment.truckNumber || 'N/A'}</p>
@@ -576,12 +593,11 @@ class ShipmentsPage {
                     inputElement.name = 'shippingNumber';
                     inputElement.value = shipment.shippingNumber || '';
                     break;
-                case 'destination':
-                    inputElement = document.createElement('input');
-                    inputElement.type = 'text';
-                    inputElement.name = 'destination';
-                    inputElement.value = shipment.destination ? `${shipment.destination.city || ''}, ${shipment.destination.state || ''}` : '';
-                    inputElement.placeholder = "City, State";
+                case 'pickupDestination': // Combined field, not directly editable inline this way
+                    inputElement = document.createElement('span');
+                    const originCity = shipment.origin && shipment.origin.city ? shipment.origin.city : 'N/A';
+                    const destCity = shipment.destination && shipment.destination.city ? shipment.destination.city : 'N/A';
+                    inputElement.textContent = `${originCity} / ${destCity}`;
                     break;
                 case 'deliveryDate': 
                     inputElement = document.createElement('input');
@@ -668,7 +684,9 @@ class ShipmentsPage {
             if (originalCell && field !== 'actions') {
                 cell.innerHTML = originalCell.html;
             } else if (field !== 'actions') { 
-                const destCityState = shipment.destination ? `${shipment.destination.city || ''}, ${shipment.destination.state || ''}`.trim() : 'N/A';
+                const originCity = shipment.origin && shipment.origin.city ? shipment.origin.city : 'N/A';
+                const destCity = shipment.destination && shipment.destination.city ? shipment.destination.city : 'N/A';
+                const pickupDestCombined = `${originCity} / ${destCity}`;
                 const deliveryDateStr = shipment.deliveryDate ? new Date(shipment.deliveryDate).toLocaleDateString() : 'N/A'; 
                 const customerNameStr = shipment.customer && shipment.customer.name ? shipment.customer.name : 'N/A';
                 const statusStr = shipment.status || 'unknown';
@@ -677,7 +695,7 @@ class ShipmentsPage {
                 switch(field) {
                     case 'deliveryDate': cell.textContent = deliveryDateStr; break; 
                     case 'shippingNumber': cell.textContent = shipment.shippingNumber || 'N/A'; break; 
-                    case 'destination': cell.textContent = destCityState; break;
+                    case 'pickupDestination': cell.textContent = pickupDestCombined; break;
                     case 'customer': cell.innerHTML = `<span>${customerNameStr}</span>`; break;
                     case 'status': cell.innerHTML = `<div class="editable-cell-content"><span class="status-badge status-${statusStr}">${statusStr}</span></div>`; break;
                     case 'driver': cell.innerHTML = `<span>${driverNameStr}</span>`; break;
@@ -719,13 +737,19 @@ class ShipmentsPage {
             if (input.required && !input.value && input.type !== 'hidden') {
                 isValid = false;
             }
-            if (fieldName === 'destination') { 
-                const parts = input.value.split(',').map(s => s.trim());
-                updatedData[fieldName] = { 
-                    ...(currentShipment[fieldName] || {}), 
-                    city: parts[0] || '', 
-                    state: parts[1] || '' 
-                };
+            // For combined pickup/destination, inline editing is complex and not handled here.
+            // This save logic assumes individual fields if they were made editable.
+            // Since we are moving to modal for primary edits, this might be simplified or removed for these fields.
+            if (fieldName === 'destination' || fieldName === 'origin') { 
+                // This logic would need to parse a combined field or expect individual city inputs
+                // For now, assuming modal handles these edits primarily.
+                // If inline editing for individual city parts was implemented:
+                // const parts = input.value.split(',').map(s => s.trim());
+                // updatedData[fieldName] = { 
+                //     ...(currentShipment[fieldName] || {}), 
+                //     city: parts[0] || '', 
+                //     // state: parts[1] || '' // Only city is required/editable inline for now
+                // };
             } else {
                 updatedData[fieldName] = input.value === "" && (fieldName === "driver") ? null : input.value;
             }
