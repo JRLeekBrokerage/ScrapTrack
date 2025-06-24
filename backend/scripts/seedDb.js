@@ -1,11 +1,12 @@
 require('dotenv').config({ path: require('path').resolve(__dirname, '../.env') }); // Load .env variables
 const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs'); // For hashing driver passwords
+const bcrypt = require('bcryptjs');
 const User = require('../src/models/User');
+const Driver = require('../src/models/Driver'); // Import new Driver model
 const Shipment = require('../src/models/Shipment');
 const Invoice = require('../src/models/Invoice');
-const Customer = require('../src/models/Customer'); // Import Customer model
-const { MongoMemoryServer } = require('mongodb-memory-server'); // For in-memory DB during dev seeding
+const Customer = require('../src/models/Customer');
+const { MongoMemoryServer } = require('mongodb-memory-server');
 
 // --- Configuration ---
 const CLEAR_EXISTING_DATA = true; // Set to false to append data instead of clearing
@@ -13,52 +14,47 @@ let mongod; // To hold the in-memory server instance for seeding
 
 // --- Sample Data ---
 
-const sampleDriversData = [
+// Sample System Users (Admins, Dispatchers, etc.)
+const sampleUsersData = [
   {
-    username: 'johndriver',
-    email: 'john.driver@example.com',
-    password: 'password123',
-    firstName: 'John',
-    lastName: 'Driver',
-    role: 'driver',
-    phone: '5550101001', 
-    commissionRate: 0.15,
-    permissions: [
-        { module: 'freight', actions: ['read', 'update'] },
-        { module: 'drivers', actions: ['read'] },
-        { module: 'invoicing', actions: ['read'] } 
+    username: 'adminuser',
+    email: 'admin@leekbrokerage.com',
+    password: 'passwordAdmin123',
+    firstName: 'Admin',
+    lastName: 'User',
+    role: 'admin', // System user role
+    phone: '5550000000',
+    permissions: [ // Example full permissions for admin
+       { module: 'freight', actions: ['create', 'read', 'update', 'delete', 'export'] },
+       { module: 'invoicing', actions: ['create', 'read', 'update', 'delete', 'export'] },
+       { module: 'reports', actions: ['create', 'read', 'update', 'delete', 'export'] },
+       { module: 'users', actions: ['create', 'read', 'update', 'delete', 'export'] },
+       { module: 'drivers', actions: ['create', 'read', 'update', 'delete', 'export'] }, // For managing new Driver entities
+       { module: 'settings', actions: ['create', 'read', 'update', 'delete', 'export'] },
+       { module: 'scrap', actions: ['create', 'read', 'update', 'delete', 'export'] }
     ]
   },
   {
-    username: 'janedriver',
-    email: 'jane.driver@example.com',
-    password: 'password123',
-    firstName: 'Jane',
-    lastName: 'Driveress',
-    role: 'driver',
-    phone: '5550102002', 
-    commissionRate: 0.12,
+    username: 'dispatchuser',
+    email: 'dispatch@leekbrokerage.com',
+    password: 'passwordDispatch123',
+    firstName: 'Dispatch',
+    lastName: 'Person',
+    role: 'dispatcher', // System user role
+    phone: '5550000001',
     permissions: [
-        { module: 'freight', actions: ['read', 'update'] },
-        { module: 'drivers', actions: ['read'] },
-        { module: 'invoicing', actions: ['read'] } 
-    ]
-  },
-  {
-    username: 'bobtrucker',
-    email: 'bob.trucker@example.com',
-    password: 'password123',
-    firstName: 'Bob',
-    lastName: 'Trucker',
-    role: 'driver',
-    phone: '5550103003', 
-    commissionRate: 0.10,
-    permissions: [
-        { module: 'freight', actions: ['read', 'update'] },
-        { module: 'drivers', actions: ['read'] },
-        { module: 'invoicing', actions: ['read'] } 
+       { module: 'freight', actions: ['create', 'read', 'update'] },
+       { module: 'drivers', actions: ['read', 'update'] }, // Can view/update new Driver entities
+       { module: 'invoicing', actions: ['read'] }
     ]
   }
+];
+
+// Sample Non-Logging-In Drivers
+const sampleNewDriversData = [
+    { firstName: 'John', lastName: 'Truckman', contactPhone: '555-0101', contactEmail: 'john.truckman@email.com', commissionRate: 0.25, isActive: true },
+    { firstName: 'Jane', lastName: 'Hauler', contactPhone: '555-0102', contactEmail: 'jane.hauler@email.com', commissionRate: 0.22, isActive: true },
+    { firstName: 'Robert', lastName: 'Wheels', contactPhone: '555-0103', contactEmail: 'bob.wheels@email.com', commissionRate: 0.20, isActive: true },
 ];
 
 const sampleCustomersData = [
@@ -420,61 +416,71 @@ const performSeed = async () => {
   try {
     if (CLEAR_EXISTING_DATA) {
       console.log('Clearing existing data for seed...');
-      await User.deleteMany({ username: { $in: sampleDriversData.map(d => d.username) } });
-      await Shipment.deleteMany({}); 
-      await Invoice.deleteMany({});  
-      await Customer.deleteMany({}); 
+      // Clear Users (system users)
+      await User.deleteMany({ username: { $in: sampleUsersData.map(u => u.username) } });
+      // Clear new Driver entities
+      await Driver.deleteMany({});
+      await Shipment.deleteMany({});
+      await Invoice.deleteMany({});
+      await Customer.deleteMany({});
       console.log('Existing sample data cleared.');
     }
 
-    // 1. Create Customers
+    // 1. Create System Users (Admin, Dispatcher, etc.)
+    console.log('Hashing sample user passwords...');
+    const processedUsersData = await Promise.all(sampleUsersData.map(async (user) => {
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(user.password, salt);
+      return { ...user, password: hashedPassword };
+    }));
+    console.log('Creating sample system users...');
+    const createdSystemUsers = await User.insertMany(processedUsersData);
+    console.log(`${createdSystemUsers.length} system users created.`);
+    const anAdminUserId = createdSystemUsers.find(u => u.role === 'admin')?._id;
+
+    // 2. Create Customers
     console.log('Creating sample customers...');
     const customersWithFuelRate = sampleCustomersData.map(c => {
-      const randomFuelRate = Math.random() * (0.35 - 0.15) + 0.15; // Random rate between 0.15 and 0.35
+      const randomFuelRate = Math.random() * (0.35 - 0.15) + 0.15;
       return {
         ...c,
-        fuelSurchargeRate: parseFloat(randomFuelRate.toFixed(4)), // Store with a few decimal places
-        createdBy: null
+        fuelSurchargeRate: parseFloat(randomFuelRate.toFixed(4)),
+        createdBy: anAdminUserId
       };
     });
     const createdCustomers = await Customer.insertMany(customersWithFuelRate);
     console.log(`${createdCustomers.length} customers created.`);
-    createdCustomers.forEach(c => console.log(`Customer: ${c.name}, Fuel Surcharge Rate: ${c.fuelSurchargeRate}`)); // Log created rates
+    createdCustomers.forEach(c => console.log(`Customer: ${c.name}, Fuel Surcharge Rate: ${c.fuelSurchargeRate}`));
     const customerIds = {
-        alpha: createdCustomers.find(c => c.name === 'Alpha Corp')._id,
-        beta: createdCustomers.find(c => c.name === 'Beta LLC')._id,
-        gamma: createdCustomers.find(c => c.name === 'Gamma Inc')._id,
-        delta: createdCustomers.find(c => c.name === 'Delta Co')._id,
-        epsilon: createdCustomers.find(c => c.name === 'Epsilon Ltd')._id,
+        alpha: createdCustomers.find(c => c.name === 'Alpha Corp')?._id,
+        beta: createdCustomers.find(c => c.name === 'Beta LLC')?._id,
+        gamma: createdCustomers.find(c => c.name === 'Gamma Inc')?._id,
+        delta: createdCustomers.find(c => c.name === 'Delta Co')?._id,
+        epsilon: createdCustomers.find(c => c.name === 'Epsilon Ltd')?._id,
     };
 
-    // 2. Create Drivers
-    console.log('Hashing sample driver passwords...');
-    const processedDriversData = await Promise.all(sampleDriversData.map(async (driver) => {
-      const salt = await bcrypt.genSalt(10); 
-      const hashedPassword = await bcrypt.hash(driver.password, salt);
-      return { ...driver, password: hashedPassword };
-    }));
-
-    console.log('Creating sample drivers with hashed passwords...');
-    const createdDrivers = await User.insertMany(processedDriversData);
-    console.log(`${createdDrivers.length} drivers created.`);
+    // 3. Create Non-Logging-In Drivers
+    console.log('Creating sample non-logging-in drivers...');
+    const driversToCreate = sampleNewDriversData.map(d => ({ ...d, createdBy: anAdminUserId }));
+    const createdNewDrivers = await Driver.insertMany(driversToCreate);
+    console.log(`${createdNewDrivers.length} non-logging-in drivers created.`);
+    // Create driverIds map for shipments based on new Driver model
     const driverIds = {
-        john: createdDrivers.find(d => d.username === 'johndriver')._id,
-        jane: createdDrivers.find(d => d.username === 'janedriver')._id,
-        bob: createdDrivers.find(d => d.username === 'bobtrucker')._id,
+        john: createdNewDrivers.find(d => d.firstName === 'John' && d.lastName === 'Truckman')?._id,
+        jane: createdNewDrivers.find(d => d.firstName === 'Jane' && d.lastName === 'Hauler')?._id,
+        bob: createdNewDrivers.find(d => d.firstName === 'Robert' && d.lastName === 'Wheels')?._id,
     };
-    const anExistingUserId = createdDrivers.length > 0 ? createdDrivers[0]._id : null; 
+    const aSystemUserId = anAdminUserId || (createdSystemUsers.length > 0 ? createdSystemUsers[0]._id : null);
 
-    // 3. Create Shipments
+    // 4. Create Shipments
     console.log('Creating sample shipments...');
-    const shipmentsToCreate = sampleShipmentsData(driverIds, customerIds).map(s => ({...s, createdBy: anExistingUserId }));
+    const shipmentsToCreate = sampleShipmentsData(driverIds, customerIds).map(s => ({...s, createdBy: aSystemUserId }));
     const createdShipments = await Shipment.insertMany(shipmentsToCreate);
     console.log(`${createdShipments.length} shipments created.`);
     
-    // 4. Create Invoices
+    // 5. Create Invoices
     console.log('Creating sample invoices...');
-    const invoicesToCreate = sampleInvoicesData(createdShipments, anExistingUserId); 
+    const invoicesToCreate = sampleInvoicesData(createdShipments, aSystemUserId);
     const createdInvoices = [];
     for (const invData of invoicesToCreate) {
         const invoice = new Invoice(invData);

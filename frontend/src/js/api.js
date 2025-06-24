@@ -122,16 +122,41 @@ class API {
         });
     }
 
-    // Drivers
-    static async getDrivers() {
-        return this.makeRequest('/drivers');
+    // Drivers (New Driver Entity - Non-logging in)
+    static async getDrivers(queryParams = '') { // For fetching all drivers, potentially with filters
+        return this.makeRequest(`/drivers${queryParams}`);
     }
 
-    static async getDriverCommissions(driverId) {
-        return this.makeRequest(`/drivers/${driverId}/commissions`);
+    static async getDriverById(id) {
+        return this.makeRequest(`/drivers/${id}`);
     }
 
-    // User Management
+    static async createDriver(driverData) {
+        return this.makeRequest('/drivers', {
+            method: 'POST',
+            body: JSON.stringify(driverData)
+        });
+    }
+
+    static async updateDriver(id, driverData) {
+        return this.makeRequest(`/drivers/${id}`, {
+            method: 'PUT',
+            body: JSON.stringify(driverData)
+        });
+    }
+
+    static async deleteDriver(id) { // Soft delete (deactivate)
+        return this.makeRequest(`/drivers/${id}`, {
+            method: 'DELETE'
+        });
+    }
+
+    // getDriverCommissions might still be relevant if commission reports are per new Driver entity
+    // static async getDriverCommissions(driverId) {
+    //     return this.makeRequest(`/reports/commission?driverId=${driverId}&format=json`); // Assuming report controller handles this
+    // }
+
+    // User Management (System Users)
     static async getUsers() {
         return this.makeRequest('/users');
     }

@@ -1,5 +1,6 @@
 const Shipment = require('../models/Shipment');
-const User = require('../models/User'); // For createdBy/updatedBy and driver validation
+const User = require('../models/User'); // For createdBy/updatedBy
+const Driver = require('../models/Driver'); // Import new Driver model
 const { validationResult } = require('express-validator');
 const mongoose = require('mongoose'); // Added mongoose for ObjectId conversion
 
@@ -16,11 +17,14 @@ const createShipment = async (req, res) => {
     // freightCost will be calculated by the Shipment model's pre-save hook
     // based on rate and weight.
 
-    // Optional: Validate driver if provided
+    // Optional: Validate driver if provided (now refers to Driver model)
     if (shipmentData.driver) {
-      const driverUser = await User.findById(shipmentData.driver);
-      if (!driverUser || driverUser.role !== 'driver') {
-        return res.status(400).json({ success: false, message: 'Invalid driver ID or user is not a driver.' });
+      if (!mongoose.Types.ObjectId.isValid(shipmentData.driver)) {
+       return res.status(400).json({ success: false, message: 'Invalid driver ID format.' });
+      }
+      const driverDoc = await Driver.findById(shipmentData.driver);
+      if (!driverDoc || !driverDoc.isActive) {
+        return res.status(400).json({ success: false, message: 'Invalid or inactive driver ID.' });
       }
     }
 
@@ -79,7 +83,7 @@ const getAllShipments = async (req, res) => {
     }
 
     const shipments = await Shipment.find(query)
-      .populate('driver', 'username firstName lastName phone') // Populate driver details
+      .populate('driver', 'firstName lastName contactPhone commissionRate') // Populate from new Driver model
       .populate('customer', 'name contactEmail contactPhone') // Populate customer details
       .populate('createdBy', 'username')
       .populate('updatedBy', 'username')
@@ -115,7 +119,7 @@ const getShipmentById = async (req, res) => {
     }
 
     const shipment = await Shipment.findById(req.params.id)
-      .populate('driver', 'username firstName lastName phone')
+      .populate('driver', 'firstName lastName contactPhone commissionRate') // Populate from new Driver model
       .populate('createdBy', 'username')
       .populate('updatedBy', 'username');
 
@@ -142,12 +146,18 @@ const updateShipment = async (req, res) => {
     // freightCost will be calculated by the Shipment model's pre-save hook
     // if rate or weight are part of updateData.
 
-    // Optional: Validate driver if provided and changed
+    // Optional: Validate driver if provided and changed (now refers to Driver model)
     if (updateData.driver) {
-        const driverUser = await User.findById(updateData.driver);
-        if (!driverUser || driverUser.role !== 'driver') {
-            return res.status(400).json({ success: false, message: 'Invalid driver ID or user is not a driver.' });
-        }
+       if (updateData.driver === "" || updateData.driver === null) { // Allowing unassignment
+           updateData.driver = null;
+       } else if (!mongoose.Types.ObjectId.isValid(updateData.driver)) {
+           return res.status(400).json({ success: false, message: 'Invalid driver ID format.' });
+       } else {
+           const driverDoc = await Driver.findById(updateData.driver);
+           if (!driverDoc || !driverDoc.isActive) {
+               return res.status(400).json({ success: false, message: 'Invalid or inactive driver ID.' });
+           }
+       }
     }
     // Prevent changing createdBy. _id (internal shipmentId) is protected by findByIdAndUpdate.
     // shippingNumber can be updated if provided in updateData.
@@ -156,7 +166,7 @@ const updateShipment = async (req, res) => {
 
 
     const shipment = await Shipment.findByIdAndUpdate(req.params.id, updateData, { new: true, runValidators: true })
-      .populate('driver', 'username firstName lastName phone')
+      .populate('driver', 'firstName lastName contactPhone commissionRate') // Populate from new Driver model
       .populate('createdBy', 'username')
       .populate('updatedBy', 'username');
 

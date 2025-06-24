@@ -1,9 +1,9 @@
-// User Management Page Logic
-class UserManagementPage {
+// Driver Management Page Logic (Refactored from UserManagementPage)
+class DriverManagementPage {
     constructor() {
-        this.users = [];
+        this.drivers = []; // Changed from this.users
         this.currentUser = null;
-        this.editingUserId = null;
+        this.editingDriverId = null; // Changed from this.editingUserId
         this.init();
     }
 
@@ -13,59 +13,55 @@ class UserManagementPage {
             return;
         }
         this.currentUser = Auth.getCurrentUser();
-        // TODO: Add check here: if currentUser is not admin/manager, redirect or show error,
-        // as only admins/managers should access user management.
-        // For now, assuming the logged-in user has rights.
+        // TODO: Add permission check for managing drivers
         this.updateUserInfo();
         this.bindEventListeners();
-        this.loadUsers();
+        this.loadDrivers(); // Changed from loadUsers
     }
 
     updateUserInfo() {
-        const userNameSpan = document.getElementById('user-name-drivermgt'); // Corrected ID
+        const userNameSpan = document.getElementById('user-name-drivermgt');
         if (userNameSpan && this.currentUser) {
             userNameSpan.textContent = `Welcome, ${this.currentUser.fullName || this.currentUser.firstName || this.currentUser.username}`;
         }
     }
 
     bindEventListeners() {
-        const logoutBtn = document.getElementById('logout-btn-drivermgt'); // Corrected ID
+        const logoutBtn = document.getElementById('logout-btn-drivermgt');
         if (logoutBtn) {
             logoutBtn.addEventListener('click', this.handleLogout.bind(this));
         }
 
-        const backToDashboardBtn = document.getElementById('back-to-dashboard-btn-drivermgt'); // Corrected ID
+        const backToDashboardBtn = document.getElementById('back-to-dashboard-btn-drivermgt');
         if (backToDashboardBtn) {
             backToDashboardBtn.addEventListener('click', () => {
                 window.location.href = 'index.html';
             });
         }
 
-        const showAddUserModalBtn = document.getElementById('show-add-user-modal-btn');
-        if (showAddUserModalBtn) {
-            showAddUserModalBtn.addEventListener('click', this.openCreateUserModal.bind(this));
+        // Updated IDs to match HTML changes
+        const showAddDriverModalBtn = document.getElementById('show-add-driver-modal-btn');
+        if (showAddDriverModalBtn) {
+            showAddDriverModalBtn.addEventListener('click', this.openCreateDriverModal.bind(this));
         }
 
-        const closeUserModalBtn = document.getElementById('close-user-modal-btn');
-        if (closeUserModalBtn) {
-            closeUserModalBtn.addEventListener('click', this.closeUserModal.bind(this));
+        const closeDriverModalBtn = document.getElementById('close-driver-modal-btn');
+        if (closeDriverModalBtn) {
+            closeDriverModalBtn.addEventListener('click', this.closeDriverModal.bind(this));
         }
 
-        const userForm = document.getElementById('user-form');
-        if (userForm) {
-            userForm.addEventListener('submit', this.handleUserFormSubmit.bind(this));
+        const driverForm = document.getElementById('driver-form');
+        if (driverForm) {
+            driverForm.addEventListener('submit', this.handleDriverFormSubmit.bind(this));
         }
         
-        const userRoleSelect = document.getElementById('user-role');
-        if(userRoleSelect) {
-            userRoleSelect.addEventListener('change', this.toggleCommissionRateField.bind(this));
-        }
+        // Removed userRoleSelect listener and toggleCommissionRateField as commission rate is always relevant for Drivers
 
-        const userModal = document.getElementById('user-form-modal');
-        if (userModal) {
+        const driverModal = document.getElementById('driver-form-modal');
+        if (driverModal) {
             window.addEventListener('click', (event) => {
-                if (event.target === userModal) {
-                    this.closeUserModal();
+                if (event.target === driverModal) {
+                    this.closeDriverModal();
                 }
             });
         }
@@ -82,39 +78,38 @@ class UserManagementPage {
         }
     }
 
-    async loadUsers() {
-        const loadingMsg = document.getElementById('loading-users-msg');
-        const tableContainer = document.getElementById('users-table-container');
+    async loadDrivers() { // Renamed from loadUsers
+        const loadingMsg = document.getElementById('loading-drivers-msg'); // Updated ID
+        const tableContainer = document.getElementById('drivers-table-container'); // Updated ID
         
         if (loadingMsg) loadingMsg.style.display = 'block';
         if (tableContainer) tableContainer.innerHTML = '';
 
         try {
-            // We need an API.getUsers() method
-            const response = await API.getUsers(); // Assuming this endpoint exists
+            const response = await API.getDrivers(); // Use new API method
             if (response && Array.isArray(response.data)) {
-                this.users = response.data;
+                this.drivers = response.data; // Store in this.drivers
             } else {
-                console.error('Unexpected response structure for users:', response);
-                this.users = [];
+                console.error('Unexpected response structure for drivers:', response);
+                this.drivers = [];
             }
             if (loadingMsg) loadingMsg.style.display = 'none';
-            this.renderUsersTable();
+            this.renderDriversTable(); // Call new render method
         } catch (error) {
-            console.error('Failed to load users:', error);
+            console.error('Failed to load drivers:', error);
             if (loadingMsg) loadingMsg.style.display = 'none';
-            if (tableContainer) tableContainer.innerHTML = '<p class="error-message">Error loading users. Please try again later.</p>';
-            this.users = [];
-            this.renderUsersTable();
+            if (tableContainer) tableContainer.innerHTML = '<p class="error-message">Error loading drivers. Please try again later.</p>';
+            this.drivers = [];
+            this.renderDriversTable();
         }
     }
 
-    renderUsersTable() {
-        const tableContainer = document.getElementById('users-table-container');
+    renderDriversTable() { // Renamed from renderUsersTable
+        const tableContainer = document.getElementById('drivers-table-container'); // Updated ID
         if (!tableContainer) return;
 
-        if (!this.users || this.users.length === 0) {
-            tableContainer.innerHTML = '<p>No users found.</p>';
+        if (!this.drivers || this.drivers.length === 0) {
+            tableContainer.innerHTML = '<p>No drivers found.</p>';
             return;
         }
 
@@ -123,13 +118,12 @@ class UserManagementPage {
         table.innerHTML = `
             <thead>
                 <tr>
-                    <th>Username</th>
                     <th>Full Name</th>
-                    <th>Email</th>
-                    <th>Role</th>
-                    <th>Phone</th>
-                    <th>Active</th>
+                    <th>Contact Phone</th>
+                    <th>Contact Email</th>
                     <th>Commission Rate</th>
+                    <th>Active</th>
+                    <th>Notes</th>
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -138,187 +132,156 @@ class UserManagementPage {
         `;
 
         const tbody = table.querySelector('tbody');
-        this.users.forEach(user => {
+        this.drivers.forEach(driver => { // Iterate this.drivers
             const row = tbody.insertRow();
             row.innerHTML = `
-                <td>${user.username || 'N/A'}</td>
-                <td>${user.fullName || (user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : 'N/A')}</td>
-                <td>${user.email || 'N/A'}</td>
-                <td>${user.role || 'N/A'}</td>
-                <td>${user.phone || 'N/A'}</td>
-                <td>${user.isActive ? 'Yes' : 'No'}</td>
-                <td>${user.role === 'driver' && user.commissionRate != null ? (user.commissionRate * 100).toFixed(0) + '%' : 'N/A'}</td>
+                <td>${driver.fullName || (driver.firstName && driver.lastName ? `${driver.firstName} ${driver.lastName}` : 'N/A')}</td>
+                <td>${driver.contactPhone || 'N/A'}</td>
+                <td>${driver.contactEmail || 'N/A'}</td>
+                <td>${driver.commissionRate != null ? (driver.commissionRate * 100).toFixed(1) + '%' : 'N/A'}</td>
+                <td>${driver.isActive ? 'Yes' : 'No'}</td>
+                <td>${driver.notes || ''}</td>
                 <td>
-                    <button class="btn-action btn-edit btn-edit-user" data-id="${user._id}">Edit</button>
-                    <button class="btn-action btn-delete btn-delete-user" data-id="${user._id}" data-username="${user.username}">Delete</button>
+                    <button class="btn-action btn-edit btn-edit-driver" data-id="${driver._id}">Edit</button>
+                    <button class="btn-action btn-delete btn-delete-driver" data-id="${driver._id}" data-name="${driver.fullName || `${driver.firstName} ${driver.lastName}`}">Deactivate</button>
                 </td>
             `;
-            row.querySelector('.btn-edit-user').addEventListener('click', (e) => this.openEditUserModal(e.target.dataset.id));
-            row.querySelector('.btn-delete-user').addEventListener('click', (e) => this.handleDeleteUser(e.target.dataset.id, e.target.dataset.username));
+            row.querySelector('.btn-edit-driver').addEventListener('click', (e) => this.openEditDriverModal(e.target.dataset.id));
+            row.querySelector('.btn-delete-driver').addEventListener('click', (e) => this.handleDeleteDriver(e.target.dataset.id, e.target.dataset.name));
         });
 
         tableContainer.innerHTML = '';
         tableContainer.appendChild(table);
     }
 
-    openCreateUserModal() {
-        this.editingUserId = null;
-        document.getElementById('user-form-title').textContent = 'Add New User';
-        document.getElementById('user-form').reset();
-        document.getElementById('user-password-group').style.display = 'block';
-        document.getElementById('user-password').required = true;
-        this.toggleCommissionRateField({ target: document.getElementById('user-role') }); // Set initial visibility
-        document.getElementById('user-form-modal').style.display = 'block';
+    openCreateDriverModal() { // Renamed from openCreateUserModal
+        this.editingDriverId = null; // Changed from editingUserId
+        document.getElementById('driver-form-title').textContent = 'Add New Driver'; // Updated ID
+        document.getElementById('driver-form').reset(); // Updated ID
+        document.getElementById('driver-isActive').value = 'true'; // Default to active
+        document.getElementById('driver-commissionRate').value = '0.10'; // Default commission rate e.g. 0.10 for 10%
+        document.getElementById('driver-form-modal').style.display = 'block'; // Updated ID
     }
 
-    async openEditUserModal(userId) {
-        this.editingUserId = userId;
-        // We might need API.getUserById(userId) if not all details are in the list
-        const user = this.users.find(u => u._id === userId); 
-        if (!user) {
-            alert('Error: User not found for editing.');
-            return;
-        }
-
-        document.getElementById('user-form-title').textContent = 'Edit User';
-        const form = document.getElementById('user-form');
-        form.reset();
-
-        document.getElementById('user-edit-id').value = user._id;
-        document.getElementById('user-username').value = user.username || '';
-        document.getElementById('user-email').value = user.email || '';
-        document.getElementById('user-firstName').value = user.firstName || '';
-        document.getElementById('user-lastName').value = user.lastName || '';
-        document.getElementById('user-phone').value = user.phone || '';
-        document.getElementById('user-role').value = user.role || 'driver';
-        document.getElementById('user-isActive').value = user.isActive ? 'true' : 'false';
+    async openEditDriverModal(driverId) { // Renamed from openEditUserModal
+        this.editingDriverId = driverId; // Changed from editingUserId
         
-        document.getElementById('user-password-group').style.display = 'block'; // Or 'none' if password change is separate
-        document.getElementById('user-password').required = false; // Not required when editing
-        document.getElementById('user-password').placeholder = 'Leave blank to keep current password';
-
-
-        const commissionRateField = document.getElementById('user-commissionRate');
-        if (user.role === 'driver') {
-            commissionRateField.value = user.commissionRate != null ? user.commissionRate : '';
-            document.getElementById('user-commissionRate-group').style.display = 'block';
-        } else {
-            commissionRateField.value = '';
-            document.getElementById('user-commissionRate-group').style.display = 'none';
-        }
-        
-        this.toggleCommissionRateField({ target: document.getElementById('user-role') });
-        document.getElementById('user-form-modal').style.display = 'block';
-    }
-
-    closeUserModal() {
-        document.getElementById('user-form-modal').style.display = 'none';
-    }
-    
-    toggleCommissionRateField(event) {
-        const role = event.target.value;
-        const commissionRateGroup = document.getElementById('user-commissionRate-group');
-        const commissionRateInput = document.getElementById('user-commissionRate');
-        if (role === 'driver') {
-            commissionRateGroup.style.display = 'block';
-            commissionRateInput.required = true;
-        } else {
-            commissionRateGroup.style.display = 'none';
-            commissionRateInput.required = false;
-            commissionRateInput.value = ''; // Clear it if not a driver
-        }
-    }
-
-    async handleUserFormSubmit(event) {
-        event.preventDefault();
-        const form = event.target;
-        const formData = new FormData(form);
-        const errorDiv = document.getElementById('user-form-error');
-        const submitBtn = form.querySelector('button[type="submit"]');
-
-        const userData = {
-            username: formData.get('username'),
-            email: formData.get('email'),
-            firstName: formData.get('firstName'),
-            lastName: formData.get('lastName'),
-            phone: formData.get('phone'),
-            role: formData.get('role'),
-            isActive: formData.get('isActive') === 'true'
-        };
-
-        if (formData.get('password')) {
-            userData.password = formData.get('password');
-        }
-
-        if (userData.role === 'driver') {
-            userData.commissionRate = parseFloat(formData.get('commissionRate'));
-            if (isNaN(userData.commissionRate)) {
-                 errorDiv.textContent = 'Commission rate must be a number.';
-                 errorDiv.style.display = 'block';
+        const driver = this.drivers.find(d => d._id === driverId);
+        if (!driver) {
+            // Attempt to fetch fresh if not in list (e.g., after direct navigation or if list is paged)
+            try {
+                const response = await API.getDriverById(driverId);
+                if (response && response.data) {
+                    this.editingDriverData = response.data;
+                } else {
+                    alert('Error: Driver not found for editing.');
+                    return;
+                }
+            } catch (error) {
+                 alert('Error fetching driver details for editing.');
+                 console.error("Error fetching driver for edit:", error);
                  return;
             }
         } else {
-            delete userData.commissionRate; // Ensure it's not sent if role is not driver
+            this.editingDriverData = driver;
+        }
+        
+        const driverData = this.editingDriverData;
+
+        document.getElementById('driver-form-title').textContent = 'Edit Driver'; // Updated ID
+        const form = document.getElementById('driver-form'); // Updated ID
+        form.reset();
+
+        document.getElementById('driver-edit-id').value = driverData._id; // Updated ID
+        document.getElementById('driver-firstName').value = driverData.firstName || ''; // Updated ID
+        document.getElementById('driver-lastName').value = driverData.lastName || ''; // Updated ID
+        document.getElementById('driver-contactPhone').value = driverData.contactPhone || ''; // Updated ID
+        document.getElementById('driver-contactEmail').value = driverData.contactEmail || ''; // Updated ID
+        document.getElementById('driver-commissionRate').value = driverData.commissionRate != null ? driverData.commissionRate : ''; // Expects decimal
+        document.getElementById('driver-notes').value = driverData.notes || ''; // Added notes
+        document.getElementById('driver-isActive').value = driverData.isActive ? 'true' : 'false'; // Updated ID
+        
+        document.getElementById('driver-form-modal').style.display = 'block'; // Updated ID
+    }
+
+    closeDriverModal() { // Renamed from closeUserModal
+        document.getElementById('driver-form-modal').style.display = 'none'; // Updated ID
+        this.editingDriverData = null;
+    }
+    
+    // toggleCommissionRateField removed as it's no longer needed for Driver entity
+
+    async handleDriverFormSubmit(event) { // Renamed from handleUserFormSubmit
+        event.preventDefault();
+        const form = event.target; // Should be driver-form
+        const formData = new FormData(form);
+        const errorDiv = document.getElementById('driver-form-error'); // Updated ID
+        const submitBtn = form.querySelector('button[type="submit"]');
+
+        const driverData = {
+            firstName: formData.get('firstName'),
+            lastName: formData.get('lastName'),
+            contactPhone: formData.get('contactPhone'),
+            contactEmail: formData.get('contactEmail'),
+            commissionRate: parseFloat(formData.get('commissionRate')), // Ensure it's a number
+            notes: formData.get('notes'),
+            isActive: formData.get('isActive') === 'true'
+        };
+
+        if (isNaN(driverData.commissionRate) || driverData.commissionRate < 0 || driverData.commissionRate > 1) {
+             errorDiv.textContent = 'Commission rate must be a number between 0 and 1 (e.g., 0.1 for 10%).';
+             errorDiv.style.display = 'block';
+             return;
         }
 
         errorDiv.style.display = 'none';
         submitBtn.disabled = true;
-        submitBtn.textContent = this.editingUserId ? 'Saving...' : 'Creating...';
+        submitBtn.textContent = this.editingDriverId ? 'Saving...' : 'Creating...';
 
         try {
             let response;
-            if (this.editingUserId) {
-                // Need API.updateUser(id, data)
-                response = await API.updateUser(this.editingUserId, userData);
+            if (this.editingDriverId) {
+                response = await API.updateDriver(this.editingDriverId, driverData);
             } else {
-                // Uses /api/auth/register for creation
-                response = await API.makeRequest('/auth/register', { 
-                    method: 'POST', 
-                    body: JSON.stringify(userData) 
-                });
+                response = await API.createDriver(driverData);
             }
 
             if (response && response.success) {
-                alert(`User ${this.editingUserId ? 'updated' : 'created'} successfully!`);
-                this.closeUserModal();
-                this.loadUsers(); // Refresh the list
+                alert(`Driver ${this.editingDriverId ? 'updated' : 'created'} successfully!`);
+                this.closeDriverModal();
+                this.loadDrivers(); // Refresh the list
             } else {
-                throw new Error(response.message || `Failed to ${this.editingUserId ? 'update' : 'create'} user.`);
+                throw new Error(response.message || `Failed to ${this.editingDriverId ? 'update' : 'create'} driver.`);
             }
         } catch (error) {
-            console.error('User form submission error:', error);
+            console.error('Driver form submission error:', error);
             errorDiv.textContent = error.message || 'An unknown error occurred.';
             errorDiv.style.display = 'block';
         } finally {
             submitBtn.disabled = false;
-            submitBtn.textContent = 'Save User';
+            submitBtn.textContent = 'Save Driver';
+            this.editingDriverId = null;
         }
     }
     
-    async handleDeleteUser(userId, username) {
-        if (!userId) {
-            alert('User ID is missing.');
+    async handleDeleteDriver(driverId, driverName) { // Renamed from handleDeleteUser
+        if (!driverId) {
+            alert('Driver ID is missing.');
             return;
         }
-        // Prevent deleting the currently logged-in user (important safeguard)
-        if (this.currentUser && this.currentUser.id === userId) {
-            alert("You cannot delete your own account.");
-            return;
-        }
-
-        if (confirm(`Are you sure you want to delete user "${username || userId}"? This action cannot be undone.`)) {
+      
+        if (confirm(`Are you sure you want to deactivate driver "${driverName || driverId}"?`)) {
             try {
-                // Need API.deleteUser(id)
-                const response = await API.deleteUser(userId);
+                const response = await API.deleteDriver(driverId); // Calls soft delete
                 if (response && response.success) {
-                    alert('User deleted successfully!');
-                    this.loadUsers(); // Refresh the list
+                    alert('Driver deactivated successfully!');
+                    this.loadDrivers(); // Refresh the list
                 } else {
-                    throw new Error(response.message || 'Failed to delete user.');
+                    throw new Error(response.message || 'Failed to deactivate driver.');
                 }
             } catch (error) {
-                console.error('Failed to delete user:', error);
-                alert(`Error deleting user: ${error.message}`);
+                console.error('Failed to deactivate driver:', error);
+                alert(`Error deactivating driver: ${error.message}`);
             }
         }
     }
@@ -327,10 +290,10 @@ class UserManagementPage {
 // Initialize the page logic when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     if (typeof Auth === 'undefined') {
-        console.error('Auth class is not defined. Make sure auth.js is loaded before user-management.js');
+        console.error('Auth class is not defined. Make sure auth.js is loaded before driver-management.js');
         alert('Critical application error. Please try reloading.');
         window.location.href = 'index.html';
         return;
     }
-    window.userManagementPage = new UserManagementPage();
+    window.driverManagementPage = new DriverManagementPage(); // Changed class name
 });

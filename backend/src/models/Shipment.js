@@ -48,7 +48,7 @@ const shipmentSchema = new Schema({
   },
   driver: {
     type: Schema.Types.ObjectId,
-    ref: 'User', 
+    ref: 'Driver', // Changed from 'User' to 'Driver'
   },
   customer: {
     type: Schema.Types.ObjectId,

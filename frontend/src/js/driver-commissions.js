@@ -116,8 +116,7 @@ class DriverCommissionsPage {
             this.drivers.forEach(driver => {
                 const option = document.createElement('option');
                 option.value = driver._id;
-                // Assuming driver object has 'name' or 'firstName'/'lastName'
-                option.textContent = driver.name || `${driver.firstName} ${driver.lastName}`; 
+                option.textContent = driver.fullName || (driver.firstName && driver.lastName ? `${driver.firstName} ${driver.lastName}` : 'Unknown Driver');
                 driverSelect.appendChild(option);
             });
         }
@@ -208,7 +207,7 @@ class DriverCommissionsPage {
                 <td>${item.date ? new Date(item.date).toLocaleDateString() : 'N/A'}</td>
                 <td>${item.shipmentId || 'N/A'}</td>
                 <td>${item.pickupDestination || 'N/A'}</td>
-                <td>${item.driverName || item.driverUsername || 'N/A'}</td>
+                <td>${item.driverName || 'N/A'}</td>
                 <td>${item.truckNumber || 'N/A'}</td>
                 <td>${item.weight != null ? item.weight.toLocaleString() : 'N/A'}</td>
                 <td>${item.amount != null ? '$' + item.amount.toFixed(2) : 'N/A'}</td>

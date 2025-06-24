@@ -1,5 +1,6 @@
 const Shipment = require('../models/Shipment');
-const User = require('../models/User');
+const User = require('../models/User'); // Still needed for createdBy/updatedBy if used
+const Driver = require('../models/Driver'); // Import new Driver model
 const Invoice = require('../models/Invoice'); // Added Invoice model
 const mongoose = require('mongoose');
 const { validationResult } = require('express-validator'); // Removed query as it's used in routes
@@ -62,9 +63,8 @@ const getDriverCommissionReport = async (req, res) => {
     // Find shipments and populate driver and customer details
     const shipments = await Shipment.find(matchConditions)
       .populate({
-        path: 'driver',
-        select: 'username firstName lastName email commissionRate role',
-        match: { role: 'driver' }
+        path: 'driver', // This now refers to the Driver model due to Shipment model change
+        select: 'firstName lastName commissionRate contactPhone contactEmail' // Select fields from Driver model
       })
       .sort({ actualDeliveryDate: 1 });
 
@@ -96,8 +96,8 @@ const getDriverCommissionReport = async (req, res) => {
           date: shipment.actualDeliveryDate || shipment.estimatedDeliveryDate || shipment.pickupDate,
           shipmentId: shipment.shipmentId,
           pickupDestination: pickupDestCombined,
-          driverName: shipment.driver ? `${shipment.driver.firstName} ${shipment.driver.lastName}` : 'N/A',
-          driverUsername: shipment.driver ? shipment.driver.username : 'N/A',
+          driverName: shipment.driver ? shipment.driver.fullName : 'N/A', // Use virtual fullName from Driver model
+          // driverUsername: shipment.driver ? shipment.driver.username : 'N/A', // username not on Driver model
           truckNumber: shipment.truckNumber || 'N/A',
           price: shipment.rate != null ? parseFloat(shipment.rate.toFixed(4)) : 0,
           weight: actualWeight,
@@ -156,8 +156,8 @@ const generateCommissionReportPdf = (reportData, res) => {
     const rowValues = [
       item.date ? new Date(item.date).toLocaleDateString() : 'N/A',
       item.shipmentId || 'N/A',
-      item.pickupDestination || 'N/A', // Changed from item.destination
-      item.driverName || item.driverUsername || 'N/A',
+      item.pickupDestination || 'N/A',
+      item.driverName || 'N/A', // driverUsername removed
       item.truckNumber || 'N/A',
       item.price != null ? formatCurrency(item.price) : 'N/A', // Format Price
       item.weight != null ? item.weight.toLocaleString() : 'N/A', // Weight is not currency
@@ -402,9 +402,12 @@ const getInvoiceReport = async (req, res) => {
     const invoice = await Invoice.findById(invoiceId)
       .populate({
         path: 'shipments',
-        populate: [ // Can populate multiple paths within shipments
-          { path: 'driver', select: 'firstName lastName username email' },
-          // { path: 'customer', select: 'name' } // Customer on shipment already an ID, not needed if invoice.customer is primary
+        populate: [
+          {
+            path: 'driver', // This now refers to the Driver model
+            select: 'firstName lastName contactPhone' // Select relevant fields from Driver model
+          },
+          // { path: 'customer', select: 'name' }
         ]
       })
       .populate('customer', 'name contactEmail contactPhone primaryAddress') // Populate the main customer for the invoice
@@ -435,7 +438,7 @@ const getInvoiceReport = async (req, res) => {
       projectDescription: invoice.notes || "N/A",
 
       shipmentDetails: invoice.shipments ? invoice.shipments.map(shipment => {
-        const driverName = shipment.driver ? `${shipment.driver.firstName || ''} ${shipment.driver.lastName || ''}`.trim() || shipment.driver.username || 'N/A' : 'N/A';
+        const driverName = shipment.driver ? shipment.driver.fullName : 'N/A'; // Use virtual fullName from Driver model
         const origin = shipment.origin || {};
         const destination = shipment.destination || {};
         const originCity = origin.city || 'N/A';

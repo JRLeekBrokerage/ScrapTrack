@@ -37,8 +37,8 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ['admin', 'dispatcher', 'driver', 'accountant', 'manager'],
-    default: 'driver',
+    enum: ['admin', 'dispatcher', 'accountant', 'manager'], // 'driver' role removed
+    default: 'dispatcher', // Changed default from 'driver'
     required: true
   },
   phone: {
@@ -50,14 +50,7 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: true
   },
-  commissionRate: { // For users with 'driver' role
-    type: Number,
-    min: [0, 'Commission rate cannot be negative'],
-    max: [1, 'Commission rate cannot exceed 100%'],
-    default: 0.10, // Default to 10%
-    // This field might only be relevant if role is 'driver'
-    // Consider adding a custom validator if it should only exist for drivers
-  },
+  // commissionRate field removed, moved to new Driver model
   lastLogin: {
     type: Date
   },

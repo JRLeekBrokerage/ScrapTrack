@@ -203,7 +203,7 @@ class ShipmentsPage {
             const deliveryDateStr = shipment.deliveryDate ? new Date(shipment.deliveryDate).toLocaleDateString() : 'N/A'; 
             const customerNameStr = shipment.customer && shipment.customer.name ? shipment.customer.name : 'N/A';
             const statusStr = shipment.status || 'unknown';
-            const driverNameStr = shipment.driver ? (shipment.driver.fullName || `${shipment.driver.firstName} ${shipment.driver.lastName}` || shipment.driver.username) : 'Not Assigned';
+            const driverNameStr = shipment.driver ? (shipment.driver.fullName || (shipment.driver.firstName && shipment.driver.lastName ? `${shipment.driver.firstName} ${shipment.driver.lastName}` : 'Unknown Driver')) : 'Not Assigned';
 
             row.innerHTML = `
                 <td data-field="deliveryDate">${deliveryDateStr}</td>
@@ -320,7 +320,7 @@ class ShipmentsPage {
             this.drivers.forEach(driver => {
                 const option = document.createElement('option');
                 option.value = driver._id;
-                option.textContent = driver.name || driver.fullName || `${driver.firstName || ''} ${driver.lastName || ''}`.trim() || driver.username || 'Unknown Driver';
+                option.textContent = driver.fullName || (driver.firstName && driver.lastName ? `${driver.firstName} ${driver.lastName}` : 'Unknown Driver');
                 if (driver._id === selectedDriverId) option.selected = true;
                 driverSelect.appendChild(option);
             });
@@ -500,7 +500,7 @@ class ShipmentsPage {
             return;
         }
 
-        const driverName = shipment.driver ? (shipment.driver.fullName || `${shipment.driver.firstName || ''} ${shipment.driver.lastName || ''}`.trim() || shipment.driver.username) : 'N/A';
+        const driverName = shipment.driver ? (shipment.driver.fullName || (shipment.driver.firstName && shipment.driver.lastName ? `${shipment.driver.firstName} ${shipment.driver.lastName}` : 'Unknown Driver')) : 'N/A';
         const customerName = shipment.customer ? shipment.customer.name : 'N/A';
         const originCity = shipment.origin && shipment.origin.city ? shipment.origin.city : 'N/A';
         const destinationCity = shipment.destination && shipment.destination.city ? shipment.destination.city : 'N/A';
@@ -638,7 +638,7 @@ class ShipmentsPage {
                     this.drivers.forEach(drv => {
                         const opt = document.createElement('option');
                         opt.value = drv._id;
-                        opt.textContent = drv.name || drv.fullName || `${drv.firstName || ''} ${drv.lastName || ''}`.trim() || drv.username || 'Unknown Driver';
+                        opt.textContent = drv.fullName || (drv.firstName && drv.lastName ? `${drv.firstName} ${drv.lastName}` : 'Unknown Driver');
                         if (drv._id === currentValue) opt.selected = true;
                         inputElement.appendChild(opt);
                     });
@@ -690,7 +690,7 @@ class ShipmentsPage {
                 const deliveryDateStr = shipment.deliveryDate ? new Date(shipment.deliveryDate).toLocaleDateString() : 'N/A'; 
                 const customerNameStr = shipment.customer && shipment.customer.name ? shipment.customer.name : 'N/A';
                 const statusStr = shipment.status || 'unknown';
-                const driverNameStr = shipment.driver ? (shipment.driver.fullName || `${shipment.driver.firstName} ${shipment.driver.lastName}` || shipment.driver.username) : 'Not Assigned';
+                const driverNameStr = shipment.driver ? (shipment.driver.fullName || (shipment.driver.firstName && shipment.driver.lastName ? `${shipment.driver.firstName} ${shipment.driver.lastName}` : 'Unknown Driver')) : 'Not Assigned';
 
                 switch(field) {
                     case 'deliveryDate': cell.textContent = deliveryDateStr; break; 
