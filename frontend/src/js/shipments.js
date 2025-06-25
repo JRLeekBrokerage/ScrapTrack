@@ -87,8 +87,10 @@ class ShipmentsPage {
 
     updateCalculatedFreightCost() {
         const weight = parseFloat(document.getElementById('weight').value) || 0;
-        const rate = parseFloat(document.getElementById('rate').value) || 0;
-        const calculatedCost = weight * rate;
+        // Rate input is now in cents, convert to dollars for calculation
+        const rateInCents = parseFloat(document.getElementById('rate').value) || 0;
+        const rateInDollars = rateInCents / 100;
+        const calculatedCost = weight * rateInDollars;
         const calculatedFreightCostEl = document.getElementById('calculatedFreightCost');
         if (calculatedFreightCostEl) {
             calculatedFreightCostEl.value = calculatedCost.toFixed(2);
@@ -106,14 +108,16 @@ class ShipmentsPage {
         }
     }
 
-    openShipmentFormModal() { 
+    async openShipmentFormModal() { // Made async
         this.editingShipmentId = null;
         document.getElementById('shipment-form-title').textContent = 'Add New Shipment';
         document.getElementById('shipment-form').reset();
         document.getElementById('shipment-db-id').value = '';
+        await this.loadDrivers(); // Ensure fresh driver list
         this.populateDriverDropdown();
+        await this.loadCustomers(); // Ensure fresh customer list
         this.populateCustomerDropdown();
-        document.getElementById('weight').value = ''; 
+        document.getElementById('weight').value = '';
         document.getElementById('rate').value = '';   
         this.updateCalculatedFreightCost(); 
         document.getElementById('shipment-form-modal').style.display = 'block'; 
@@ -377,7 +381,8 @@ class ShipmentsPage {
             driver: formData.get('driver') || null,
             truckNumber: formData.get('truckNumber'),
             weight: parseFloat(formData.get('weight')) || null,
-            rate: parseFloat(formData.get('rate')) || null,     
+            // Rate is entered in cents, convert to dollars for backend
+            rate: formData.get('rate') ? (parseFloat(formData.get('rate')) / 100) : null,
             notes: formData.get('notes')
         };
     }
@@ -447,14 +452,21 @@ class ShipmentsPage {
             document.getElementById('destination-zipCode').value = shipment.destination.zipCode || '';
         }
 
+        // For editing, ensure dropdowns are populated with fresh data before setting values
+        await this.loadCustomers();
         this.populateCustomerDropdown('shipment-customer-select', shipment.customer?._id || shipment.customer);
-        document.getElementById('deliveryDate').value = shipment.deliveryDate ? new Date(shipment.deliveryDate).toISOString().split('T')[0] : ''; 
+        
+        document.getElementById('deliveryDate').value = shipment.deliveryDate ? new Date(shipment.deliveryDate).toISOString().split('T')[0] : '';
         document.getElementById('status').value = shipment.status || 'pending';
+
+        await this.loadDrivers();
         this.populateDriverDropdown('driver', shipment.driver?._id || shipment.driver);
+        
         document.getElementById('truckNumber').value = shipment.truckNumber || '';
-        document.getElementById('weight').value = shipment.weight != null ? shipment.weight : ''; 
-        document.getElementById('rate').value = shipment.rate != null ? shipment.rate : '';   
-        this.updateCalculatedFreightCost(); 
+        document.getElementById('weight').value = shipment.weight != null ? shipment.weight : '';
+        // Rate is stored in dollars, convert to cents for display
+        document.getElementById('rate').value = shipment.rate != null ? (shipment.rate * 100) : '';
+        this.updateCalculatedFreightCost();
         document.getElementById('shipment-notes').value = shipment.notes || '';
         
         document.getElementById('shipment-form-modal').style.display = 'block';

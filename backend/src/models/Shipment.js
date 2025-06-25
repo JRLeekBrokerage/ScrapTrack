@@ -99,7 +99,9 @@ shipmentSchema.index({ 'customer.name': 1 });
 shipmentSchema.pre('save', function(next) {
   if (this.isModified('rate') || this.isModified('weight') || (this.isNew && this.rate != null && this.weight != null)) {
     if (this.rate != null && this.weight != null) {
-      this.freightCost = parseFloat((this.rate * this.weight).toFixed(2));
+      this.freightCost = parseFloat((Number(this.rate) * Number(this.weight)).toFixed(2));
+    } else {
+      this.freightCost = 0; // Default to 0 if rate or weight is null
     }
   }
   next();

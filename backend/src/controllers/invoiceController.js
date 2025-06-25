@@ -29,7 +29,8 @@ const createInvoice = async (req, res) => {
     }
 
     // Expect customerId. fuelSurchargeRate will be fetched from the customer.
-    const { shipmentIds, customerId, dueDate, /* fuelSurchargeRate = 0, */ /* depositAmount = 0, */ notes } = req.body; // depositAmount removed, fuelSurchargeRate from req.body removed
+    // Added optional predefinedInvoiceNumber for recreation flow
+    const { shipmentIds, customerId, dueDate, notes, predefinedInvoiceNumber } = req.body;
 
     if (!customerId) {
         return res.status(400).json({ success: false, message: 'Customer ID is required.' });
@@ -82,7 +83,7 @@ const createInvoice = async (req, res) => {
     const fuelSurchargeAmount = parseFloat((subTotal * customerFuelSurchargeRate).toFixed(2));
     // Total amount calculation no longer subtracts depositAmount
     const totalAmount = parseFloat((subTotal + fuelSurchargeAmount).toFixed(2));
-    const invoiceNumber = await getNextInvoiceNumber();
+    const invoiceNumber = predefinedInvoiceNumber ? predefinedInvoiceNumber : await getNextInvoiceNumber();
 
     const newInvoice = new Invoice({
       invoiceNumber,

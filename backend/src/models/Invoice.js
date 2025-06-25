@@ -62,9 +62,9 @@ invoiceSchema.pre('save', function(next) {
   // Check if subTotal or fuelSurchargeRate was modified, or if it's a new document where calculations are needed.
   // No longer checking for depositAmount modification.
   if (this.isModified('subTotal') || this.isModified('fuelSurchargeRate') || this.isNew) {
-    this.fuelSurchargeAmount = (this.subTotal || 0) * (this.fuelSurchargeRate || 0);
+    this.fuelSurchargeAmount = parseFloat(((this.subTotal || 0) * (this.fuelSurchargeRate || 0)).toFixed(2));
     // Total amount calculation no longer subtracts depositAmount
-    this.totalAmount = (this.subTotal || 0) + (this.fuelSurchargeAmount || 0);
+    this.totalAmount = parseFloat(((this.subTotal || 0) + (this.fuelSurchargeAmount || 0)).toFixed(2));
   }
   next();
 });

@@ -77,7 +77,7 @@ const getDriverCommissionReport = async (req, res) => {
 
     const commissionReport = shipments.filter(shipment => shipment.driver && shipment.driver.commissionRate != null)
       .map(shipment => {
-        const actualWeight = shipment.totalWeight || 0; // shipment.items removed
+        const actualWeight = shipment.weight || 0; // Corrected from shipment.totalWeight
         const effectiveWeightForPayment = Math.max(actualWeight, MINIMUM_PAYMENT_WEIGHT);
         
         // Calculate the base amount for commission based on the new rules
@@ -93,10 +93,10 @@ const getDriverCommissionReport = async (req, res) => {
         const pickupDestCombined = `${originCity} / ${destCity}`;
         
         return {
-          date: shipment.actualDeliveryDate || shipment.estimatedDeliveryDate || shipment.pickupDate,
-          shipmentId: shipment.shipmentId,
+          date: shipment.actualDeliveryDate || shipment.deliveryDate || shipment.estimatedDeliveryDate, // Prioritize actualDeliveryDate, then deliveryDate
+          shippingNumber: shipment.shippingNumber || 'N/A', // Corrected from shipmentId to shippingNumber
           pickupDestination: pickupDestCombined,
-          driverName: shipment.driver ? shipment.driver.fullName : 'N/A', // Use virtual fullName from Driver model
+          driverName: shipment.driver ? shipment.driver.fullName : 'N/A',
           // driverUsername: shipment.driver ? shipment.driver.username : 'N/A', // username not on Driver model
           truckNumber: shipment.truckNumber || 'N/A',
           price: shipment.rate != null ? parseFloat(shipment.rate.toFixed(4)) : 0,
@@ -155,9 +155,9 @@ const generateCommissionReportPdf = (reportData, res) => {
     const rowY = doc.y;
     const rowValues = [
       item.date ? new Date(item.date).toLocaleDateString() : 'N/A',
-      item.shipmentId || 'N/A',
+      item.shippingNumber || 'N/A', // Corrected from item.shipmentId
       item.pickupDestination || 'N/A',
-      item.driverName || 'N/A', // driverUsername removed
+      item.driverName || 'N/A',
       item.truckNumber || 'N/A',
       item.price != null ? formatCurrency(item.price) : 'N/A', // Format Price
       item.weight != null ? item.weight.toLocaleString() : 'N/A', // Weight is not currency
@@ -297,12 +297,12 @@ const generateInvoicePdf = (reportData, res) => {
     const rowValues = [
         item.date ? new Date(item.date).toLocaleDateString() : 'N/A',
         item.shippingNumber || 'N/A',
-        item.pickupDestination || 'N/A', // Changed from item.destination
+        item.pickupDestination || 'N/A',
         item.driver || 'N/A',
         item.truckNumber || 'N/A',
-        item.price != null ? formatCurrency(item.price) : 'N/A', // Price column
-        item.weight != null ? item.weight.toLocaleString() : 'N/A', // Weight, not currency
-        item.amount != null ? formatCurrency(item.amount) : 'N/A'   // Amount column
+        item.price != null ? (item.price * 100).toFixed(0) + ' \u00A2/lb' : 'N/A', // Display as cents/lb
+        item.weight != null ? item.weight.toLocaleString() : 'N/A',
+        item.amount != null ? formatCurrency(item.amount) : 'N/A'
     ];
     rowValues.forEach((value, i) => {
         doc.text(value.toString(), currentX, rowY, { width: colWidthsConfig[i].width, align: colWidthsConfig[i].align, lineBreak: false });
@@ -445,11 +445,11 @@ const getInvoiceReport = async (req, res) => {
         const destCity = destination.city || 'N/A';
         const pickupDestCombined = `${originCity} / ${destCity}`;
         // Use the new 'rate' and 'weight' fields from the Shipment model
-        
+
         return {
             date: shipment.deliveryDate || shipment.actualPickupDate || shipment.pickupDate, // Prefer deliveryDate
-            shippingNumber: shipment.shipmentId || 'N/A',
-            pickupDestination: pickupDestCombined, // Changed from destination
+            shippingNumber: shipment.shippingNumber || 'N/A', // Corrected from shipment.shipmentId
+            pickupDestination: pickupDestCombined,
             driver: driverName,
             truckNumber: shipment.truckNumber || 'N/A',
             price: shipment.rate != null ? shipment.rate : 0, // New "Price" field from shipment.rate

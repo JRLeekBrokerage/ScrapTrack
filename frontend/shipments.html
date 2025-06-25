@@ -116,8 +116,9 @@
                                     <input type="number" id="weight" name="weight" step="0.01" min="0" required>
                                 </div>
                                 <div class="form-group">
-                                    <label for="rate">Rate (Price per unit, e.g., per lb or per ton):</label>
-                                    <input type="number" id="rate" name="rate" step="0.0001" min="0" required>
+                                    <label for="rate">Rate (cents/lb):</label>
+                                    <input type="number" id="rate" name="rate" step="1" min="0" required>
+                                    <small>Enter as whole cents, e.g., 15 for 15 cents/lb.</small>
                                 </div>
                                 <div class="form-group">
                                     <label for="calculatedFreightCost">Calculated Freight Cost:</label>

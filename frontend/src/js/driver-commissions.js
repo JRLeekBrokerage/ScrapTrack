@@ -205,7 +205,7 @@ class DriverCommissionsPage {
             const row = tbody.insertRow();
             row.innerHTML = `
                 <td>${item.date ? new Date(item.date).toLocaleDateString() : 'N/A'}</td>
-                <td>${item.shipmentId || 'N/A'}</td>
+                <td>${item.shippingNumber || 'N/A'}</td>
                 <td>${item.pickupDestination || 'N/A'}</td>
                 <td>${item.driverName || 'N/A'}</td>
                 <td>${item.truckNumber || 'N/A'}</td>
