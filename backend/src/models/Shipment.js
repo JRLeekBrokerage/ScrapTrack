@@ -100,7 +100,9 @@ shipmentSchema.pre('save', function(next) {
   // Rate is $/Ton, Weight is in lbs.
   if (this.isModified('rate') || this.isModified('weight') || (this.isNew && this.rate != null && this.weight != null)) {
     if (this.rate != null && this.weight != null && this.weight > 0) { // Ensure weight is positive for ton conversion
-      const tons = Number(this.weight) / 2000;
+      const MINIMUM_WEIGHT = 40000;
+      const effectiveWeight = Math.max(Number(this.weight), MINIMUM_WEIGHT);
+      const tons = effectiveWeight / 2000;
       this.freightCost = parseFloat((tons * Number(this.rate)).toFixed(2));
     } else {
       this.freightCost = 0; // Default to 0 if rate or weight is null/invalid

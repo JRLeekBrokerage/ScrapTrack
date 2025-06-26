@@ -88,10 +88,13 @@ class ShipmentsPage {
     updateCalculatedFreightCost() {
         const weightInLbs = parseFloat(document.getElementById('weight').value) || 0;
         const ratePerTon = parseFloat(document.getElementById('rate').value) || 0; // Input is Dollars per Ton
+        const MINIMUM_WEIGHT = 40000;
         
         let calculatedCost = 0;
         if (weightInLbs > 0 && ratePerTon > 0) {
-            const tons = weightInLbs / 2000;
+            // Use the greater of the actual weight or the minimum weight for calculation
+            const effectiveWeight = Math.max(weightInLbs, MINIMUM_WEIGHT);
+            const tons = effectiveWeight / 2000;
             calculatedCost = tons * ratePerTon;
         }
         

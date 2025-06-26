@@ -54,21 +54,12 @@ const createInvoice = async (req, res) => {
       customer: new mongoose.Types.ObjectId(customerId) // Ensure shipments belong to the selected customer
     });
 
-    if (shipments.length === 0 && shipmentIds.length > 0) {
-        // This means none of the provided shipmentIds were valid for this customer, delivered, and uninvoiced
-        return res.status(400).json({
-            success: false,
-            message: 'None of the selected shipments are valid for invoicing for the chosen customer (they may be already invoiced, not delivered, or belong to a different customer).'
-        });
-    }
     if (shipments.length !== shipmentIds.length) {
-        // Some shipments were invalid, but some were okay. Proceeding with valid ones.
-        // Or, choose to error out if not all are valid. For now, let's be strict.
-         const foundIds = shipments.map(s => s._id.toString());
-         const notFoundOrInvalid = shipmentIds.filter(id => !foundIds.includes(id));
+        const foundIds = shipments.map(s => s._id.toString());
+        const notFoundOrInvalid = shipmentIds.filter(id => !foundIds.includes(id));
         return res.status(400).json({
             success: false,
-            message: 'One or more selected shipments are invalid for invoicing for the chosen customer.',
+            message: 'One or more selected shipments are invalid for invoicing for the chosen customer (they may be already invoiced, not delivered, or belong to a different customer).',
             details: { notFoundOrInvalid }
         });
     }

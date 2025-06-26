@@ -72,20 +72,15 @@ const getDriverCommissionReport = async (req, res) => {
       return res.status(200).json({ success: true, message: 'No shipments found matching criteria for commission report.', data: [] });
     }
 
-    const PAYMENT_RATE_PER_POUND = 0.008; // As per business logic example
+    const ton = 2000; // 1 ton = 2000 lbs
     const MINIMUM_PAYMENT_WEIGHT = 40000; // As per business logic
 
     const commissionReport = shipments.filter(shipment => shipment.driver && shipment.driver.commissionRate != null)
-      .map(shipment => {
-        const actualWeight = shipment.weight || 0; // Corrected from shipment.totalWeight
+      .map((shipment, index) => {
+        const actualWeight = shipment.weight || 0;
         const effectiveWeightForPayment = Math.max(actualWeight, MINIMUM_PAYMENT_WEIGHT);
+        const commissionBaseAmount = (effectiveWeightForPayment / ton) * shipment.rate;
         
-        // Calculate the base amount for commission based on the new rules
-        // This 'commissionBaseAmount' is what the Excel 'Amount' column seems to represent for driver payment.
-        // Note: This might differ from shipment.freightCost if freightCost is the customer charge.
-        // For now, we are RECALCULATING the base for commission.
-        const commissionBaseAmount = effectiveWeightForPayment * PAYMENT_RATE_PER_POUND;
-
         const commissionAmount = commissionBaseAmount * (shipment.driver.commissionRate || 0);
 
         const originCity = shipment.origin && shipment.origin.city ? shipment.origin.city : 'N/A';
