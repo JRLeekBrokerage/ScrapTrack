@@ -378,6 +378,13 @@ body {
     margin-left: 10px;
 }
 
+/* Override full-width style for buttons within form-actions to allow them to sit side-by-side */
+.form-actions .btn-primary,
+.form-actions .btn-secondary {
+    width: auto;
+    display: inline-block;
+}
+
 /* Status Badge Styling */
 .status-badge {
     padding: 0.25em 0.6em;
