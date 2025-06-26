@@ -300,7 +300,7 @@ const generateInvoicePdf = (reportData, res) => {
         item.pickupDestination || 'N/A',
         item.driver || 'N/A',
         item.truckNumber || 'N/A',
-        item.price != null ? (item.price * 100).toFixed(0) + ' \u00A2/lb' : 'N/A', // Display as cents/lb
+        item.price != null ? `${formatCurrency(item.price)}/ton` : 'N/A', // Display as $X.XX/ton
         item.weight != null ? item.weight.toLocaleString() : 'N/A',
         item.amount != null ? formatCurrency(item.amount) : 'N/A'
     ];
@@ -445,6 +445,8 @@ const getInvoiceReport = async (req, res) => {
         const destCity = destination.city || 'N/A';
         const pickupDestCombined = `${originCity} / ${destCity}`;
         // Use the new 'rate' and 'weight' fields from the Shipment model
+        
+        console.log(`[getInvoiceReport] PDF Data Prep - Shipment: ${shipment.shippingNumber}, Rate: ${shipment.rate}, Weight: ${shipment.weight}, FreightCost: ${shipment.freightCost}`);
 
         return {
             date: shipment.deliveryDate || shipment.actualPickupDate || shipment.pickupDate, // Prefer deliveryDate

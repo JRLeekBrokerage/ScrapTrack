@@ -86,11 +86,15 @@ class ShipmentsPage {
     }
 
     updateCalculatedFreightCost() {
-        const weight = parseFloat(document.getElementById('weight').value) || 0;
-        // Rate input is now in cents, convert to dollars for calculation
-        const rateInCents = parseFloat(document.getElementById('rate').value) || 0;
-        const rateInDollars = rateInCents / 100;
-        const calculatedCost = weight * rateInDollars;
+        const weightInLbs = parseFloat(document.getElementById('weight').value) || 0;
+        const ratePerTon = parseFloat(document.getElementById('rate').value) || 0; // Input is Dollars per Ton
+        
+        let calculatedCost = 0;
+        if (weightInLbs > 0 && ratePerTon > 0) {
+            const tons = weightInLbs / 2000;
+            calculatedCost = tons * ratePerTon;
+        }
+        
         const calculatedFreightCostEl = document.getElementById('calculatedFreightCost');
         if (calculatedFreightCostEl) {
             calculatedFreightCostEl.value = calculatedCost.toFixed(2);
@@ -381,8 +385,8 @@ class ShipmentsPage {
             driver: formData.get('driver') || null,
             truckNumber: formData.get('truckNumber'),
             weight: parseFloat(formData.get('weight')) || null,
-            // Rate is entered in cents, convert to dollars for backend
-            rate: formData.get('rate') ? (parseFloat(formData.get('rate')) / 100) : null,
+            // Rate is entered in Dollars/Ton, send as is
+            rate: formData.get('rate') ? parseFloat(formData.get('rate')) : null,
             notes: formData.get('notes')
         };
     }
@@ -464,8 +468,8 @@ class ShipmentsPage {
         
         document.getElementById('truckNumber').value = shipment.truckNumber || '';
         document.getElementById('weight').value = shipment.weight != null ? shipment.weight : '';
-        // Rate is stored in dollars, convert to cents for display
-        document.getElementById('rate').value = shipment.rate != null ? (shipment.rate * 100) : '';
+        // Rate is stored in Dollars/Ton, display as is
+        document.getElementById('rate').value = shipment.rate != null ? shipment.rate : '';
         this.updateCalculatedFreightCost();
         document.getElementById('shipment-notes').value = shipment.notes || '';
         

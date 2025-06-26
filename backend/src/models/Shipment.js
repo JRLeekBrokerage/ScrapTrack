@@ -97,11 +97,13 @@ shipmentSchema.index({ 'customer.name': 1 });
 
 // Pre-save hook to calculate freightCost if rate and weight are present
 shipmentSchema.pre('save', function(next) {
+  // Rate is $/Ton, Weight is in lbs.
   if (this.isModified('rate') || this.isModified('weight') || (this.isNew && this.rate != null && this.weight != null)) {
-    if (this.rate != null && this.weight != null) {
-      this.freightCost = parseFloat((Number(this.rate) * Number(this.weight)).toFixed(2));
+    if (this.rate != null && this.weight != null && this.weight > 0) { // Ensure weight is positive for ton conversion
+      const tons = Number(this.weight) / 2000;
+      this.freightCost = parseFloat((tons * Number(this.rate)).toFixed(2));
     } else {
-      this.freightCost = 0; // Default to 0 if rate or weight is null
+      this.freightCost = 0; // Default to 0 if rate or weight is null/invalid
     }
   }
   next();
