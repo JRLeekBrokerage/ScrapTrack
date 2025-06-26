@@ -136,9 +136,7 @@ const getAllInvoices = async (req, res) => {
         sortOptions.issueDate = -1; // Default sort
     }
     
-    // console.log('[getAllInvoices] Query object:', JSON.stringify(query));
-    // console.log('[getAllInvoices] Sort options:', JSON.stringify(sortOptions));
-    // console.log('[getAllInvoices] Page:', page, 'Limit:', queryLimit);
+    console.log('[invoiceController.js] Using Sort Options:', JSON.stringify(sortOptions));
 
     const invoices = await Invoice.find(query)
       .populate('shipments', 'shipmentId freightCost customer')
