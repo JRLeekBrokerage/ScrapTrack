@@ -80,7 +80,9 @@ const createInvoice = async (req, res) => {
       invoiceNumber,
       customer: new mongoose.Types.ObjectId(customerId),
       issueDate: new Date(),
-      dueDate: dueDate ? new Date(dueDate) : undefined,
+      // The date string from the form ("YYYY-MM-DD") is passed directly.
+      // Mongoose will correctly parse this into a Date object at midnight UTC.
+      dueDate: dueDate,
       shipments: shipmentIds.map(id => new mongoose.Types.ObjectId(id)),
       subTotal,
       fuelSurchargeRate: customerFuelSurchargeRate, // Save the customer's rate to the invoice
@@ -239,7 +241,7 @@ const updateInvoice = async (req, res) => {
 
     if (status) invoice.status = status;
     if (notes) invoice.notes = notes;
-    if (dueDate) invoice.dueDate = new Date(dueDate);
+    if (dueDate) invoice.dueDate = dueDate;
     // Note: Modifying shipments linked to an invoice is a more complex operation, not handled here.
 
     const updatedInvoice = await invoice.save();

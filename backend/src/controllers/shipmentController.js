@@ -16,6 +16,10 @@ const createShipment = async (req, res) => {
 
     const shipmentData = { ...req.body, createdBy: req.user._id };
 
+    // The date string from the form ("YYYY-MM-DD") is passed directly.
+    // Mongoose will correctly parse this into a Date object at midnight UTC.
+    // The frontend is responsible for displaying it correctly using UTC methods.
+
     // freightCost will be calculated by the Shipment model's pre-save hook
     // based on rate and weight.
 
@@ -144,6 +148,10 @@ const updateShipment = async (req, res) => {
     }
 
     const updateData = { ...req.body, updatedBy: req.user._id };
+
+    // The date string from the form ("YYYY-MM-DD") is passed directly.
+    // Mongoose will correctly parse this into a Date object at midnight UTC.
+    // The frontend is responsible for displaying it correctly using UTC methods.
 
     // freightCost will be calculated by the Shipment model's pre-save hook
     // if rate or weight are part of updateData.

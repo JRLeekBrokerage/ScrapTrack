@@ -3,12 +3,12 @@ class InvoicesPage {
     constructor() {
         this.invoices = [];
         this.currentUser = null;
-        this.editingInvoiceId = null; // This will store the _id of the invoice being edited
+        this.editingInvoiceId = null;
         this.availableShipments = [];
-        this.allCustomers = []; 
+        this.allCustomers = []; // Stores all active customers for the dropdown
         this.currentPage = 1;
         this.totalPages = 1;
-        this.limit = 10; 
+        this.limit = 10; // Records per page
         this.init();
     }
 
@@ -27,7 +27,7 @@ class InvoicesPage {
         try {
             await this.loadAllCustomersForDropdown();
             await this.loadAvailableShipmentsForForm();
-            await this.loadInvoices(); 
+            await this.loadInvoices(); // Loads initial page
         } catch (error) {
             console.error('[invoices.js] Error in loadInitialInvoicePageData:', error);
         }
@@ -132,7 +132,6 @@ class InvoicesPage {
     renderPaginationControls() {
         const container = document.getElementById('invoices-pagination-controls');
         if (!container) {
-            console.error('[invoices.js] renderPaginationControls: Pagination container #invoices-pagination-controls not found!');
             return;
         }
         container.innerHTML = '';
@@ -194,7 +193,8 @@ class InvoicesPage {
 
             const customerNameStr = invoice.customer && invoice.customer.name ? invoice.customer.name : 'N/A';
             const issueDateStr = invoice.issueDate ? new Date(invoice.issueDate).toLocaleDateString() : 'N/A';
-            const dueDateStr = invoice.dueDate ? new Date(invoice.dueDate).toLocaleDateString() : 'N/A';
+            const dueDate = invoice.dueDate ? new Date(invoice.dueDate) : null;
+            const dueDateStr = dueDate ? `${dueDate.getUTCMonth() + 1}/${dueDate.getUTCDate()}/${dueDate.getUTCFullYear()}` : 'N/A';
             const totalAmountStr = invoice.totalAmount != null ? '$' + invoice.totalAmount.toFixed(2) : 'N/A';
             const statusStr = invoice.status || 'unknown';
 
@@ -337,14 +337,12 @@ class InvoicesPage {
             });
         }
         shipmentSelect.disabled = true;
-
+        
 
         if (invoice.dueDate) {
             document.getElementById('invoice-due-date').value = new Date(invoice.dueDate).toISOString().split('T')[0];
         }
-        // const decimalFuelSurchargeRate = invoice.fuelSurchargeRate || 0; // Field removed from HTML
-        // document.getElementById('invoice-fuel-surcharge-rate').value = (decimalFuelSurchargeRate * 100).toFixed(1); // Field removed from HTML
-        
+    
         document.getElementById('invoice-notes').value = invoice.notes || '';
         
         const statusGroup = document.getElementById('invoice-status-group');
@@ -434,7 +432,7 @@ class InvoicesPage {
     populateShipmentsDropdown() {
         const selectElement = document.getElementById('invoice-shipments-select');
         if (!selectElement) return;
-        selectElement.innerHTML = ''; 
+            selectElement.innerHTML = ''; 
 
         if (this.availableShipments.length === 0) {
             const selectedCustomerName = document.getElementById('invoice-customer-select').selectedOptions[0]?.textContent;
@@ -687,7 +685,7 @@ class InvoicesPage {
         const selectedShipmentIds = Array.from(document.getElementById('invoice-shipments-select').selectedOptions).map(opt => opt.value);
 
         const invoiceData = {
-            customerId: document.getElementById('invoice-customer-select').value,
+            customerId: document.getElementById('invoice-customer-select').value, 
             shipmentIds: selectedShipmentIds,
             dueDate: formData.get('dueDate') || null,
             // fuelSurchargeRate is now determined by the backend based on the customer
@@ -695,7 +693,7 @@ class InvoicesPage {
         };
         
         if (this.editingInvoiceId) {
-            invoiceData.status = formData.get('status');
+            invoiceData.status = formData.get('status'); 
             invoiceData.invoiceNumber = formData.get('invoiceNumber'); // Add invoiceNumber to payload if editing
         }
 

@@ -211,7 +211,8 @@ class ShipmentsPage {
             const destCity = shipment.destination && shipment.destination.city ? shipment.destination.city : 'N/A';
             const pickupDestCombined = `${originCity} / ${destCity}`;
 
-            const deliveryDateStr = shipment.deliveryDate ? new Date(shipment.deliveryDate).toLocaleDateString() : 'N/A'; 
+            const deliveryDate = shipment.deliveryDate ? new Date(shipment.deliveryDate) : null;
+            const deliveryDateStr = deliveryDate ? `${deliveryDate.getUTCMonth() + 1}/${deliveryDate.getUTCDate()}/${deliveryDate.getUTCFullYear()}` : 'N/A';
             const customerNameStr = shipment.customer && shipment.customer.name ? shipment.customer.name : 'N/A';
             const statusStr = shipment.status || 'unknown';
             const driverNameStr = shipment.driver ? (shipment.driver.fullName || (shipment.driver.firstName && shipment.driver.lastName ? `${shipment.driver.firstName} ${shipment.driver.lastName}` : 'Unknown Driver')) : 'Not Assigned';
