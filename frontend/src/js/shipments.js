@@ -369,6 +369,19 @@ class ShipmentsPage {
     }
     
     collectFormData(formData) { 
+        const deliveryDateValue = formData.get('deliveryDate');
+        let deliveryDateToSend = null;
+        
+        if (deliveryDateValue && deliveryDateValue.trim() !== '') {
+            // Create a date object and ensure it's treated as UTC midnight
+            // This prevents timezone shifts when saving/retrieving from the database
+            const dateParts = deliveryDateValue.split('-');
+            const year = parseInt(dateParts[0], 10);
+            const month = parseInt(dateParts[1], 10) - 1; // Month is 0-indexed
+            const day = parseInt(dateParts[2], 10);
+            deliveryDateToSend = new Date(Date.UTC(year, month, day)).toISOString();
+        }
+        
         return {
             shippingNumber: formData.get('shippingNumber'), 
             origin: { // Added origin back
@@ -384,7 +397,7 @@ class ShipmentsPage {
                 zipCode: formData.get('destination.zipCode')
             },
             customer: formData.get('customer'), 
-            deliveryDate: formData.get('deliveryDate'), 
+            deliveryDate: deliveryDateToSend, 
             status: formData.get('status'),
             driver: formData.get('driver') || null,
             truckNumber: formData.get('truckNumber'),
@@ -757,10 +770,17 @@ class ShipmentsPage {
             if (input.required && !input.value && input.type !== 'hidden') {
                 isValid = false;
             }
-            // For combined pickup/destination, inline editing is complex and not handled here.
-            // This save logic assumes individual fields if they were made editable.
-            // Since we are moving to modal for primary edits, this might be simplified or removed for these fields.
-            if (fieldName === 'destination' || fieldName === 'origin') { 
+            
+            // Special handling for delivery date to ensure UTC consistency
+            if (fieldName === 'deliveryDate' && input.value && input.value.trim() !== '') {
+                const dateParts = input.value.split('-');
+                const year = parseInt(dateParts[0], 10);
+                const month = parseInt(dateParts[1], 10) - 1; // Month is 0-indexed
+                const day = parseInt(dateParts[2], 10);
+                updatedData[fieldName] = new Date(Date.UTC(year, month, day)).toISOString();
+            } else if (fieldName === 'deliveryDate' && (!input.value || input.value.trim() === '')) {
+                updatedData[fieldName] = null;
+            } else if (fieldName === 'destination' || fieldName === 'origin') { 
                 // This logic would need to parse a combined field or expect individual city inputs
                 // For now, assuming modal handles these edits primarily.
                 // If inline editing for individual city parts was implemented:

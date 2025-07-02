@@ -192,7 +192,7 @@ class InvoicesPage {
             const row = tbody.insertRow();
 
             const customerNameStr = invoice.customer && invoice.customer.name ? invoice.customer.name : 'N/A';
-            const issueDateStr = invoice.issueDate ? new Date(invoice.issueDate).toLocaleDateString() : 'N/A';
+            const issueDateStr = invoice.issueDate ? `${new Date(invoice.issueDate).getUTCMonth() + 1}/${new Date(invoice.issueDate).getUTCDate()}/${new Date(invoice.issueDate).getUTCFullYear()}` : 'N/A';
             const dueDate = invoice.dueDate ? new Date(invoice.dueDate) : null;
             const dueDateStr = dueDate ? `${dueDate.getUTCMonth() + 1}/${dueDate.getUTCDate()}/${dueDate.getUTCFullYear()}` : 'N/A';
             const totalAmountStr = invoice.totalAmount != null ? '$' + invoice.totalAmount.toFixed(2) : 'N/A';
@@ -341,6 +341,8 @@ class InvoicesPage {
 
         if (invoice.dueDate) {
             document.getElementById('invoice-due-date').value = new Date(invoice.dueDate).toISOString().split('T')[0];
+        } else {
+            document.getElementById('invoice-due-date').value = '';
         }
     
         document.getElementById('invoice-notes').value = invoice.notes || '';
@@ -684,10 +686,23 @@ class InvoicesPage {
 
         const selectedShipmentIds = Array.from(document.getElementById('invoice-shipments-select').selectedOptions).map(opt => opt.value);
 
+        const dueDateValue = formData.get('dueDate');
+        let dueDateToSend = null;
+        
+        if (dueDateValue && dueDateValue.trim() !== '') {
+            // Create a date object and ensure it's treated as UTC midnight
+            // This prevents timezone shifts when saving/retrieving from the database
+            const dateParts = dueDateValue.split('-');
+            const year = parseInt(dateParts[0], 10);
+            const month = parseInt(dateParts[1], 10) - 1; // Month is 0-indexed
+            const day = parseInt(dateParts[2], 10);
+            dueDateToSend = new Date(Date.UTC(year, month, day)).toISOString();
+        }
+        
         const invoiceData = {
             customerId: document.getElementById('invoice-customer-select').value, 
             shipmentIds: selectedShipmentIds,
-            dueDate: formData.get('dueDate') || null,
+            dueDate: dueDateToSend,
             // fuelSurchargeRate is now determined by the backend based on the customer
             notes: formData.get('notes')
         };

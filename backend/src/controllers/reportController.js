@@ -33,7 +33,15 @@ const getDriverCommissionReport = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Validation failed', errors: errors.array() });
     }
 
-    const { driverId, startDate, endDate, format = 'json' } = req.query; // Added format
+    const { driverId, startDate: rawStartDate, endDate: rawEndDate, format = 'json' } = req.query;
+    
+    // Handle dates more robustly - just use the raw string values
+    const startDate = rawStartDate;
+    const endDate = rawEndDate;
+    
+    console.log(`[Commission Report] Raw query params:`, req.query);
+    console.log(`[Commission Report] startDate type: ${typeof startDate}, value: ${startDate}`);
+    console.log(`[Commission Report] endDate type: ${typeof endDate}, value: ${endDate}`);
 
     const matchConditions = {
       status: 'delivered',
@@ -48,17 +56,78 @@ const getDriverCommissionReport = async (req, res) => {
     }
 
     if (startDate || endDate) {
-      matchConditions.actualDeliveryDate = {};
+      // Simplified date filtering - just check deliveryDate field since actualDeliveryDate is undefined
+      const dateFilter = {};
+      
       if (startDate) {
-        matchConditions.actualDeliveryDate.$gte = new Date(startDate);
+        try {
+          // Parse date as YYYY-MM-DD and create UTC date
+          let startDateUTC;
+          if (typeof startDate === 'string' && startDate.includes('-')) {
+            const [year, month, day] = startDate.split('-').map(Number);
+            startDateUTC = new Date(Date.UTC(year, month - 1, day, 0, 0, 0, 0));
+          } else if (typeof startDate === 'object' && startDate instanceof Date) {
+            // If it's already a Date object, extract the date parts and recreate as UTC
+            const dateObj = startDate;
+            startDateUTC = new Date(Date.UTC(dateObj.getUTCFullYear(), dateObj.getUTCMonth(), dateObj.getUTCDate(), 0, 0, 0, 0));
+          } else {
+            // Fallback: try to parse whatever we received
+            const dateObj = new Date(startDate);
+            if (isNaN(dateObj.getTime())) {
+              throw new Error(`Invalid start date: ${startDate}`);
+            }
+            startDateUTC = new Date(Date.UTC(dateObj.getUTCFullYear(), dateObj.getUTCMonth(), dateObj.getUTCDate(), 0, 0, 0, 0));
+          }
+          
+          if (isNaN(startDateUTC.getTime())) {
+            throw new Error(`Invalid start date: ${startDate}`);
+          }
+          
+          console.log(`[Commission Report] Start Date UTC: ${startDateUTC.toISOString()} (requested: ${startDate})`);
+          dateFilter.$gte = startDateUTC;
+        } catch (error) {
+          console.error(`[Commission Report] Error parsing start date:`, error);
+          return res.status(400).json({ success: false, message: `Invalid start date format: ${startDate}` });
+        }
       }
+      
       if (endDate) {
-        // To include the whole end day, set to end of day
-        const endOfDay = new Date(endDate);
-        endOfDay.setHours(23, 59, 59, 999);
-        matchConditions.actualDeliveryDate.$lte = endOfDay;
+        try {
+          // Parse date as YYYY-MM-DD and create UTC end of day
+          let endDateUTC;
+          if (typeof endDate === 'string' && endDate.includes('-')) {
+            const [year, month, day] = endDate.split('-').map(Number);
+            endDateUTC = new Date(Date.UTC(year, month - 1, day, 23, 59, 59, 999));
+          } else if (typeof endDate === 'object' && endDate instanceof Date) {
+            // If it's already a Date object, extract the date parts and recreate as UTC end of day
+            const dateObj = endDate;
+            endDateUTC = new Date(Date.UTC(dateObj.getUTCFullYear(), dateObj.getUTCMonth(), dateObj.getUTCDate(), 23, 59, 59, 999));
+          } else {
+            // Fallback: try to parse whatever we received
+            const dateObj = new Date(endDate);
+            if (isNaN(dateObj.getTime())) {
+              throw new Error(`Invalid end date: ${endDate}`);
+            }
+            endDateUTC = new Date(Date.UTC(dateObj.getUTCFullYear(), dateObj.getUTCMonth(), dateObj.getUTCDate(), 23, 59, 59, 999));
+          }
+          
+          if (isNaN(endDateUTC.getTime())) {
+            throw new Error(`Invalid end date: ${endDate}`);
+          }
+          
+          console.log(`[Commission Report] End Date UTC: ${endDateUTC.toISOString()} (requested: ${endDate})`);
+          dateFilter.$lte = endDateUTC;
+        } catch (error) {
+          console.error(`[Commission Report] Error parsing end date:`, error);
+          return res.status(400).json({ success: false, message: `Invalid end date format: ${endDate}` });
+        }
       }
+      
+      // Since actualDeliveryDate is undefined, just filter by deliveryDate
+      matchConditions.deliveryDate = dateFilter;
     }
+    
+    console.log(`[Commission Report] Final match conditions:`, JSON.stringify(matchConditions, null, 2));
     
     // Find shipments and populate driver and customer details
     const shipments = await Shipment.find(matchConditions)
@@ -67,6 +136,14 @@ const getDriverCommissionReport = async (req, res) => {
         select: 'firstName lastName commissionRate contactPhone contactEmail' // Select fields from Driver model
       })
       .sort({ actualDeliveryDate: 1 });
+
+    console.log(`[Commission Report] Found ${shipments.length} shipments matching criteria`);
+    if (shipments.length > 0) {
+      console.log(`[Commission Report] Sample shipment dates:`);
+      shipments.slice(0, 3).forEach((ship, idx) => {
+        console.log(`  ${idx + 1}: deliveryDate=${ship.deliveryDate}, actualDeliveryDate=${ship.actualDeliveryDate}, shippingNumber=${ship.shippingNumber}`);
+      });
+    }
 
     if (!shipments || shipments.length === 0) {
       return res.status(200).json({ success: true, message: 'No shipments found matching criteria for commission report.', data: [] });
@@ -149,7 +226,7 @@ const generateCommissionReportPdf = (reportData, res) => {
     currentX = startX;
     const rowY = doc.y;
     const rowValues = [
-      item.date ? new Date(item.date).toLocaleDateString() : 'N/A',
+      item.date ? `${new Date(item.date).getUTCMonth() + 1}/${new Date(item.date).getUTCDate()}/${new Date(item.date).getUTCFullYear()}` : 'N/A',
       item.shippingNumber || 'N/A', // Corrected from item.shipmentId
       item.pickupDestination || 'N/A',
       item.driverName || 'N/A',
@@ -195,7 +272,7 @@ const generateCommissionReportPdf = (reportData, res) => {
       const pdfReportData = {
         reportTitle: "Driver Commission Report",
         driverName: driverId ? (commissionReport.length > 0 ? commissionReport[0].driverName : 'N/A') : 'All Drivers',
-        period: startDate && endDate ? `${new Date(startDate).toLocaleDateString()} - ${new Date(endDate).toLocaleDateString()}` : 'All Time',
+        period: startDate && endDate ? `${new Date(startDate).getUTCMonth() + 1}/${new Date(startDate).getUTCDate()}/${new Date(startDate).getUTCFullYear()} - ${new Date(endDate).getUTCMonth() + 1}/${new Date(endDate).getUTCDate()}/${new Date(endDate).getUTCFullYear()}` : 'All Time',
         items: commissionReport,
         totalFreightAmount: commissionReport.reduce((sum, item) => sum + (item.amount || 0), 0),
         totalCommission: commissionReport.reduce((sum, item) => sum + (item.commissionAmount || 0), 0)
@@ -290,7 +367,7 @@ const generateInvoicePdf = (reportData, res) => {
     const rowY = doc.y;
     currentX = startX;
     const rowValues = [
-        item.date ? new Date(item.date).toLocaleDateString() : 'N/A',
+        item.date ? `${new Date(item.date).getUTCMonth() + 1}/${new Date(item.date).getUTCDate()}/${new Date(item.date).getUTCFullYear()}` : 'N/A',
         item.shippingNumber || 'N/A',
         item.pickupDestination || 'N/A',
         item.driver || 'N/A',

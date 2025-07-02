@@ -25,7 +25,15 @@ const updateInvoiceValidation = [
   param('id').isMongoId().withMessage('Valid Invoice MongoDB ID is required'),
   body('invoiceNumber').optional().notEmpty().withMessage('Invoice Number cannot be empty if provided').trim(),
   body('status').optional().isIn(['draft', 'sent', 'paid', 'partially-paid', 'overdue', 'void']).withMessage('Invalid status value'),
-  body('dueDate').optional().isISO8601().toDate().withMessage('Invalid due date format'),
+  body('dueDate').optional({ nullable: true }).custom((value) => {
+    if (value === null || value === undefined || value === '') {
+      return true; // Allow null, undefined, or empty string
+    }
+    if (!Date.parse(value)) {
+      throw new Error('Invalid due date format');
+    }
+    return true;
+  }),
   body('notes').optional().isString().trim(),
   body('fuelSurchargeRate').optional().isFloat({ min: 0, max: 1 }).withMessage('Fuel surcharge rate must be between 0 and 1 (e.g., 0.05 for 5%)')
 ];

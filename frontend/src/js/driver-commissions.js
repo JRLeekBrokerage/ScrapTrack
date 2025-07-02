@@ -132,8 +132,26 @@ class DriverCommissionsPage {
 
         const formData = new FormData(event.target);
         const driverId = formData.get('driverId');
-        const startDate = formData.get('startDate');
-        const endDate = formData.get('endDate');
+        const startDateValue = formData.get('startDate');
+        const endDateValue = formData.get('endDate');
+        
+        // Convert dates to proper UTC format to avoid timezone issues
+        let startDate = null;
+        let endDate = null;
+        
+        if (startDateValue && startDateValue.trim() !== '') {
+            console.log(`[Frontend] Original startDate value: ${startDateValue}`);
+            // Just use the string value directly - don't convert to Date object
+            startDate = startDateValue;
+            console.log(`[Frontend] Processed startDate: ${startDate}`);
+        }
+        
+        if (endDateValue && endDateValue.trim() !== '') {
+            console.log(`[Frontend] Original endDate value: ${endDateValue}`);
+            // Just use the string value directly - don't convert to Date object
+            endDate = endDateValue;
+            console.log(`[Frontend] Processed endDate: ${endDate}`);
+        }
 
         try {
             // Construct query parameters
@@ -235,8 +253,23 @@ class DriverCommissionsPage {
         const commissionFilterForm = document.getElementById('commission-filter-form');
         const formData = new FormData(commissionFilterForm);
         const driverId = formData.get('driverId');
-        const startDate = formData.get('startDate');
-        const endDate = formData.get('endDate');
+        const startDateValue = formData.get('startDate');
+        const endDateValue = formData.get('endDate');
+        
+        // Convert dates to proper UTC format to avoid timezone issues
+        let startDate = null;
+        let endDate = null;
+        
+        if (startDateValue && startDateValue.trim() !== '') {
+            // Just use the string value directly - don't convert to Date object
+            startDate = startDateValue;
+        }
+        
+        if (endDateValue && endDateValue.trim() !== '') {
+            // Just use the string value directly - don't convert to Date object
+            endDate = endDateValue;
+        }
+        
         const token = localStorage.getItem('authToken');
 
         if (!token) {
