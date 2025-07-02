@@ -622,3 +622,24 @@ ul.tracking-history li:last-child {
     width: auto; /* Override default full-width for .btn-primary */
     padding: 10px 20px; /* Standard button padding */
 }
+/* Commission Report Specific Styles */
+.data-table .customer-header td {
+    background-color: #e9ecef;
+    font-weight: bold;
+    color: #2c3e50;
+    font-size: 1.1em;
+    padding: 12px 10px;
+}
+
+.data-table .customer-subtotal td {
+    background-color: #f8f9fa;
+    font-weight: bold;
+    border-top: 2px solid #dee2e6;
+}
+
+.data-table tfoot .grand-total td {
+    background-color: #343a40;
+    color: white;
+    font-size: 1.1em;
+    font-weight: bold;
+}

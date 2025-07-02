@@ -164,11 +164,11 @@ class DriverCommissionsPage {
             // For now, let's assume it's part of a generic makeRequest or a specific method
             const response = await API.makeRequest(`/reports/commission?${queryParams.toString()}`);
             
-            if (response && Array.isArray(response.data)) {
-                this.commissionReportData = response.data;
+            if (response && response.data && response.data.groupedData) {
+                this.commissionReportData = response.data; // Store the entire object
             } else {
                 console.error('Unexpected response structure for commission report:', response);
-                this.commissionReportData = [];
+                this.commissionReportData = null; // Set to null to indicate no valid data
             }
 
             if (loadingMsg) loadingMsg.style.display = 'none';
@@ -192,10 +192,12 @@ class DriverCommissionsPage {
         if (loadingMsg) loadingMsg.style.display = 'none';
 
 
-        if (!this.commissionReportData || this.commissionReportData.length === 0) {
+        if (!this.commissionReportData || !this.commissionReportData.groupedData || Object.keys(this.commissionReportData.groupedData).length === 0) {
             tableContainer.innerHTML = '<p>No commission data found for the selected criteria.</p>';
             return;
         }
+
+        const { groupedData, grandTotalAmount, grandTotalCommission } = this.commissionReportData;
 
         const table = document.createElement('table');
         table.className = 'data-table';
@@ -206,10 +208,11 @@ class DriverCommissionsPage {
                     <th>Shipment #</th>
                     <th>Pick-up/Dest.</th>
                     <th>Driver</th>
-                    <th>Truck #</th>
+                    <th>Trk #</th>
+                    <th>Price</th>
                     <th>Weight</th>
                     <th>Amount</th>
-                    <th>Rate</th>
+                    <th>Comm Rate</th>
                     <th>Commission</th>
                 </tr>
             </thead>
@@ -218,29 +221,59 @@ class DriverCommissionsPage {
         `;
 
         const tbody = table.querySelector('tbody');
-        let totalCommission = 0;
-        this.commissionReportData.forEach(item => {
-            const row = tbody.insertRow();
-            row.innerHTML = `
-                <td>${item.date ? new Date(item.date).toLocaleDateString() : 'N/A'}</td>
-                <td>${item.shippingNumber || 'N/A'}</td>
-                <td>${item.pickupDestination || 'N/A'}</td>
-                <td>${item.driverName || 'N/A'}</td>
-                <td>${item.truckNumber || 'N/A'}</td>
-                <td>${item.weight != null ? item.weight.toLocaleString() : 'N/A'}</td>
-                <td>${item.amount != null ? '$' + item.amount.toFixed(2) : 'N/A'}</td>
-                <td>${item.commissionRate != null ? (item.commissionRate * 100).toFixed(0) + '%' : 'N/A'}</td>
-                <td>${item.commissionAmount != null ? '$' + item.commissionAmount.toFixed(2) : 'N/A'}</td>
-            `;
-            totalCommission += item.commissionAmount || 0;
-        });
-        
-        // Add a footer row for total commission
+
+        for (const customerName in groupedData) {
+            if (Object.hasOwnProperty.call(groupedData, customerName)) {
+                const customerData = groupedData[customerName];
+
+                // Customer Header Row
+                const customerHeaderRow = tbody.insertRow();
+                customerHeaderRow.className = 'customer-header';
+                customerHeaderRow.innerHTML = `<td colspan="10">${customerName}</td>`;
+
+                // Shipment Rows for this customer
+                customerData.items.forEach(item => {
+                    const row = tbody.insertRow();
+                    row.innerHTML = `
+                        <td>${item.date ? new Date(item.date).toLocaleDateString() : 'N/A'}</td>
+                        <td>${item.shippingNumber || 'N/A'}</td>
+                        <td>${item.pickupDestination || 'N/A'}</td>
+                        <td>${item.driverName || 'N/A'}</td>
+                        <td>${item.truckNumber || 'N/A'}</td>
+                        <td>${item.price != null ? '$' + item.price.toFixed(2) : 'N/A'}</td>
+                        <td>${item.weight != null ? item.weight.toLocaleString() : 'N/A'}</td>
+                        <td>${item.amount != null ? '$' + item.amount.toFixed(2) : 'N/A'}</td>
+                        <td>${item.commissionRate != null ? (item.commissionRate * 100).toFixed(0) + '%' : 'N/A'}</td>
+                        <td>${item.commissionAmount != null ? '$' + item.commissionAmount.toFixed(2) : 'N/A'}</td>
+                    `;
+                });
+
+                // Customer Subtotal Row
+                const subtotalRow = tbody.insertRow();
+                subtotalRow.className = 'customer-subtotal';
+                subtotalRow.innerHTML = `
+                    <td colspan="7" style="text-align: right; font-weight: bold;">Customer Total:</td>
+                    <td style="font-weight: bold;">$${customerData.customerTotalAmount.toFixed(2)}</td>
+                    <td></td>
+                    <td style="font-weight: bold;">$${customerData.customerTotalCommission.toFixed(2)}</td>
+                `;
+            }
+        }
+
+        // Grand Totals
         const tfoot = table.createTFoot();
-        const footerRow = tfoot.insertRow();
-        footerRow.innerHTML = `
-            <td colspan="7" style="text-align: right; font-weight: bold;">Total Commission:</td>
-            <td style="font-weight: bold;">$${totalCommission.toFixed(2)}</td>
+        const grandTotalAmountRow = tfoot.insertRow();
+        grandTotalAmountRow.className = 'grand-total';
+        grandTotalAmountRow.innerHTML = `
+            <td colspan="7" style="text-align: right; font-weight: bold;">Grand Total Amount (Freight):</td>
+            <td style="font-weight: bold;">$${grandTotalAmount.toFixed(2)}</td>
+            <td colspan="2"></td>
+        `;
+        const grandTotalCommissionRow = tfoot.insertRow();
+        grandTotalCommissionRow.className = 'grand-total';
+        grandTotalCommissionRow.innerHTML = `
+            <td colspan="9" style="text-align: right; font-weight: bold;">Grand Total Commission:</td>
+            <td style="font-weight: bold;">$${grandTotalCommission.toFixed(2)}</td>
         `;
 
         tableContainer.innerHTML = '';

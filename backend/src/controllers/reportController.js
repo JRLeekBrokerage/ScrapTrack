@@ -135,7 +135,8 @@ const getDriverCommissionReport = async (req, res) => {
         path: 'driver', // This now refers to the Driver model due to Shipment model change
         select: 'firstName lastName commissionRate contactPhone contactEmail' // Select fields from Driver model
       })
-      .sort({ actualDeliveryDate: 1 });
+      .populate('customer', 'name') // Populate customer name
+      .sort({ 'customer.name': 1, actualDeliveryDate: 1 }); // Sort by customer then date
 
     console.log(`[Commission Report] Found ${shipments.length} shipments matching criteria`);
     if (shipments.length > 0) {
@@ -175,7 +176,8 @@ const getDriverCommissionReport = async (req, res) => {
           weight: actualWeight,
           amount: shipment.freightCost != null ? parseFloat(shipment.freightCost.toFixed(2)) : 0, // This is the freightCost (rate * weight)
           commissionRate: shipment.driver.commissionRate,
-          commissionAmount: parseFloat(commissionAmount.toFixed(2))
+          commissionAmount: parseFloat(commissionAmount.toFixed(2)),
+          customerName: shipment.customer ? shipment.customer.name : 'Unknown Customer'
         };
       });
 // Helper function to generate Commission Report PDF
@@ -222,31 +224,51 @@ const generateCommissionReportPdf = (reportData, res) => {
   doc.moveDown();
 
   // Table Rows
-  reportData.items.forEach(item => {
-    currentX = startX;
-    const rowY = doc.y;
-    const rowValues = [
-      item.date ? `${new Date(item.date).getUTCMonth() + 1}/${new Date(item.date).getUTCDate()}/${new Date(item.date).getUTCFullYear()}` : 'N/A',
-      item.shippingNumber || 'N/A', // Corrected from item.shipmentId
-      item.pickupDestination || 'N/A',
-      item.driverName || 'N/A',
-      item.truckNumber || 'N/A',
-      item.price != null ? formatCurrency(item.price) : 'N/A', // Format Price
-      item.weight != null ? item.weight.toLocaleString() : 'N/A', // Weight is not currency
-      item.amount != null ? formatCurrency(item.amount) : 'N/A', // Amount (Freight Cost)
-      item.commissionRate != null ? (item.commissionRate * 100).toFixed(0) + '%' : 'N/A',
-      item.commissionAmount != null ? formatCurrency(item.commissionAmount) : 'N/A' // Commission Amount
-    ];
+  Object.entries(reportData.groupedData).forEach(([customerName, customerData]) => {
+    doc.moveDown().font('Helvetica-Bold').fontSize(10);
+    doc.text(`Customer: ${customerName}`, startX, doc.y, { align: 'left' });
+    doc.font('Helvetica').fontSize(9);
+    doc.moveDown(0.5);
 
-    rowValues.forEach((value, i) => {
-      doc.text(value.toString(), currentX, rowY, { width: colWidths[i], lineBreak: false, align: (i >= 5 ? 'right' : 'left') });
-      currentX += colWidths[i];
+    customerData.items.forEach(item => {
+        currentX = startX;
+        const rowY = doc.y;
+        const rowValues = [
+            item.date ? `${new Date(item.date).getUTCMonth() + 1}/${new Date(item.date).getUTCDate()}/${new Date(item.date).getUTCFullYear()}` : 'N/A',
+            item.shippingNumber || 'N/A',
+            item.pickupDestination || 'N/A',
+            item.driverName || 'N/A',
+            item.truckNumber || 'N/A',
+            item.price != null ? formatCurrency(item.price) : 'N/A',
+            item.weight != null ? item.weight.toLocaleString() : 'N/A',
+            item.amount != null ? formatCurrency(item.amount) : 'N/A',
+            item.commissionRate != null ? (item.commissionRate * 100).toFixed(0) + '%' : 'N/A',
+            item.commissionAmount != null ? formatCurrency(item.commissionAmount) : 'N/A'
+        ];
+
+        rowValues.forEach((value, i) => {
+            doc.text(value.toString(), currentX, rowY, { width: colWidths[i], lineBreak: false, align: (i >= 5 ? 'right' : 'left') });
+            currentX += colWidths[i];
+        });
+        doc.moveDown(1.2);
+        if (doc.y > doc.page.height - 70) {
+            doc.addPage({ margin: 50, size: 'LETTER', layout: 'landscape' });
+            // Simplified: Redrawing headers would be complex, might need a dedicated header function
+        }
     });
-    doc.moveDown(1.2); 
-    if (doc.y > doc.page.height - 70) { // Check for page break
-        doc.addPage({ margin: 50, size: 'LETTER', layout: 'landscape' });
-        // Redraw headers on new page if needed (simplified here)
-    }
+
+    // Customer Totals
+    doc.moveDown(0.5);
+    const customerTotalsX = doc.page.width - startX - 300;
+    doc.font('Helvetica-Bold');
+    doc.text(`Customer Total Amount: ${formatCurrency(customerData.customerTotalAmount)}`, customerTotalsX, doc.y, { align: 'right', width: 300 });
+    doc.text(`Customer Total Commission: ${formatCurrency(customerData.customerTotalCommission)}`, customerTotalsX, doc.y, { align: 'right', width: 300 });
+    doc.font('Helvetica');
+    doc.moveDown();
+
+    const lineY = doc.y;
+    doc.moveTo(startX, lineY).lineTo(doc.page.width - startX, lineY).stroke();
+    doc.moveDown();
   });
   const tableBottom = doc.y;
   doc.moveTo(startX, tableBottom).lineTo(doc.page.width - startX, tableBottom).stroke();
@@ -267,19 +289,44 @@ const generateCommissionReportPdf = (reportData, res) => {
     // const shipmentIdsToUpdate = commissionReport.map(r => r.shipmentId);
     // await Shipment.updateMany({ _id: { $in: shipments.map(s => s._id) } }, { commissionCalculatedDate: new Date() });
 
+    const totalFreightAmount = commissionReport.reduce((sum, item) => sum + (item.amount || 0), 0);
+    const totalCommission = commissionReport.reduce((sum, item) => sum + (item.commissionAmount || 0), 0);
+
+    const groupedByCustomer = commissionReport.reduce((acc, reportItem) => {
+      const customerName = reportItem.customerName;
+      if (!acc[customerName]) {
+        acc[customerName] = {
+          items: [],
+          customerTotalAmount: 0,
+          customerTotalCommission: 0,
+        };
+      }
+      acc[customerName].items.push(reportItem);
+      acc[customerName].customerTotalAmount += reportItem.amount || 0;
+      acc[customerName].customerTotalCommission += reportItem.commissionAmount || 0;
+      return acc;
+    }, {});
+
+    const finalReport = {
+      groupedData: groupedByCustomer,
+      grandTotalAmount: totalFreightAmount,
+      grandTotalCommission: totalCommission,
+      driverName: driverId ? (commissionReport.length > 0 ? commissionReport[0].driverName : 'N/A') : 'All Drivers',
+      period: startDate && endDate ? `${new Date(startDate).toLocaleDateString()} - ${new Date(endDate).toLocaleDateString()}` : 'All Time',
+    };
+
     if (format === 'pdf') {
-      // Prepare data specifically for the PDF if needed, or pass commissionReport directly
       const pdfReportData = {
         reportTitle: "Driver Commission Report",
-        driverName: driverId ? (commissionReport.length > 0 ? commissionReport[0].driverName : 'N/A') : 'All Drivers',
-        period: startDate && endDate ? `${new Date(startDate).getUTCMonth() + 1}/${new Date(startDate).getUTCDate()}/${new Date(startDate).getUTCFullYear()} - ${new Date(endDate).getUTCMonth() + 1}/${new Date(endDate).getUTCDate()}/${new Date(endDate).getUTCFullYear()}` : 'All Time',
-        items: commissionReport,
-        totalFreightAmount: commissionReport.reduce((sum, item) => sum + (item.amount || 0), 0),
-        totalCommission: commissionReport.reduce((sum, item) => sum + (item.commissionAmount || 0), 0)
+        driverName: finalReport.driverName,
+        period: finalReport.period,
+        groupedData: finalReport.groupedData,
+        totalFreightAmount: finalReport.grandTotalAmount,
+        totalCommission: finalReport.grandTotalCommission
       };
       generateCommissionReportPdf(pdfReportData, res);
     } else {
-      res.json({ success: true, data: commissionReport });
+      res.json({ success: true, data: finalReport });
     }
 
   } catch (error) {
