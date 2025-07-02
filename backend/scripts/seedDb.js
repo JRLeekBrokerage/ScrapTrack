@@ -1,4 +1,4 @@
-require('dotenv').config({ path: require('path').resolve(__dirname, '../.env') }); // Load .env variables
+require('dotenv').config({ path: require('path').join(__dirname, '..', '.env') }); // Load .env variables
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const User = require('../src/models/User');
@@ -285,16 +285,17 @@ if (require.main === module) {
     if (process.env.MONGODB_URI) {
         mongoURI_direct_run = process.env.MONGODB_URI;
         console.log(`Direct run: Using provided MONGODB_URI: ${mongoURI_direct_run}`);
-    } else if (process.env.NODE_ENV === 'production') {
+    } else if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test') {
+        console.log('Direct run: Development/Test mode, using in-memory MongoDB.');
+        mongodInstance = await MongoMemoryServer.create();
+        mongoURI_direct_run = mongodInstance.getUri();
+    } else {
+        // Defaults to persistent DB for 'production' or when NODE_ENV is not set.
         const dbHost = process.env.DB_HOST || 'localhost';
         const dbPort = process.env.DB_PORT || '27017';
         const dbName = process.env.DB_NAME || 'leekbrokerage_db_direct_seed';
         mongoURI_direct_run = `mongodb://${dbHost}:${dbPort}/${dbName}`;
-        console.log(`Direct run: Production mode, using persistent DB: ${mongoURI_direct_run}`);
-    } else {
-        console.log('Direct run: Defaulting to in-memory MongoDB for standalone script execution.');
-        mongodInstance = await MongoMemoryServer.create();
-        mongoURI_direct_run = mongodInstance.getUri();
+        console.log(`Direct run: Production or undefined mode, using persistent DB: ${mongoURI_direct_run}`);
     }
 
     try {
