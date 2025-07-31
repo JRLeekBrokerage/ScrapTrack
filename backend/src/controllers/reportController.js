@@ -182,7 +182,7 @@ const getDriverCommissionReport = async (req, res) => {
       });
 // Helper function to generate Commission Report PDF
 const generateCommissionReportPdf = (reportData, res) => {
-  const doc = new PDFDocument({ margin: 50, size: 'LETTER', layout: 'landscape' }); // Use landscape for more columns
+  const doc = new PDFDocument({ margin: 50, size: 'LETTER', layout: 'portrait' });
 
   const safeDriverName = reportData.driverName.replace(/[^a-zA-Z0-9]/g, '_') || 'AllDrivers';
   const safePeriod = reportData.period.replace(/[^a-zA-Z0-9-]/g, '_') || 'AllTime';
@@ -200,28 +200,29 @@ const generateCommissionReportPdf = (reportData, res) => {
   doc.moveDown();
 
   // Table Header
-  const tableTop = doc.y;
   const startX = 50;
-  // Date, Ship#, Pick-up/Dest, Driver, Trk#, Price, Weight, Amount (Freight), Rate (Comm), Commission
-  // Adjusted width for Pick-up/Dest from 80 to 100, reduced Driver from 80 to 60 to compensate. Total width remains similar.
-  const colWidths = [60, 70, 100, 60, 50, 55, 60, 65, 50, 65];
-  let currentX = startX;
-
-  doc.fontSize(9); // Smaller font for table
+  const colWidths = [50, 60, 70, 50, 40, 45, 50, 55, 50, 55];
   const headers = ['Date', 'Shipment #', 'Pick-up/Dest.', 'Driver', 'Trk #', 'Price', 'Weight', 'Amount', 'Comm Rate', 'Commission'];
-  
-  headers.forEach((header, i) => {
-    doc.text(header, currentX, tableTop, {
-        width: colWidths[i],
-        lineBreak: false,
-        align: (i >= 5 ? 'right' : 'left') // Price, Weight, Amount, Comm Rate, Commission right-aligned
+
+  const drawCommissionTableHeader = () => {
+    const tableTop = doc.y;
+    doc.fontSize(9);
+    let currentX = startX;
+    headers.forEach((header, i) => {
+      doc.text(header, currentX, tableTop, {
+          width: colWidths[i],
+          lineBreak: false,
+          align: (i >= 5 ? 'right' : 'left')
+      });
+      currentX += colWidths[i];
     });
-    currentX += colWidths[i];
-  });
-  doc.moveDown(0.5);
-  const tableHeaderBottom = doc.y;
-  doc.moveTo(startX, tableHeaderBottom).lineTo(doc.page.width - startX, tableHeaderBottom).stroke();
-  doc.moveDown();
+    doc.moveDown(1.0);
+    const tableHeaderBottom = doc.y;
+    doc.moveTo(startX, tableHeaderBottom).lineTo(doc.page.width - startX, tableHeaderBottom).stroke();
+    doc.moveDown();
+  };
+
+  drawCommissionTableHeader();
 
   // Table Rows
   Object.entries(reportData.groupedData).forEach(([customerName, customerData]) => {
@@ -231,8 +232,10 @@ const generateCommissionReportPdf = (reportData, res) => {
     doc.moveDown(0.5);
 
     customerData.items.forEach(item => {
-        currentX = startX;
+        let currentX = startX;
         const rowY = doc.y;
+        let rowHeight = 0;
+
         const rowValues = [
             item.date ? `${new Date(item.date).getUTCMonth() + 1}/${new Date(item.date).getUTCDate()}/${new Date(item.date).getUTCFullYear()}` : 'N/A',
             item.shippingNumber || 'N/A',
@@ -246,14 +249,24 @@ const generateCommissionReportPdf = (reportData, res) => {
             item.commissionAmount != null ? formatCurrency(item.commissionAmount) : 'N/A'
         ];
 
+        // Calculate the maximum height of the row
         rowValues.forEach((value, i) => {
-            doc.text(value.toString(), currentX, rowY, { width: colWidths[i], lineBreak: false, align: (i >= 5 ? 'right' : 'left') });
+            const cellHeight = doc.heightOfString(value.toString(), { width: colWidths[i] });
+            if (cellHeight > rowHeight) {
+                rowHeight = cellHeight;
+            }
+        });
+
+        // Draw the row with the calculated height
+        rowValues.forEach((value, i) => {
+            doc.text(value.toString(), currentX, rowY, { width: colWidths[i], align: (i >= 5 ? 'right' : 'left') });
             currentX += colWidths[i];
         });
-        doc.moveDown(1.2);
+
+        doc.y = rowY + rowHeight + 10; // 10 is for padding
         if (doc.y > doc.page.height - 70) {
-            doc.addPage({ margin: 50, size: 'LETTER', layout: 'landscape' });
-            // Simplified: Redrawing headers would be complex, might need a dedicated header function
+            doc.addPage({ margin: 50, size: 'LETTER', layout: 'portrait' });
+            drawCommissionTableHeader();
         }
     });
 
@@ -379,47 +392,49 @@ const generateInvoicePdf = (reportData, res) => {
   }
 
   // Shipments Table Header
-  const tableTop = doc.y;
-  const startX = 50; // Renamed itemCol to startX for clarity
-  const pageContentWidth = doc.page.width - startX - startX; // 512
-
-  // Define relative widths, ensure they sum up to <= pageContentWidth
-  // New column order: Date, Shipping #, Pick-up/Dest., Driver, Trk #, Price, Weight, Amount
-  // Adjusted width for Pick-up/Dest. from 80 to 100, Driver from 70 to 50.
+  const startX = 50;
   const colWidthsConfig = [
     { header: 'Date', width: 60, align: 'left' },
     { header: 'Shipping #', width: 60, align: 'left' },
     { header: 'Pick-up/Dest.', width: 100, align: 'left' },
     { header: 'Driver', width: 50, align: 'left' },
     { header: 'Trk #', width: 35, align: 'left' },
-    { header: 'Price', width: 55, align: 'right' }, // New Price column
+    { header: 'Price', width: 55, align: 'right' },
     { header: 'Weight', width: 55, align: 'right' },
     { header: 'Amount', width: 65, align: 'right' }
   ];
-  // Sum of new widths: 60+60+80+70+35+55+55+65 = 480. This fits within 512.
 
-  doc.fontSize(10);
-  let currentX = startX;
-  colWidthsConfig.forEach(col => {
-    doc.text(col.header, currentX, tableTop, { width: col.width, lineBreak: false, align: col.align });
-    currentX += col.width;
-  });
-  doc.moveDown(0.5);
-  const tableHeaderBottom = doc.y;
-  doc.moveTo(startX, tableHeaderBottom).lineTo(doc.page.width - startX, tableHeaderBottom).stroke(); // Replaced itemCol with startX
-  doc.moveDown();
+  const drawTableHeader = () => {
+    const tableTop = doc.y;
+    doc.fontSize(10);
+    let currentX = startX;
+    colWidthsConfig.forEach(col => {
+      doc.text(col.header, currentX, tableTop, { width: col.width, lineBreak: false, align: col.align });
+      currentX += col.width;
+    });
+    doc.moveDown(0.5);
+    const tableHeaderBottom = doc.y;
+    doc.moveTo(startX, tableHeaderBottom).lineTo(doc.page.width - startX, tableHeaderBottom).stroke();
+    doc.moveDown();
+  };
+
+  drawTableHeader();
 
   // Shipments Table Rows
   reportData.shipmentDetails.forEach(item => {
+    if (doc.y > doc.page.height - 150) { // Check if there is enough space for the row and footer
+        doc.addPage({ margin: 50, size: 'LETTER' });
+        drawTableHeader();
+    }
     const rowY = doc.y;
-    currentX = startX;
+    let currentX = startX;
     const rowValues = [
         item.date ? `${new Date(item.date).getUTCMonth() + 1}/${new Date(item.date).getUTCDate()}/${new Date(item.date).getUTCFullYear()}` : 'N/A',
         item.shippingNumber || 'N/A',
         item.pickupDestination || 'N/A',
         item.driver || 'N/A',
         item.truckNumber || 'N/A',
-        item.price != null ? `${formatCurrency(item.price)}/ton` : 'N/A', // Display as $X.XX/ton
+        item.price != null ? `${formatCurrency(item.price)}/ton` : 'N/A',
         item.weight != null ? item.weight.toLocaleString() : 'N/A',
         item.amount != null ? formatCurrency(item.amount) : 'N/A'
     ];
@@ -449,60 +464,7 @@ const generateInvoicePdf = (reportData, res) => {
   // }
   doc.font('Helvetica-Bold').text(`Invoice Total: ${formatCurrency(reportData.invoiceTotal)}`, totalsX, undefined, { align: 'right' });
   doc.font('Helvetica');
-  doc.moveDown(2);
  
-  const drawFooter = (docInstance, data) => {
-    const pageBottomMargin = 50; // Standard margin
-    const footerHeightEstimate = 100; // Approximate height needed for footer content
-    let footerStartY = docInstance.page.height - pageBottomMargin - footerHeightEstimate;
-    if (footerStartY < docInstance.y + 20) { // Ensure footer doesn't overlap content if content is too long
-        footerStartY = docInstance.y + 20; // Position it after current content if page is almost full
-    }
-    if (footerStartY > docInstance.page.height - pageBottomMargin - 20) { // Don't let it go too high if page is short
-        footerStartY = docInstance.page.height - pageBottomMargin - footerHeightEstimate;
-    }
-
-
-    // Thick black line above footer
-    docInstance.moveTo(startX, footerStartY - 10) // 10 points above the first line of text
-       .lineTo(docInstance.page.width - startX, footerStartY - 10)
-       .lineWidth(1.5)
-       .strokeColor('black')
-       .stroke();
-    
-    const footerTextX = startX; // Use page margins
-    const footerWidth = docInstance.page.width - startX * 2;
-
-    docInstance.fontSize(9).font('Helvetica');
-    let currentY = footerStartY;
-
-    const lines = [
-        "Make all checks payable to: Leek Brokerage Inc",
-        "If you have any questions concerning this invoice, contact:",
-        `${data.contactPerson} - ${data.contactPhone} - ${data.contactEmail}`,
-        data.brokerageAddressLine1,
-        data.brokerageAddressLine2,
-        `Phone: ${data.brokerageMainPhone}`
-    ];
-
-    lines.forEach(line => {
-        docInstance.text(line, footerTextX, currentY, { align: 'center', width: footerWidth });
-        currentY += docInstance.currentLineHeight() * 0.9; // Adjust spacing
-    });
-    
-    docInstance.moveDown(0.5); // Add a bit more space before the thank you
-    currentY = docInstance.y; // Recalculate Y after moveDown
-    docInstance.font('Helvetica-Bold').fontSize(10).text("Thank you for your business!", footerTextX, currentY, { align: 'center', width: footerWidth });
-    docInstance.font('Helvetica'); // Reset font
-  };
-
-  // Draw footer on the first page
-  drawFooter(doc, reportData);
-
-  // Register event to draw footer on subsequent pages
-  doc.on('pageAdded', () => {
-    drawFooter(doc, reportData);
-  });
 
   doc.end();
 };

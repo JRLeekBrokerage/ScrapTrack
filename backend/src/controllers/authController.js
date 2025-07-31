@@ -155,6 +155,7 @@ const login = async (req, res) => {
     }
 
     const { login, password } = req.body;
+    console.log('Login attempt with:', { login, password: '***' });
 
     // Find user by email or username
     const user = await User.findOne({
@@ -166,6 +167,7 @@ const login = async (req, res) => {
 
     if (!user) {
       console.log('Login attempt: No active user found for identifier:', login);
+      console.log('Request body:', req.body);
       return res.status(401).json({
         success: false,
         message: 'Invalid credentials'

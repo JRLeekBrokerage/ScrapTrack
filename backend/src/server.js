@@ -4,7 +4,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const { connectDB, stopInMemoryDB } = require('../config/database'); // Destructure connectDB and stopInMemoryDB
-const { performSeed } = require('../scripts/seedDb'); // Import the seeding function
+const { performCustomSeed } = require('../scripts/seedTwentyPlus'); // Import the custom seeding function
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -15,7 +15,7 @@ const PORT = process.env.PORT || 3000;
 // Security middleware
 app.use(helmet());
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3001',
+  origin: [process.env.FRONTEND_URL || 'http://localhost:3001', 'http://127.0.0.1:3001'],
   credentials: true,
   exposedHeaders: ['Content-Disposition']
 }));
@@ -70,7 +70,7 @@ const startServer = async () => {
     // Seed the database if in development mode after connection
     if (process.env.NODE_ENV === 'development') {
       console.log('Development mode: Attempting to seed database...');
-      const seedSuccessful = await performSeed();
+      const seedSuccessful = await performCustomSeed();
       if (seedSuccessful) {
         console.log('In-memory database seeded successfully for development.');
       } else {
