@@ -78,9 +78,10 @@ const startServer = async () => {
       }
     }
 
-    app.listen(PORT, () => {
+    app.listen(PORT, '0.0.0.0', () => {
       console.log(`LeekBrokerage API server running on port ${PORT}`);
       console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+      console.log(`Access it on your local network at http://<your-local-ip>:${PORT}`);
     });
   } catch (error) {
     console.error('Failed to start server:', error);
