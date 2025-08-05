@@ -1,5 +1,5 @@
 // API Configuration
-const API_BASE_URL = 'http://localhost:3000/api';
+const API_BASE_URL = `http://${window.location.hostname}:3000/api`;
 window.API_BASE_URL = API_BASE_URL; // Make it globally accessible for invoices.js
 
 // API Helper Functions

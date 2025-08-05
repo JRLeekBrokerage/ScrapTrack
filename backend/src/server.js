@@ -15,7 +15,12 @@ const PORT = process.env.PORT || 3000;
 // Security middleware
 app.use(helmet());
 app.use(cors({
-  origin: [process.env.FRONTEND_URL || 'http://localhost:3001', 'http://127.0.0.1:3001'],
+  origin: (origin, callback) => {
+    // In development, or for same-origin requests (e.g., from a mobile app), allow all.
+    // For a production web app, you might want to restrict this to your domain.
+    // For now, this allows access from any IP on the local network.
+    callback(null, true);
+  },
   credentials: true,
   exposedHeaders: ['Content-Disposition']
 }));
