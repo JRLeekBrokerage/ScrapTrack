@@ -1,0 +1,369 @@
+[{
+  "_id": {
+    "$oid": "6859fea6c00ea69caec7601a"
+  },
+  "name": "Northern Ohio Scrap",
+  "contactEmail": "none@none.com",
+  "contactPhone": "(440)446-1500",
+  "primaryAddress": {
+    "street": "2625 Snowberry Lane ",
+    "city": "Cleveland",
+    "state": "Ohio",
+    "zipCode": "44124",
+    "country": "USA"
+  },
+  "notes": "",
+  "isActive": true,
+  "fuelSurchargeRate": 0.35,
+  "createdBy": {
+    "$oid": "6859fd841e345ce0864b0f53"
+  },
+  "createdAt": {
+    "$date": "2025-06-24T01:25:58.465Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-24T16:53:20.349Z"
+  },
+  "__v": 0,
+  "updatedBy": {
+    "$oid": "6859fd841e345ce0864b0f53"
+  }
+},
+{
+  "_id": {
+    "$oid": "685aa7add008750dcc7f2978"
+  },
+  "name": "Metalico Annaco",
+  "contactEmail": "kbushman@metalico.com",
+  "contactPhone": "(330)376-1400 ext 4",
+  "primaryAddress": {
+    "street": "943 Hazel St,",
+    "city": "Akron",
+    "state": "OH ",
+    "zipCode": "44305",
+    "country": "USA"
+  },
+  "notes": "",
+  "isActive": true,
+  "fuelSurchargeRate": 0.35,
+  "createdBy": {
+    "$oid": "6859fd841e345ce0864b0f53"
+  },
+  "createdAt": {
+    "$date": "2025-06-24T13:27:09.671Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-24T16:55:26.265Z"
+  },
+  "__v": 0,
+  "updatedBy": {
+    "$oid": "6859fd841e345ce0864b0f53"
+  }
+},
+{
+  "_id": {
+    "$oid": "685aa80bd008750dcc7f298d"
+  },
+  "name": "Niles Iron & Metal Co. Inc.",
+  "contactEmail": "info@nilesiron.com",
+  "contactPhone": "(330)652-2262",
+  "primaryAddress": {
+    "street": " 700 S Main Street PO Box 166",
+    "city": "Niles",
+    "state": "OH  ",
+    "zipCode": "44446",
+    "country": "USA"
+  },
+  "notes": "",
+  "isActive": true,
+  "fuelSurchargeRate": 0.25,
+  "createdBy": {
+    "$oid": "6859fd841e345ce0864b0f53"
+  },
+  "createdAt": {
+    "$date": "2025-06-24T13:28:43.057Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-07T14:16:42.618Z"
+  },
+  "__v": 0,
+  "updatedBy": {
+    "$oid": "6859fd841e345ce0864b0f53"
+  }
+},
+{
+  "_id": {
+    "$oid": "685aa87bd008750dcc7f29bf"
+  },
+  "name": "Union Iron & Metal",
+  "contactEmail": "none@none.com",
+  "contactPhone": "(216)417-3500",
+  "primaryAddress": {
+    "street": "8700 Bessemer Ave",
+    "city": "Cleveland",
+    "state": "OH ",
+    "zipCode": "44127",
+    "country": "USA"
+  },
+  "notes": "",
+  "isActive": true,
+  "fuelSurchargeRate": 0.35,
+  "createdBy": {
+    "$oid": "6859fd841e345ce0864b0f53"
+  },
+  "createdAt": {
+    "$date": "2025-06-24T13:30:35.344Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-24T16:53:44.535Z"
+  },
+  "__v": 0,
+  "updatedBy": {
+    "$oid": "6859fd841e345ce0864b0f53"
+  }
+},
+{
+  "_id": {
+    "$oid": "685aa92ed008750dcc7f29d4"
+  },
+  "name": "TMS International",
+  "contactEmail": "mdebona@tmsinternational.com",
+  "contactPhone": "(412)215-0419",
+  "primaryAddress": {
+    "street": "516 Delwar Rd,",
+    "city": "Pittsburgh",
+    "state": "PA ",
+    "zipCode": "15236",
+    "country": "USA"
+  },
+  "notes": "",
+  "isActive": true,
+  "fuelSurchargeRate": 0.35,
+  "createdBy": {
+    "$oid": "6859fd841e345ce0864b0f53"
+  },
+  "createdAt": {
+    "$date": "2025-06-24T13:33:34.524Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-24T16:53:29.718Z"
+  },
+  "__v": 0,
+  "updatedBy": {
+    "$oid": "6859fd841e345ce0864b0f53"
+  }
+},
+{
+  "_id": {
+    "$oid": "685aaaf5d008750dcc7f29e9"
+  },
+  "name": "Fex LLC",
+  "contactEmail": "damoroso@fexgroup.com",
+  "contactPhone": "(740)535-8148",
+  "primaryAddress": {
+    "street": "2200 Commercial Ave,",
+    "city": "Mingo Junction",
+    "state": "OH",
+    "zipCode": "43938",
+    "country": "USA"
+  },
+  "notes": "",
+  "isActive": true,
+  "fuelSurchargeRate": 0.35,
+  "createdBy": {
+    "$oid": "6859fd841e345ce0864b0f53"
+  },
+  "createdAt": {
+    "$date": "2025-06-24T13:41:09.627Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-24T16:57:48.205Z"
+  },
+  "__v": 0,
+  "updatedBy": {
+    "$oid": "6859fd841e345ce0864b0f53"
+  }
+},
+{
+  "_id": {
+    "$oid": "685ab58dd008750dcc7f2bf9"
+  },
+  "name": "Sims Brothers",
+  "contactEmail": "susanclapp@simsbros.com",
+  "contactPhone": "(740)387-9041",
+  "primaryAddress": {
+    "street": "PO BOX 1170",
+    "city": "Marion",
+    "state": "OH ",
+    "zipCode": "43301",
+    "country": "USA"
+  },
+  "notes": "",
+  "isActive": true,
+  "fuelSurchargeRate": 0.2,
+  "createdBy": {
+    "$oid": "6859fd841e345ce0864b0f53"
+  },
+  "createdAt": {
+    "$date": "2025-06-24T14:26:21.622Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-17T20:54:24.587Z"
+  },
+  "__v": 0,
+  "updatedBy": {
+    "$oid": "6859fd841e345ce0864b0f53"
+  }
+},
+{
+  "_id": {
+    "$oid": "685ab5cad008750dcc7f2c0e"
+  },
+  "name": "Wilmington Iron & Metal Co",
+  "contactEmail": "none@none.com",
+  "contactPhone": "(937)382-3867",
+  "primaryAddress": {
+    "street": "2149 S South St, Wilmington,",
+    "city": "Wilmington",
+    "state": "OH",
+    "zipCode": "45177",
+    "country": "USA"
+  },
+  "notes": "",
+  "isActive": true,
+  "fuelSurchargeRate": 0,
+  "createdBy": {
+    "$oid": "6859fd841e345ce0864b0f53"
+  },
+  "createdAt": {
+    "$date": "2025-06-24T14:27:22.468Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-24T16:53:10.951Z"
+  },
+  "__v": 0,
+  "updatedBy": {
+    "$oid": "6859fd841e345ce0864b0f53"
+  }
+},
+{
+  "_id": {
+    "$oid": "685ada47d008750dcc7f2e72"
+  },
+  "name": "Recycling Revenue Partners",
+  "contactEmail": "garrett.tracey@recyclingrevenue.com",
+  "contactPhone": "(513)259-9691",
+  "primaryAddress": {
+    "street": "4541 Pine Tree Ct",
+    "city": "Westerville, ",
+    "state": "OH",
+    "zipCode": "43082",
+    "country": "USA"
+  },
+  "notes": "",
+  "isActive": true,
+  "fuelSurchargeRate": 0.35,
+  "createdBy": {
+    "$oid": "6859fd841e345ce0864b0f53"
+  },
+  "createdAt": {
+    "$date": "2025-06-24T17:03:03.501Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-24T17:03:32.316Z"
+  },
+  "__v": 0,
+  "updatedBy": {
+    "$oid": "6859fd841e345ce0864b0f53"
+  }
+},
+{
+  "_id": {
+    "$oid": "686bd3eed6661bb4f2e7c6d2"
+  },
+  "name": "Ace Iron & Metal",
+  "contactEmail": "none@none.com",
+  "contactPhone": "(614) 443-5196",
+  "primaryAddress": {
+    "street": "2515 Groveport Rd",
+    "city": "Columbus",
+    "state": "OH",
+    "zipCode": "43207",
+    "country": "USA"
+  },
+  "notes": "",
+  "isActive": true,
+  "fuelSurchargeRate": 0.25,
+  "createdBy": {
+    "$oid": "6859fd841e345ce0864b0f53"
+  },
+  "createdAt": {
+    "$date": "2025-07-07T14:04:30.868Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-07T14:04:30.868Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "686e6588d6661bb4f2e7cd98"
+  },
+  "name": "Reece Trucking LLC",
+  "contactEmail": "none@none.com",
+  "contactPhone": "(419) 577-5001",
+  "primaryAddress": {
+    "street": "211 South Horning Rd,",
+    "city": "Mansfield",
+    "state": "OH",
+    "zipCode": "44903",
+    "country": "USA"
+  },
+  "notes": "",
+  "isActive": true,
+  "fuelSurchargeRate": 0.15,
+  "createdBy": {
+    "$oid": "6859fd841e345ce0864b0f53"
+  },
+  "createdAt": {
+    "$date": "2025-07-09T12:50:16.356Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-09T12:50:29.541Z"
+  },
+  "__v": 0,
+  "updatedBy": {
+    "$oid": "6859fd841e345ce0864b0f53"
+  }
+},
+{
+  "_id": {
+    "$oid": "6875206aff477a61f10fd90a"
+  },
+  "name": "dododdo",
+  "contactEmail": "none@none.com",
+  "contactPhone": "323565656565",
+  "primaryAddress": {
+    "street": " 700 South Main Street",
+    "city": "",
+    "state": "",
+    "zipCode": "",
+    "country": "USA"
+  },
+  "notes": "",
+  "isActive": false,
+  "fuelSurchargeRate": 0.15,
+  "createdBy": {
+    "$oid": "6859fd841e345ce0864b0f53"
+  },
+  "createdAt": {
+    "$date": "2025-07-14T15:21:14.732Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-14T15:21:34.687Z"
+  },
+  "__v": 0,
+  "updatedBy": {
+    "$oid": "6859fd841e345ce0864b0f53"
+  }
+}]

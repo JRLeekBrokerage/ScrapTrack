@@ -1,0 +1,1797 @@
+[{
+  "_id": {
+    "$oid": "685d9408ef1742afa4d7004c"
+  },
+  "invoiceNumber": "23759",
+  "customer": {
+    "$oid": "6859fea6c00ea69caec7601a"
+  },
+  "issueDate": {
+    "$date": "2025-06-24T02:18:44.001Z"
+  },
+  "shipments": [
+    {
+      "$oid": "685a079d811ce6e670549e40"
+    }
+  ],
+  "subTotal": 520.64,
+  "fuelSurchargeRate": 0.35,
+  "fuelSurchargeAmount": 182.22,
+  "totalAmount": 702.86,
+  "status": "paid",
+  "notes": "",
+  "createdBy": {
+    "$oid": "6859fd841e345ce0864b0f53"
+  },
+  "createdAt": {
+    "$date": "2025-06-26T18:40:08.800Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-30T17:57:54.739Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "685d9b4def1742afa4d70685"
+  },
+  "invoiceNumber": "23765",
+  "customer": {
+    "$oid": "685aa92ed008750dcc7f29d4"
+  },
+  "issueDate": {
+    "$date": "2025-06-26T19:11:09.910Z"
+  },
+  "shipments": [
+    {
+      "$oid": "685d9b28ef1742afa4d705a8"
+    }
+  ],
+  "subTotal": 438.18,
+  "fuelSurchargeRate": 0.35,
+  "fuelSurchargeAmount": 153.36,
+  "totalAmount": 591.54,
+  "status": "paid",
+  "notes": "",
+  "createdBy": {
+    "$oid": "6859fd841e345ce0864b0f53"
+  },
+  "createdAt": {
+    "$date": "2025-06-26T19:11:09.910Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-30T17:12:55.662Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "685dbbbaef1742afa4d719ef"
+  },
+  "invoiceNumber": "23764",
+  "customer": {
+    "$oid": "685aa80bd008750dcc7f298d"
+  },
+  "issueDate": {
+    "$date": "2025-06-26T21:29:30.612Z"
+  },
+  "shipments": [
+    {
+      "$oid": "685dba21ef1742afa4d71870"
+    },
+    {
+      "$oid": "685db8a0ef1742afa4d7174d"
+    },
+    {
+      "$oid": "685db92fef1742afa4d717e9"
+    },
+    {
+      "$oid": "685db986ef1742afa4d71816"
+    },
+    {
+      "$oid": "685db9f0ef1742afa4d71843"
+    },
+    {
+      "$oid": "685dba6def1742afa4d7189d"
+    },
+    {
+      "$oid": "685dbb1eef1742afa4d71917"
+    },
+    {
+      "$oid": "685dbb65ef1742afa4d71958"
+    },
+    {
+      "$oid": "685dbba1ef1742afa4d71999"
+    }
+  ],
+  "subTotal": 3306.62,
+  "fuelSurchargeRate": 0.25,
+  "fuelSurchargeAmount": 826.65,
+  "totalAmount": 4133.27,
+  "status": "draft",
+  "notes": "",
+  "createdBy": {
+    "$oid": "6859fd841e345ce0864b0f53"
+  },
+  "createdAt": {
+    "$date": "2025-06-26T21:29:30.613Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-02T18:10:03.592Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "685e92046bb13d741ad16d9a"
+  },
+  "invoiceNumber": "23766",
+  "customer": {
+    "$oid": "685aa92ed008750dcc7f29d4"
+  },
+  "issueDate": {
+    "$date": "2025-06-27T12:43:48.758Z"
+  },
+  "dueDate": null,
+  "shipments": [
+    {
+      "$oid": "685d9bf3ef1742afa4d7073b"
+    },
+    {
+      "$oid": "685d9c8bef1742afa4d707bd"
+    },
+    {
+      "$oid": "685d9cc4ef1742afa4d707ea"
+    },
+    {
+      "$oid": "685d9cf5ef1742afa4d70817"
+    },
+    {
+      "$oid": "685d9d33ef1742afa4d70844"
+    },
+    {
+      "$oid": "685d9e09ef1742afa4d70871"
+    },
+    {
+      "$oid": "685e90da6bb13d741ad16b16"
+    },
+    {
+      "$oid": "685e91696bb13d741ad16bd5"
+    },
+    {
+      "$oid": "685d9ec1ef1742afa4d708fc"
+    },
+    {
+      "$oid": "685d9f3eef1742afa4d70956"
+    },
+    {
+      "$oid": "685d9f7fef1742afa4d70983"
+    },
+    {
+      "$oid": "685e91be6bb13d741ad16c3b"
+    },
+    {
+      "$oid": "685da002ef1742afa4d70a15"
+    }
+  ],
+  "subTotal": 2304.94,
+  "fuelSurchargeRate": 0.35,
+  "fuelSurchargeAmount": 806.73,
+  "totalAmount": 3111.67,
+  "status": "paid",
+  "notes": "",
+  "createdBy": {
+    "$oid": "6859fd841e345ce0864b0f53"
+  },
+  "createdAt": {
+    "$date": "2025-06-27T12:43:48.758Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-09T14:55:43.217Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68655a172fccad3711b2d0ba"
+  },
+  "invoiceNumber": "73770",
+  "customer": {
+    "$oid": "685aa92ed008750dcc7f29d4"
+  },
+  "issueDate": {
+    "$date": "2025-06-30T13:11:59.835Z"
+  },
+  "dueDate": null,
+  "shipments": [
+    {
+      "$oid": "68628d11697fcf910cc6287c"
+    }
+  ],
+  "subTotal": 767.9,
+  "fuelSurchargeRate": 0.35,
+  "fuelSurchargeAmount": 268.76,
+  "totalAmount": 1036.66,
+  "status": "paid",
+  "notes": "",
+  "createdBy": {
+    "$oid": "6859fd841e345ce0864b0f53"
+  },
+  "createdAt": {
+    "$date": "2025-07-02T16:11:03.688Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-30T17:55:03.555Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6865617deeddd0765f33e67f"
+  },
+  "invoiceNumber": "23772",
+  "customer": {
+    "$oid": "685aa92ed008750dcc7f29d4"
+  },
+  "issueDate": {
+    "$date": "2025-07-02T13:16:42.728Z"
+  },
+  "dueDate": null,
+  "shipments": [
+    {
+      "$oid": "686531022fccad3711b2cef3"
+    }
+  ],
+  "subTotal": 1244.12,
+  "fuelSurchargeRate": 0.35,
+  "fuelSurchargeAmount": 435.44,
+  "totalAmount": 1679.56,
+  "status": "paid",
+  "notes": "",
+  "createdBy": {
+    "$oid": "6859fd841e345ce0864b0f53"
+  },
+  "createdAt": {
+    "$date": "2025-07-02T16:42:37.204Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-30T17:54:25.962Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6865619ceeddd0765f33e6b8"
+  },
+  "invoiceNumber": "23771",
+  "customer": {
+    "$oid": "685aa92ed008750dcc7f29d4"
+  },
+  "issueDate": {
+    "$date": "2025-07-02T13:16:57.792Z"
+  },
+  "dueDate": null,
+  "shipments": [
+    {
+      "$oid": "6865302a2fccad3711b2ce68"
+    },
+    {
+      "$oid": "686530672fccad3711b2ce95"
+    }
+  ],
+  "subTotal": 362.19,
+  "fuelSurchargeRate": 0.35,
+  "fuelSurchargeAmount": 126.77,
+  "totalAmount": 488.96,
+  "status": "paid",
+  "notes": "",
+  "createdBy": {
+    "$oid": "6859fd841e345ce0864b0f53"
+  },
+  "createdAt": {
+    "$date": "2025-07-02T16:43:08.510Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-30T17:55:16.636Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68656c14c5b36113dedbe495"
+  },
+  "invoiceNumber": "23769",
+  "customer": {
+    "$oid": "685aa92ed008750dcc7f29d4"
+  },
+  "issueDate": {
+    "$date": "2025-06-26T20:46:51.902Z"
+  },
+  "shipments": [
+    {
+      "$oid": "685db0a5ef1742afa4d71390"
+    },
+    {
+      "$oid": "685db13aef1742afa4d713ea"
+    },
+    {
+      "$oid": "685db17bef1742afa4d71417"
+    },
+    {
+      "$oid": "685db102ef1742afa4d713bd"
+    }
+  ],
+  "subTotal": 2971.85,
+  "fuelSurchargeRate": 0.35,
+  "fuelSurchargeAmount": 1040.15,
+  "totalAmount": 4012,
+  "status": "paid",
+  "notes": "",
+  "createdBy": {
+    "$oid": "6859fd841e345ce0864b0f53"
+  },
+  "createdAt": {
+    "$date": "2025-07-02T17:27:48.231Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-30T17:54:50.570Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68657cf5c5b36113dedbe8c2"
+  },
+  "invoiceNumber": "23773",
+  "customer": {
+    "$oid": "685aa7add008750dcc7f2978"
+  },
+  "issueDate": {
+    "$date": "2025-07-02T18:39:49.011Z"
+  },
+  "dueDate": null,
+  "shipments": [
+    {
+      "$oid": "68657b10c5b36113dedbe78d"
+    },
+    {
+      "$oid": "68657b51c5b36113dedbe7ba"
+    },
+    {
+      "$oid": "68657b83c5b36113dedbe7e7"
+    },
+    {
+      "$oid": "68657bf2c5b36113dedbe814"
+    },
+    {
+      "$oid": "68657c65c5b36113dedbe841"
+    },
+    {
+      "$oid": "68657cbec5b36113dedbe86e"
+    }
+  ],
+  "subTotal": 4322.5,
+  "fuelSurchargeRate": 0.35,
+  "fuelSurchargeAmount": 1512.88,
+  "totalAmount": 5835.38,
+  "status": "paid",
+  "notes": "",
+  "createdBy": {
+    "$oid": "6859fd841e345ce0864b0f53"
+  },
+  "createdAt": {
+    "$date": "2025-07-02T18:39:49.012Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-30T17:47:29.064Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "686bd22fd6661bb4f2e7c63a"
+  },
+  "invoiceNumber": "23775",
+  "customer": {
+    "$oid": "685aa80bd008750dcc7f298d"
+  },
+  "issueDate": {
+    "$date": "2025-07-07T13:57:03.592Z"
+  },
+  "dueDate": null,
+  "shipments": [
+    {
+      "$oid": "686bd21dd6661bb4f2e7c5e6"
+    }
+  ],
+  "subTotal": 335.1,
+  "fuelSurchargeRate": 0.25,
+  "fuelSurchargeAmount": 83.78,
+  "totalAmount": 418.88,
+  "status": "paid",
+  "notes": "",
+  "createdBy": {
+    "$oid": "6859fd841e345ce0864b0f53"
+  },
+  "createdAt": {
+    "$date": "2025-07-07T13:57:03.592Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-30T17:52:41.940Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "686c0085d6661bb4f2e7c9cd"
+  },
+  "invoiceNumber": "23774",
+  "customer": {
+    "$oid": "685aa87bd008750dcc7f29bf"
+  },
+  "issueDate": {
+    "$date": "2025-07-07T13:44:05.155Z"
+  },
+  "dueDate": null,
+  "shipments": [
+    {
+      "$oid": "686bcb28d6661bb4f2e7c2f1"
+    },
+    {
+      "$oid": "686bcb77d6661bb4f2e7c31e"
+    },
+    {
+      "$oid": "686bcbc6d6661bb4f2e7c34b"
+    },
+    {
+      "$oid": "686bcbfed6661bb4f2e7c378"
+    },
+    {
+      "$oid": "686bcc86d6661bb4f2e7c3b9"
+    },
+    {
+      "$oid": "686bccd2d6661bb4f2e7c3e6"
+    },
+    {
+      "$oid": "686bcd20d6661bb4f2e7c413"
+    },
+    {
+      "$oid": "686bcd65d6661bb4f2e7c440"
+    },
+    {
+      "$oid": "686bcdb9d6661bb4f2e7c481"
+    },
+    {
+      "$oid": "686bcdf9d6661bb4f2e7c4ae"
+    },
+    {
+      "$oid": "686bce83d6661bb4f2e7c508"
+    },
+    {
+      "$oid": "686bce4ad6661bb4f2e7c4db"
+    }
+  ],
+  "subTotal": 3424.6400000000003,
+  "fuelSurchargeRate": 0.35,
+  "fuelSurchargeAmount": 1198.62,
+  "totalAmount": 4623.26,
+  "status": "draft",
+  "notes": "",
+  "createdBy": {
+    "$oid": "6859fd841e345ce0864b0f53"
+  },
+  "createdAt": {
+    "$date": "2025-07-07T17:14:45.661Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-07T17:14:45.661Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "686c0099d6661bb4f2e7ca55"
+  },
+  "invoiceNumber": "23776",
+  "customer": {
+    "$oid": "686bd3eed6661bb4f2e7c6d2"
+  },
+  "issueDate": {
+    "$date": "2025-07-07T17:15:05.387Z"
+  },
+  "dueDate": null,
+  "shipments": [
+    {
+      "$oid": "686bd55bd6661bb4f2e7c739"
+    }
+  ],
+  "subTotal": 660.24,
+  "fuelSurchargeRate": 0.25,
+  "fuelSurchargeAmount": 165.06,
+  "totalAmount": 825.3,
+  "status": "draft",
+  "notes": "",
+  "createdBy": {
+    "$oid": "6859fd841e345ce0864b0f53"
+  },
+  "createdAt": {
+    "$date": "2025-07-07T17:15:05.388Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-07T17:15:24.044Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "686c0443d6661bb4f2e7cc5a"
+  },
+  "invoiceNumber": "23768",
+  "customer": {
+    "$oid": "685aa87bd008750dcc7f29bf"
+  },
+  "issueDate": {
+    "$date": "2025-06-27T13:38:27.872Z"
+  },
+  "dueDate": null,
+  "shipments": [
+    {
+      "$oid": "685dacfbef1742afa4d712cc"
+    },
+    {
+      "$oid": "685e94e785897982679dc2d0"
+    },
+    {
+      "$oid": "685dab77ef1742afa4d711dd"
+    },
+    {
+      "$oid": "685dabb4ef1742afa4d7120a"
+    },
+    {
+      "$oid": "685dacaeef1742afa4d7129f"
+    },
+    {
+      "$oid": "685e954485897982679dc322"
+    },
+    {
+      "$oid": "685dac24ef1742afa4d71245"
+    },
+    {
+      "$oid": "685dac69ef1742afa4d71272"
+    }
+  ],
+  "subTotal": 2506.4,
+  "fuelSurchargeRate": 0.35,
+  "fuelSurchargeAmount": 877.24,
+  "totalAmount": 3383.64,
+  "status": "draft",
+  "notes": "",
+  "createdBy": {
+    "$oid": "6859fd841e345ce0864b0f53"
+  },
+  "createdAt": {
+    "$date": "2025-07-07T17:30:43.430Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-07T17:30:43.430Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "686c04ccd6661bb4f2e7cd29"
+  },
+  "invoiceNumber": "23767",
+  "customer": {
+    "$oid": "685aa7add008750dcc7f2978"
+  },
+  "issueDate": {
+    "$date": "2025-06-26T20:03:58.950Z"
+  },
+  "shipments": [
+    {
+      "$oid": "685da664ef1742afa4d70ee0"
+    },
+    {
+      "$oid": "685da6adef1742afa4d70f0d"
+    },
+    {
+      "$oid": "685da45aef1742afa4d70d78"
+    },
+    {
+      "$oid": "685da3c5ef1742afa4d70d1e"
+    },
+    {
+      "$oid": "685da417ef1742afa4d70d4b"
+    },
+    {
+      "$oid": "685da5cbef1742afa4d70e59"
+    },
+    {
+      "$oid": "685da5f7ef1742afa4d70e86"
+    },
+    {
+      "$oid": "685da631ef1742afa4d70eb3"
+    },
+    {
+      "$oid": "685da491ef1742afa4d70da5"
+    },
+    {
+      "$oid": "685da58bef1742afa4d70e2c"
+    },
+    {
+      "$oid": "685da4ceef1742afa4d70dd2"
+    },
+    {
+      "$oid": "685da51def1742afa4d70dff"
+    }
+  ],
+  "subTotal": 7763.69,
+  "fuelSurchargeRate": 0.35,
+  "fuelSurchargeAmount": 2717.29,
+  "totalAmount": 10480.98,
+  "status": "paid",
+  "notes": "",
+  "createdBy": {
+    "$oid": "6859fd841e345ce0864b0f53"
+  },
+  "createdAt": {
+    "$date": "2025-07-07T17:33:00.956Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-09T15:01:45.858Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "686e6844d6661bb4f2e7ce5c"
+  },
+  "invoiceNumber": "23777",
+  "customer": {
+    "$oid": "686e6588d6661bb4f2e7cd98"
+  },
+  "issueDate": {
+    "$date": "2025-07-09T13:01:56.732Z"
+  },
+  "dueDate": null,
+  "shipments": [
+    {
+      "$oid": "686e6836d6661bb4f2e7ce08"
+    }
+  ],
+  "subTotal": 409.2,
+  "fuelSurchargeRate": 0.15,
+  "fuelSurchargeAmount": 61.38,
+  "totalAmount": 470.58,
+  "status": "draft",
+  "notes": "",
+  "createdBy": {
+    "$oid": "6859fd841e345ce0864b0f53"
+  },
+  "createdAt": {
+    "$date": "2025-07-09T13:01:56.733Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-09T13:02:23.316Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6870171eff477a61f10fcc8c"
+  },
+  "invoiceNumber": "23778",
+  "customer": {
+    "$oid": "685aa7add008750dcc7f2978"
+  },
+  "issueDate": {
+    "$date": "2025-07-10T19:40:14.890Z"
+  },
+  "dueDate": null,
+  "shipments": [
+    {
+      "$oid": "6870155cff477a61f10fcaca"
+    },
+    {
+      "$oid": "6870158eff477a61f10fcaf7"
+    },
+    {
+      "$oid": "687016e8ff477a61f10fcc36"
+    },
+    {
+      "$oid": "6870151cff477a61f10fca9d"
+    },
+    {
+      "$oid": "687015c8ff477a61f10fcb24"
+    },
+    {
+      "$oid": "68701607ff477a61f10fcb82"
+    },
+    {
+      "$oid": "6870163dff477a61f10fcbaf"
+    },
+    {
+      "$oid": "6870168cff477a61f10fcbdc"
+    },
+    {
+      "$oid": "687016bdff477a61f10fcc09"
+    }
+  ],
+  "subTotal": 5121.56,
+  "fuelSurchargeRate": 0.35,
+  "fuelSurchargeAmount": 1792.55,
+  "totalAmount": 6914.11,
+  "status": "paid",
+  "notes": "",
+  "createdBy": {
+    "$oid": "6859fd841e345ce0864b0f53"
+  },
+  "createdAt": {
+    "$date": "2025-07-10T19:40:14.891Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-30T17:47:10.746Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68701a33ff477a61f10fcfc8"
+  },
+  "invoiceNumber": "23779",
+  "customer": {
+    "$oid": "685aa87bd008750dcc7f29bf"
+  },
+  "issueDate": {
+    "$date": "2025-07-10T19:53:23.847Z"
+  },
+  "dueDate": null,
+  "shipments": [
+    {
+      "$oid": "6870186fff477a61f10fcd16"
+    },
+    {
+      "$oid": "687018bcff477a61f10fcd43"
+    },
+    {
+      "$oid": "687018efff477a61f10fcd70"
+    },
+    {
+      "$oid": "6870193cff477a61f10fcde2"
+    },
+    {
+      "$oid": "6870196fff477a61f10fce0f"
+    },
+    {
+      "$oid": "68701997ff477a61f10fce3c"
+    },
+    {
+      "$oid": "687019caff477a61f10fce69"
+    }
+  ],
+  "subTotal": 1748.1599999999999,
+  "fuelSurchargeRate": 0.35,
+  "fuelSurchargeAmount": 611.86,
+  "totalAmount": 2360.02,
+  "status": "draft",
+  "notes": "",
+  "createdBy": {
+    "$oid": "6859fd841e345ce0864b0f53"
+  },
+  "createdAt": {
+    "$date": "2025-07-10T19:53:23.847Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-10T19:53:34.929Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6876a9c5ff477a61f10fe0de"
+  },
+  "invoiceNumber": "INV-2025-23780",
+  "customer": {
+    "$oid": "685aa80bd008750dcc7f298d"
+  },
+  "issueDate": {
+    "$date": "2025-07-15T19:19:33.430Z"
+  },
+  "dueDate": null,
+  "shipments": [
+    {
+      "$oid": "6876a478ff477a61f10fdb74"
+    },
+    {
+      "$oid": "6876a4d7ff477a61f10fdba1"
+    },
+    {
+      "$oid": "6876a52eff477a61f10fdbce"
+    },
+    {
+      "$oid": "6876a5b4ff477a61f10fdc40"
+    },
+    {
+      "$oid": "6876a79fff477a61f10fdd83"
+    },
+    {
+      "$oid": "6876a2b9ff477a61f10fdab5"
+    },
+    {
+      "$oid": "6876a360ff477a61f10fdae2"
+    },
+    {
+      "$oid": "6876a402ff477a61f10fdb47"
+    },
+    {
+      "$oid": "6876a600ff477a61f10fdc6d"
+    },
+    {
+      "$oid": "6876a666ff477a61f10fdccb"
+    },
+    {
+      "$oid": "6876a744ff477a61f10fdd56"
+    }
+  ],
+  "subTotal": 4598,
+  "fuelSurchargeRate": 0.25,
+  "fuelSurchargeAmount": 1149.5,
+  "totalAmount": 5747.5,
+  "status": "paid",
+  "notes": "",
+  "createdBy": {
+    "$oid": "6859fd841e345ce0864b0f53"
+  },
+  "createdAt": {
+    "$date": "2025-07-15T19:19:33.431Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-30T17:51:36.146Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "687943beff477a61f10fe473"
+  },
+  "invoiceNumber": "INV-2025-23781",
+  "customer": {
+    "$oid": "686bd3eed6661bb4f2e7c6d2"
+  },
+  "issueDate": {
+    "$date": "2025-07-17T18:41:02.060Z"
+  },
+  "dueDate": null,
+  "shipments": [
+    {
+      "$oid": "68794231ff477a61f10fe307"
+    }
+  ],
+  "subTotal": 480,
+  "fuelSurchargeRate": 0.25,
+  "fuelSurchargeAmount": 120,
+  "totalAmount": 600,
+  "status": "draft",
+  "notes": "",
+  "createdBy": {
+    "$oid": "6859fd841e345ce0864b0f53"
+  },
+  "createdAt": {
+    "$date": "2025-07-17T18:41:02.060Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-17T18:41:02.060Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "687943c9ff477a61f10fe4a9"
+  },
+  "invoiceNumber": "INV-2025-23782",
+  "customer": {
+    "$oid": "685aa7add008750dcc7f2978"
+  },
+  "issueDate": {
+    "$date": "2025-07-17T18:41:13.407Z"
+  },
+  "dueDate": null,
+  "shipments": [
+    {
+      "$oid": "68794285ff477a61f10fe334"
+    },
+    {
+      "$oid": "687943b0ff477a61f10fe41e"
+    },
+    {
+      "$oid": "68794329ff477a61f10fe3c4"
+    },
+    {
+      "$oid": "68794369ff477a61f10fe3f1"
+    },
+    {
+      "$oid": "687942e6ff477a61f10fe397"
+    }
+  ],
+  "subTotal": 3677.82,
+  "fuelSurchargeRate": 0.35,
+  "fuelSurchargeAmount": 1287.24,
+  "totalAmount": 4965.06,
+  "status": "paid",
+  "notes": "",
+  "createdBy": {
+    "$oid": "6859fd841e345ce0864b0f53"
+  },
+  "createdAt": {
+    "$date": "2025-07-17T18:41:13.408Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-30T17:46:50.429Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68795ccbff477a61f10fe774"
+  },
+  "invoiceNumber": "INV-2025-23783",
+  "customer": {
+    "$oid": "685aa87bd008750dcc7f29bf"
+  },
+  "issueDate": {
+    "$date": "2025-07-17T20:26:47.912Z"
+  },
+  "dueDate": null,
+  "shipments": [
+    {
+      "$oid": "68795a0aff477a61f10fe53a"
+    },
+    {
+      "$oid": "68795c7cff477a61f10fe6a2"
+    },
+    {
+      "$oid": "68795a7cff477a61f10fe594"
+    },
+    {
+      "$oid": "68795ac6ff477a61f10fe5c1"
+    },
+    {
+      "$oid": "68795af6ff477a61f10fe5ee"
+    },
+    {
+      "$oid": "68795a47ff477a61f10fe567"
+    },
+    {
+      "$oid": "68795b31ff477a61f10fe61b"
+    },
+    {
+      "$oid": "68795b89ff477a61f10fe648"
+    },
+    {
+      "$oid": "68795c3cff477a61f10fe675"
+    }
+  ],
+  "subTotal": 2957.69,
+  "fuelSurchargeRate": 0.35,
+  "fuelSurchargeAmount": 1035.19,
+  "totalAmount": 3992.88,
+  "status": "draft",
+  "notes": "",
+  "createdBy": {
+    "$oid": "6859fd841e345ce0864b0f53"
+  },
+  "createdAt": {
+    "$date": "2025-07-17T20:27:55.554Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-17T20:27:55.554Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68795d93ff477a61f10fe82f"
+  },
+  "invoiceNumber": "XXXXXX",
+  "customer": {
+    "$oid": "685aa80bd008750dcc7f298d"
+  },
+  "issueDate": {
+    "$date": "2025-07-17T20:31:15.267Z"
+  },
+  "dueDate": null,
+  "shipments": [
+    {
+      "$oid": "68701d5fff477a61f10fd052"
+    },
+    {
+      "$oid": "68701f43ff477a61f10fd160"
+    },
+    {
+      "$oid": "68701f7cff477a61f10fd18d"
+    },
+    {
+      "$oid": "68701fbeff477a61f10fd21c"
+    },
+    {
+      "$oid": "68701ffaff477a61f10fd249"
+    },
+    {
+      "$oid": "68702770ff477a61f10fd4c5"
+    },
+    {
+      "$oid": "687027a8ff477a61f10fd4f2"
+    },
+    {
+      "$oid": "687027dcff477a61f10fd51f"
+    },
+    {
+      "$oid": "68701d99ff477a61f10fd07f"
+    },
+    {
+      "$oid": "68701dcfff477a61f10fd0ac"
+    },
+    {
+      "$oid": "68701e16ff477a61f10fd0d9"
+    },
+    {
+      "$oid": "68701edaff477a61f10fd106"
+    },
+    {
+      "$oid": "68701f0bff477a61f10fd133"
+    },
+    {
+      "$oid": "6870211dff477a61f10fd276"
+    },
+    {
+      "$oid": "6870216eff477a61f10fd2a3"
+    },
+    {
+      "$oid": "687021a4ff477a61f10fd2d0"
+    },
+    {
+      "$oid": "687021efff477a61f10fd311"
+    },
+    {
+      "$oid": "6870222dff477a61f10fd33e"
+    },
+    {
+      "$oid": "6870225eff477a61f10fd36b"
+    }
+  ],
+  "subTotal": 7222.900000000001,
+  "fuelSurchargeRate": 0.25,
+  "fuelSurchargeAmount": 1805.73,
+  "totalAmount": 9028.63,
+  "status": "void",
+  "notes": "duplicate shipments",
+  "createdBy": {
+    "$oid": "6859fd841e345ce0864b0f53"
+  },
+  "createdAt": {
+    "$date": "2025-07-17T20:31:15.268Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-17T20:31:48.304Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68795e71ff477a61f10fe982"
+  },
+  "invoiceNumber": "INV-2025-23784",
+  "customer": {
+    "$oid": "685aa92ed008750dcc7f29d4"
+  },
+  "issueDate": {
+    "$date": "2025-07-17T20:34:57.706Z"
+  },
+  "dueDate": null,
+  "shipments": [
+    {
+      "$oid": "68795df6ff477a61f10fe8d4"
+    },
+    {
+      "$oid": "68795e32ff477a61f10fe901"
+    },
+    {
+      "$oid": "68795e65ff477a61f10fe92e"
+    }
+  ],
+  "subTotal": 997.44,
+  "fuelSurchargeRate": 0.35,
+  "fuelSurchargeAmount": 349.1,
+  "totalAmount": 1346.54,
+  "status": "draft",
+  "notes": "",
+  "createdBy": {
+    "$oid": "6859fd841e345ce0864b0f53"
+  },
+  "createdAt": {
+    "$date": "2025-07-17T20:34:57.707Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-17T20:35:16.983Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6879623bff477a61f10fec18"
+  },
+  "invoiceNumber": "INV-2025-23785",
+  "customer": {
+    "$oid": "685ab58dd008750dcc7f2bf9"
+  },
+  "issueDate": {
+    "$date": "2025-07-17T20:51:07.617Z"
+  },
+  "dueDate": null,
+  "shipments": [
+    {
+      "$oid": "687961eaff477a61f10feacf"
+    },
+    {
+      "$oid": "6879606bff477a61f10fea0c"
+    },
+    {
+      "$oid": "687961b0ff477a61f10feaa2"
+    }
+  ],
+  "subTotal": 1050,
+  "fuelSurchargeRate": 0.2,
+  "fuelSurchargeAmount": 210,
+  "totalAmount": 1260,
+  "status": "draft",
+  "notes": "",
+  "createdBy": {
+    "$oid": "6859fd841e345ce0864b0f53"
+  },
+  "createdAt": {
+    "$date": "2025-07-17T20:51:07.618Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-17T20:51:07.618Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68796cde2b369b86302fbb71"
+  },
+  "invoiceNumber": "INV-2025-23786",
+  "customer": {
+    "$oid": "685aa80bd008750dcc7f298d"
+  },
+  "issueDate": {
+    "$date": "2025-07-17T21:36:30.313Z"
+  },
+  "dueDate": null,
+  "shipments": [
+    {
+      "$oid": "687965a3ff477a61f10fecb5"
+    },
+    {
+      "$oid": "687965d7ff477a61f10fece2"
+    },
+    {
+      "$oid": "68796610ff477a61f10fed0f"
+    },
+    {
+      "$oid": "68796641ff477a61f10fed3c"
+    },
+    {
+      "$oid": "68796677ff477a61f10fed69"
+    },
+    {
+      "$oid": "687966b4ff477a61f10fed96"
+    },
+    {
+      "$oid": "687966e6ff477a61f10fedc3"
+    },
+    {
+      "$oid": "6879671dff477a61f10fedf0"
+    },
+    {
+      "$oid": "68796745ff477a61f10fee1d"
+    },
+    {
+      "$oid": "68796775ff477a61f10fee49"
+    },
+    {
+      "$oid": "687967aeff477a61f10fee75"
+    },
+    {
+      "$oid": "6879680eff477a61f10fef8f"
+    },
+    {
+      "$oid": "68796844ff477a61f10fefbc"
+    },
+    {
+      "$oid": "687968baff477a61f10fefe9"
+    },
+    {
+      "$oid": "6879691eff477a61f10ff016"
+    },
+    {
+      "$oid": "68796965ff477a61f10ff057"
+    },
+    {
+      "$oid": "687969bfff477a61f10ff0ed"
+    },
+    {
+      "$oid": "687969e9ff477a61f10ff11a"
+    },
+    {
+      "$oid": "68796a15ff477a61f10ff147"
+    }
+  ],
+  "subTotal": 8851.099999999999,
+  "fuelSurchargeRate": 0.25,
+  "fuelSurchargeAmount": 2212.77,
+  "totalAmount": 11063.87,
+  "status": "paid",
+  "notes": "",
+  "createdBy": {
+    "$oid": "6859fd841e345ce0864b0f53"
+  },
+  "createdAt": {
+    "$date": "2025-07-17T21:36:30.314Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-30T17:52:01.051Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68825eb99d29152568d22cb8"
+  },
+  "invoiceNumber": "INV-2025-23787",
+  "customer": {
+    "$oid": "685ab58dd008750dcc7f2bf9"
+  },
+  "issueDate": {
+    "$date": "2025-07-24T16:26:33.494Z"
+  },
+  "dueDate": null,
+  "shipments": [
+    {
+      "$oid": "68825c609d29152568d22bdd"
+    },
+    {
+      "$oid": "68825cbe9d29152568d22c0a"
+    },
+    {
+      "$oid": "68825d139d29152568d22c37"
+    },
+    {
+      "$oid": "68825dc59d29152568d22c64"
+    }
+  ],
+  "subTotal": 1409.1,
+  "fuelSurchargeRate": 0.2,
+  "fuelSurchargeAmount": 281.82,
+  "totalAmount": 1690.92,
+  "status": "draft",
+  "notes": "",
+  "createdBy": {
+    "$oid": "6859fd841e345ce0864b0f53"
+  },
+  "createdAt": {
+    "$date": "2025-07-24T16:26:33.495Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-24T16:26:33.495Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "688260399d29152568d22da7"
+  },
+  "invoiceNumber": "INV-2025-23788",
+  "customer": {
+    "$oid": "685aa92ed008750dcc7f29d4"
+  },
+  "issueDate": {
+    "$date": "2025-07-24T16:32:57.202Z"
+  },
+  "dueDate": null,
+  "shipments": [
+    {
+      "$oid": "6882600c9d29152568d22d53"
+    },
+    {
+      "$oid": "68825fa79d29152568d22d26"
+    }
+  ],
+  "subTotal": 1440.25,
+  "fuelSurchargeRate": 0.35,
+  "fuelSurchargeAmount": 504.09,
+  "totalAmount": 1944.34,
+  "status": "draft",
+  "notes": "",
+  "createdBy": {
+    "$oid": "6859fd841e345ce0864b0f53"
+  },
+  "createdAt": {
+    "$date": "2025-07-24T16:32:57.202Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-24T16:32:57.202Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6882981a9d29152568d231c0"
+  },
+  "invoiceNumber": "INV-2025-23789",
+  "customer": {
+    "$oid": "685aa87bd008750dcc7f29bf"
+  },
+  "issueDate": {
+    "$date": "2025-07-24T20:31:22.541Z"
+  },
+  "dueDate": null,
+  "shipments": [
+    {
+      "$oid": "688295c29d29152568d22edb"
+    },
+    {
+      "$oid": "688295ff9d29152568d22f07"
+    },
+    {
+      "$oid": "688296279d29152568d22f33"
+    },
+    {
+      "$oid": "688297a39d29152568d23110"
+    },
+    {
+      "$oid": "688297ca9d29152568d2313d"
+    },
+    {
+      "$oid": "6882980a9d29152568d2316a"
+    },
+    {
+      "$oid": "688297049d29152568d23044"
+    },
+    {
+      "$oid": "6882972d9d29152568d23071"
+    },
+    {
+      "$oid": "688296509d29152568d22f5f"
+    },
+    {
+      "$oid": "6882967d9d29152568d22f8b"
+    },
+    {
+      "$oid": "688296ca9d29152568d22fe7"
+    },
+    {
+      "$oid": "688297659d29152568d2309e"
+    }
+  ],
+  "subTotal": 3338.26,
+  "fuelSurchargeRate": 0.35,
+  "fuelSurchargeAmount": 1168.39,
+  "totalAmount": 4506.65,
+  "status": "draft",
+  "notes": "",
+  "createdBy": {
+    "$oid": "6859fd841e345ce0864b0f53"
+  },
+  "createdAt": {
+    "$date": "2025-07-24T20:31:22.542Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-24T20:31:22.542Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6882b0699801566c6ea20607"
+  },
+  "invoiceNumber": "INV-2025-23790",
+  "customer": {
+    "$oid": "685aa80bd008750dcc7f298d"
+  },
+  "issueDate": {
+    "$date": "2025-07-24T22:15:05.438Z"
+  },
+  "dueDate": null,
+  "shipments": [
+    {
+      "$oid": "6882a2f69d29152568d23257"
+    },
+    {
+      "$oid": "6882a32c9d29152568d23284"
+    },
+    {
+      "$oid": "6882a4909d29152568d233bf"
+    },
+    {
+      "$oid": "6882a8aa9d29152568d23729"
+    },
+    {
+      "$oid": "6882a8e89d29152568d23786"
+    },
+    {
+      "$oid": "6882a97e9d29152568d237b3"
+    },
+    {
+      "$oid": "6882a9b09d29152568d237e0"
+    },
+    {
+      "$oid": "6882a35a9d29152568d232b1"
+    },
+    {
+      "$oid": "6882a39f9d29152568d232de"
+    },
+    {
+      "$oid": "6882a4049d29152568d23338"
+    },
+    {
+      "$oid": "6882a4c79d29152568d233ec"
+    },
+    {
+      "$oid": "6882a4f89d29152568d23419"
+    },
+    {
+      "$oid": "6882a8119d29152568d236d0"
+    },
+    {
+      "$oid": "6882a83f9d29152568d236fd"
+    },
+    {
+      "$oid": "6882a3d09d29152568d2330b"
+    },
+    {
+      "$oid": "6882a4329d29152568d23365"
+    },
+    {
+      "$oid": "6882a4639d29152568d23392"
+    },
+    {
+      "$oid": "6882a5329d29152568d23446"
+    }
+  ],
+  "subTotal": 7801.549999999999,
+  "fuelSurchargeRate": 0.25,
+  "fuelSurchargeAmount": 1950.39,
+  "totalAmount": 9751.94,
+  "status": "draft",
+  "notes": "",
+  "createdBy": {
+    "$oid": "6859fd841e345ce0864b0f53"
+  },
+  "createdAt": {
+    "$date": "2025-07-24T22:15:05.438Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-24T22:15:05.438Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6882b0749801566c6ea2063e"
+  },
+  "invoiceNumber": "INV-2025-23791",
+  "customer": {
+    "$oid": "685aa80bd008750dcc7f298d"
+  },
+  "issueDate": {
+    "$date": "2025-07-24T22:15:16.727Z"
+  },
+  "dueDate": null,
+  "shipments": [
+    {
+      "$oid": "6882a68d9d29152568d23581"
+    },
+    {
+      "$oid": "6882a5619d29152568d23473"
+    },
+    {
+      "$oid": "6882a58e9d29152568d234a0"
+    },
+    {
+      "$oid": "6882a5b89d29152568d234cd"
+    },
+    {
+      "$oid": "6882a5f49d29152568d234fa"
+    },
+    {
+      "$oid": "6882a6cd9d29152568d235ae"
+    },
+    {
+      "$oid": "6882a72f9d29152568d23608"
+    },
+    {
+      "$oid": "6882a7589d29152568d23635"
+    },
+    {
+      "$oid": "6882a6249d29152568d23527"
+    },
+    {
+      "$oid": "6882a6599d29152568d23554"
+    },
+    {
+      "$oid": "6882a6fa9d29152568d235db"
+    },
+    {
+      "$oid": "6882a78d9d29152568d23676"
+    },
+    {
+      "$oid": "6882a7dd9d29152568d236a3"
+    }
+  ],
+  "subTotal": 7322.450000000001,
+  "fuelSurchargeRate": 0.25,
+  "fuelSurchargeAmount": 1830.61,
+  "totalAmount": 9153.06,
+  "status": "draft",
+  "notes": "",
+  "createdBy": {
+    "$oid": "6859fd841e345ce0864b0f53"
+  },
+  "createdAt": {
+    "$date": "2025-07-24T22:15:16.728Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-24T22:15:16.728Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6882b5bc9801566c6ea20983"
+  },
+  "invoiceNumber": "INV-2025-23792",
+  "customer": {
+    "$oid": "685aa7add008750dcc7f2978"
+  },
+  "issueDate": {
+    "$date": "2025-07-24T22:37:48.611Z"
+  },
+  "dueDate": null,
+  "shipments": [
+    {
+      "$oid": "6882b3e29801566c6ea206b9"
+    },
+    {
+      "$oid": "6882b4109801566c6ea206e6"
+    },
+    {
+      "$oid": "6882b4459801566c6ea20713"
+    },
+    {
+      "$oid": "6882b5159801566c6ea20808"
+    },
+    {
+      "$oid": "6882b46a9801566c6ea20740"
+    },
+    {
+      "$oid": "6882b5419801566c6ea20835"
+    },
+    {
+      "$oid": "6882b49b9801566c6ea20781"
+    },
+    {
+      "$oid": "6882b4bf9801566c6ea207ae"
+    },
+    {
+      "$oid": "6882b4f39801566c6ea207db"
+    }
+  ],
+  "subTotal": 5790.72,
+  "fuelSurchargeRate": 0.35,
+  "fuelSurchargeAmount": 2026.75,
+  "totalAmount": 7817.47,
+  "status": "draft",
+  "notes": "",
+  "createdBy": {
+    "$oid": "6859fd841e345ce0864b0f53"
+  },
+  "createdAt": {
+    "$date": "2025-07-24T22:37:48.611Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-24T22:37:48.611Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6882b9b67e39ac433978d40e"
+  },
+  "invoiceNumber": "INV-2025-23793",
+  "customer": {
+    "$oid": "685aa92ed008750dcc7f29d4"
+  },
+  "issueDate": {
+    "$date": "2025-07-24T22:54:46.105Z"
+  },
+  "dueDate": null,
+  "shipments": [
+    {
+      "$oid": "6882b64d9801566c6ea209f1"
+    },
+    {
+      "$oid": "6882b7bf9801566c6ea20b86"
+    },
+    {
+      "$oid": "6882b7e49801566c6ea20bb3"
+    },
+    {
+      "$oid": "6882b6979801566c6ea20a4b"
+    },
+    {
+      "$oid": "6882b6c09801566c6ea20a78"
+    },
+    {
+      "$oid": "6882b7939801566c6ea20b59"
+    },
+    {
+      "$oid": "6882b9607e39ac433978d31e"
+    },
+    {
+      "$oid": "6882b6719801566c6ea20a1e"
+    },
+    {
+      "$oid": "6882b6e79801566c6ea20aa5"
+    },
+    {
+      "$oid": "6882b7199801566c6ea20ad2"
+    },
+    {
+      "$oid": "6882b7469801566c6ea20aff"
+    },
+    {
+      "$oid": "6882b7709801566c6ea20b2c"
+    }
+  ],
+  "subTotal": 4051.84,
+  "fuelSurchargeRate": 0.35,
+  "fuelSurchargeAmount": 1418.14,
+  "totalAmount": 5469.98,
+  "status": "draft",
+  "notes": "",
+  "createdBy": {
+    "$oid": "6859fd841e345ce0864b0f53"
+  },
+  "createdAt": {
+    "$date": "2025-07-24T22:54:46.106Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-24T22:54:46.106Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6887711a7e39ac433978d585"
+  },
+  "invoiceNumber": "INV-2025-23794",
+  "customer": {
+    "$oid": "685aa92ed008750dcc7f29d4"
+  },
+  "issueDate": {
+    "$date": "2025-07-28T12:46:18.482Z"
+  },
+  "dueDate": null,
+  "shipments": [
+    {
+      "$oid": "688771107e39ac433978d531"
+    }
+  ],
+  "subTotal": 351.68,
+  "fuelSurchargeRate": 0.35,
+  "fuelSurchargeAmount": 123.09,
+  "totalAmount": 474.77,
+  "status": "draft",
+  "notes": "",
+  "createdBy": {
+    "$oid": "6859fd841e345ce0864b0f53"
+  },
+  "createdAt": {
+    "$date": "2025-07-28T12:46:18.482Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-28T12:46:18.482Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "688a19128dd75df0c09f0305"
+  },
+  "invoiceNumber": "INV-2025-23795",
+  "customer": {
+    "$oid": "685aa92ed008750dcc7f29d4"
+  },
+  "issueDate": {
+    "$date": "2025-07-30T13:07:30.220Z"
+  },
+  "dueDate": null,
+  "shipments": [
+    {
+      "$oid": "688a18f88dd75df0c09f02b1"
+    },
+    {
+      "$oid": "688a18758dd75df0c09f0284"
+    }
+  ],
+  "subTotal": 1598.8,
+  "fuelSurchargeRate": 0.35,
+  "fuelSurchargeAmount": 559.58,
+  "totalAmount": 2158.38,
+  "status": "draft",
+  "notes": "",
+  "createdBy": {
+    "$oid": "6859fd841e345ce0864b0f53"
+  },
+  "createdAt": {
+    "$date": "2025-07-30T13:07:30.221Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-30T13:07:30.221Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "688b8fef30b54da4a64118f9"
+  },
+  "invoiceNumber": "INV-2025-23796",
+  "customer": {
+    "$oid": "685aa7add008750dcc7f2978"
+  },
+  "issueDate": {
+    "$date": "2025-07-31T15:46:55.957Z"
+  },
+  "dueDate": null,
+  "shipments": [
+    {
+      "$oid": "688b8d5e30b54da4a64115f7"
+    },
+    {
+      "$oid": "688b8d9230b54da4a6411624"
+    },
+    {
+      "$oid": "688b8ebe30b54da4a641167e"
+    },
+    {
+      "$oid": "688b8ef630b54da4a64116ab"
+    },
+    {
+      "$oid": "688b8f2930b54da4a64116d8"
+    },
+    {
+      "$oid": "688b8dcd30b54da4a6411651"
+    },
+    {
+      "$oid": "688b8fdc30b54da4a641187f"
+    }
+  ],
+  "subTotal": 4092.1499999999996,
+  "fuelSurchargeRate": 0.35,
+  "fuelSurchargeAmount": 1432.25,
+  "totalAmount": 5524.4,
+  "status": "draft",
+  "notes": "",
+  "createdBy": {
+    "$oid": "6859fd841e345ce0864b0f53"
+  },
+  "createdAt": {
+    "$date": "2025-07-31T15:46:55.958Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-31T15:46:55.958Z"
+  },
+  "__v": 0
+}]

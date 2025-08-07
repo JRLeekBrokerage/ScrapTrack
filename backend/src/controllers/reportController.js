@@ -483,6 +483,7 @@ const getInvoiceReport = async (req, res) => {
     const invoice = await Invoice.findById(invoiceId)
       .populate({
         path: 'shipments',
+        options: { limit: 100 }, // Explicitly set a higher limit to fetch all shipments
         populate: [
           {
             path: 'driver', // This now refers to the Driver model

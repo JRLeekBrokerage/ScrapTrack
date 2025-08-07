@@ -1,0 +1,191 @@
+[{
+  "_id": {
+    "$oid": "685a06bf811ce6e670549be1"
+  },
+  "firstName": "D.",
+  "lastName": "Leek",
+  "contactPhone": "(330) 802-5827",
+  "contactEmail": "dleek591@icoud.com",
+  "commissionRate": 0,
+  "isActive": true,
+  "notes": "",
+  "createdBy": {
+    "$oid": "6859fd841e345ce0864b0f53"
+  },
+  "createdAt": {
+    "$date": "2025-06-24T02:00:31.686Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-24T18:43:42.053Z"
+  },
+  "__v": 0,
+  "updatedBy": {
+    "$oid": "6859fd841e345ce0864b0f53"
+  }
+},
+{
+  "_id": {
+    "$oid": "685ab2e3d008750dcc7f2a0f"
+  },
+  "firstName": "Denny",
+  "lastName": "Leek Jr.",
+  "contactPhone": "",
+  "contactEmail": "",
+  "commissionRate": 0.3,
+  "isActive": true,
+  "notes": "",
+  "createdBy": {
+    "$oid": "6859fd841e345ce0864b0f53"
+  },
+  "createdAt": {
+    "$date": "2025-06-24T14:14:59.555Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-24T14:14:59.555Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "685ab2f9d008750dcc7f2a23"
+  },
+  "firstName": "Ben",
+  "lastName": "Clark",
+  "contactPhone": "",
+  "contactEmail": "",
+  "commissionRate": 0.28,
+  "isActive": true,
+  "notes": "",
+  "createdBy": {
+    "$oid": "6859fd841e345ce0864b0f53"
+  },
+  "createdAt": {
+    "$date": "2025-06-24T14:15:21.564Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-24T14:15:21.564Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "685ab307d008750dcc7f2a37"
+  },
+  "firstName": "Dave",
+  "lastName": "Burns",
+  "contactPhone": "",
+  "contactEmail": "",
+  "commissionRate": 0.28,
+  "isActive": true,
+  "notes": "",
+  "createdBy": {
+    "$oid": "6859fd841e345ce0864b0f53"
+  },
+  "createdAt": {
+    "$date": "2025-06-24T14:15:35.558Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-24T22:08:19.153Z"
+  },
+  "__v": 0,
+  "updatedBy": {
+    "$oid": "6859fd841e345ce0864b0f53"
+  }
+},
+{
+  "_id": {
+    "$oid": "685ab335d008750dcc7f2a5e"
+  },
+  "firstName": "David",
+  "lastName": "Schwan",
+  "contactPhone": "",
+  "contactEmail": "",
+  "commissionRate": 0.8,
+  "isActive": true,
+  "notes": "",
+  "createdBy": {
+    "$oid": "6859fd841e345ce0864b0f53"
+  },
+  "createdAt": {
+    "$date": "2025-06-24T14:16:21.019Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-14T15:22:04.370Z"
+  },
+  "__v": 0,
+  "updatedBy": {
+    "$oid": "6859fd841e345ce0864b0f53"
+  }
+},
+{
+  "_id": {
+    "$oid": "685ab377d008750dcc7f2a72"
+  },
+  "firstName": "Keith",
+  "lastName": "Alltype",
+  "contactPhone": "",
+  "contactEmail": "",
+  "commissionRate": 0.9,
+  "isActive": true,
+  "notes": "",
+  "createdBy": {
+    "$oid": "6859fd841e345ce0864b0f53"
+  },
+  "createdAt": {
+    "$date": "2025-06-24T14:17:27.566Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-24T14:17:27.566Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "685ab386d008750dcc7f2a86"
+  },
+  "firstName": "Chris",
+  "lastName": "Hawkins",
+  "contactPhone": "(330) 622-1020",
+  "contactEmail": "",
+  "commissionRate": 0.8,
+  "isActive": true,
+  "notes": "",
+  "createdBy": {
+    "$oid": "6859fd841e345ce0864b0f53"
+  },
+  "createdAt": {
+    "$date": "2025-06-24T14:17:42.338Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-10T20:37:51.043Z"
+  },
+  "__v": 0,
+  "updatedBy": {
+    "$oid": "6859fd841e345ce0864b0f53"
+  }
+},
+{
+  "_id": {
+    "$oid": "685ab3a3d008750dcc7f2a9a"
+  },
+  "firstName": "Jim",
+  "lastName": "Alltype",
+  "contactPhone": "",
+  "contactEmail": "",
+  "commissionRate": 0.9,
+  "isActive": true,
+  "notes": "",
+  "createdBy": {
+    "$oid": "6859fd841e345ce0864b0f53"
+  },
+  "createdAt": {
+    "$date": "2025-06-24T14:18:11.458Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-24T14:19:01.779Z"
+  },
+  "__v": 0,
+  "updatedBy": {
+    "$oid": "6859fd841e345ce0864b0f53"
+  }
+}]

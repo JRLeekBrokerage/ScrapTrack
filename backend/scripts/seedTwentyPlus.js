@@ -54,31 +54,31 @@ const performCustomSeed = async () => {
     }
     console.log(`${shipments.length} shipments created for Alpha Corp.`);
 
-    // 4. Create one Invoice with the first 10 Shipments
-    console.log('Creating an invoice with 10 shipments...');
-    const first10Shipments = shipments.slice(0, 10);
-    const first10ShipmentIds = first10Shipments.map(s => s._id);
-    const subTotal = first10Shipments.reduce((acc, s) => acc + s.freightCost, 0);
+    // 4. Create one Invoice with all 20 Shipments
+    console.log('Creating an invoice with 20 shipments...');
+    const invoiceShipments = shipments;
+    const invoiceShipmentIds = invoiceShipments.map(s => s._id);
+    const subTotal = invoiceShipments.reduce((acc, s) => acc + s.freightCost, 0);
 
     const invoice = new Invoice({
       invoiceNumber: 'INV-ALPHA-001',
       customer: customer._id,
       issueDate: new Date(),
       dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-      shipments: first10ShipmentIds,
+      shipments: invoiceShipmentIds,
       subTotal: subTotal,
       fuelSurchargeRate: customer.fuelSurchargeRate,
       status: 'draft',
       createdBy: adminUser._id,
-      notes: 'Invoice with 10 shipments.'
+      notes: 'Invoice with 20 shipments for bug reproduction.'
     });
     await invoice.save();
-    console.log('Invoice with 10 shipments created successfully.');
+    console.log('Invoice with 20 shipments created successfully.');
     console.log(`Invoice Number: ${invoice.invoiceNumber}, ID: ${invoice._id}, Shipments Count: ${invoice.shipments.length}`);
 
-    // Update the first 10 shipments with the invoiceId
+    // Update all 20 shipments with the invoiceId
     await Shipment.updateMany(
-      { _id: { $in: first10ShipmentIds } },
+      { _id: { $in: invoiceShipmentIds } },
       { $set: { invoiceId: invoice._id } }
     );
 
