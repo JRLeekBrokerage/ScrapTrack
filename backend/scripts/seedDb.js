@@ -274,47 +274,5 @@ const performSeed = async () => {
   }
 };
 
-if (require.main === module) {
-  console.log('Running seedDb.js directly. This will attempt to connect to MongoDB based on .env settings.');
-  
-  let mongodInstance; 
-
-  const connectAndSeed = async () => {
-    let mongoURI_direct_run;
-
-    if (process.env.MONGODB_URI) {
-        mongoURI_direct_run = process.env.MONGODB_URI;
-        console.log(`Direct run: Using provided MONGODB_URI: ${mongoURI_direct_run}`);
-    } else if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test') {
-        console.log('Direct run: Development/Test mode, using in-memory MongoDB.');
-        mongodInstance = await MongoMemoryServer.create();
-        mongoURI_direct_run = mongodInstance.getUri();
-    } else {
-        // Defaults to persistent DB for 'production' or when NODE_ENV is not set.
-        const dbHost = process.env.DB_HOST || 'localhost';
-        const dbPort = process.env.DB_PORT || '27017';
-        const dbName = process.env.DB_NAME || 'leekbrokerage_db_direct_seed';
-        mongoURI_direct_run = `mongodb://${dbHost}:${dbPort}/${dbName}`;
-        console.log(`Direct run: Production or undefined mode, using persistent DB: ${mongoURI_direct_run}`);
-    }
-
-    try {
-      await mongoose.connect(mongoURI_direct_run, { useNewUrlParser: true, useUnifiedTopology: true });
-      console.log('Direct run: MongoDB connected.');
-      await performSeed();
-    } catch (err) {
-      console.error('Direct run: MongoDB connection or seeding error:', err);
-    } finally {
-      await mongoose.disconnect();
-      console.log('Direct run: MongoDB disconnected.');
-      if (mongodInstance) {
-        await mongodInstance.stop();
-        console.log('Direct run: In-memory MongoDB server stopped.');
-      }
-      process.exit();
-    }
-  };
-  connectAndSeed();
-}
 
 module.exports = { performSeed };

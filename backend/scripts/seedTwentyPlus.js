@@ -29,10 +29,10 @@ const performCustomSeed = async () => {
       return false;
     }
 
-    // 3. Create 20 Shipments for Alpha Corp
-    console.log('Creating 20 shipments for Alpha Corp...');
+    // 3. Create 25 Shipments for Alpha Corp
+    console.log('Creating 25 shipments for Alpha Corp...');
     const shipments = [];
-    for (let i = 0; i < 20; i++) {
+    for (let i = 0; i < 25; i++) {
       const shipmentData = {
         shippingNumber: `SH-ALPHA-${String(1001 + i).padStart(4, '0')}`,
         status: 'delivered',
@@ -54,8 +54,8 @@ const performCustomSeed = async () => {
     }
     console.log(`${shipments.length} shipments created for Alpha Corp.`);
 
-    // 4. Create one Invoice with all 20 Shipments
-    console.log('Creating an invoice with 20 shipments...');
+    // 4. Create one Invoice with all 25 Shipments
+    console.log('Creating an invoice with 25 shipments...');
     const invoiceShipments = shipments;
     const invoiceShipmentIds = invoiceShipments.map(s => s._id);
     const subTotal = invoiceShipments.reduce((acc, s) => acc + s.freightCost, 0);
@@ -70,13 +70,13 @@ const performCustomSeed = async () => {
       fuelSurchargeRate: customer.fuelSurchargeRate,
       status: 'draft',
       createdBy: adminUser._id,
-      notes: 'Invoice with 20 shipments for bug reproduction.'
+      notes: 'Invoice with 25 shipments for bug reproduction.'
     });
     await invoice.save();
-    console.log('Invoice with 20 shipments created successfully.');
+    console.log('Invoice with 25 shipments created successfully.');
     console.log(`Invoice Number: ${invoice.invoiceNumber}, ID: ${invoice._id}, Shipments Count: ${invoice.shipments.length}`);
 
-    // Update all 20 shipments with the invoiceId
+    // Update all 25 shipments with the invoiceId
     await Shipment.updateMany(
       { _id: { $in: invoiceShipmentIds } },
       { $set: { invoiceId: invoice._id } }
@@ -92,37 +92,5 @@ const performCustomSeed = async () => {
   }
 };
 
-const connectAndSeed = async () => {
-  let mongoURI;
-
-  if (process.env.MONGODB_URI) {
-      mongoURI = process.env.MONGODB_URI;
-      console.log(`Using provided MONGODB_URI: ${mongoURI}`);
-  } else {
-      console.log('Development/Test mode, using in-memory MongoDB.');
-      mongod = await MongoMemoryServer.create();
-      mongoURI = mongod.getUri();
-  }
-
-  try {
-    await mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true });
-    console.log('MongoDB connected.');
-    await performCustomSeed();
-  } catch (err) {
-    console.error('MongoDB connection or seeding error:', err);
-  } finally {
-    await mongoose.disconnect();
-    console.log('MongoDB disconnected.');
-    if (mongod) {
-      await mongod.stop();
-      console.log('In-memory MongoDB server stopped.');
-    }
-    process.exit();
-  }
-};
-
-if (require.main === module) {
-  connectAndSeed();
-}
 
 module.exports = { performCustomSeed };

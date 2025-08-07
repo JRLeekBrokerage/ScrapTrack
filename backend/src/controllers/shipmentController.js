@@ -53,7 +53,9 @@ const getAllShipments = async (req, res) => {
     // Basic find. Add pagination, sorting, filtering later.
     // Example: /api/shipments?status=pending&sortBy=deliveryDate:desc&page=1&limit=10
     // Added 'invoiced' and 'customer' query parameters
-    const { status, driver, sortBy, page = 1, limit = 20, invoiced, customer } = req.query;
+    // TODO: If this list grows significantly, pagination will be needed here.
+    // For now, setting a high limit to ensure all available shipments are fetched for new invoices.
+    const { status, driver, sortBy, page = 1, limit = 100, invoiced, customer } = req.query;
     const query = {};
     if (status) query.status = status;
 

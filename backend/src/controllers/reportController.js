@@ -481,23 +481,19 @@ const getInvoiceReport = async (req, res) => {
     const { format = 'json' } = req.query; // Default to json if not specified
 
     const invoice = await Invoice.findById(invoiceId)
-      .populate({
-        path: 'shipments',
-        options: { limit: 100 }, // Explicitly set a higher limit to fetch all shipments
-        populate: [
-          {
-            path: 'driver', // This now refers to the Driver model
-            select: 'firstName lastName contactPhone' // Select relevant fields from Driver model
-          },
-          // { path: 'customer', select: 'name' }
-        ]
-      })
-      .populate('customer', 'name contactEmail contactPhone primaryAddress') // Populate the main customer for the invoice
+      .populate('customer', 'name contactEmail contactPhone primaryAddress')
       .populate('createdBy', 'firstName lastName email phone');
 
     if (!invoice) {
       return res.status(404).json({ success: false, message: 'Invoice not found' });
     }
+
+    // Manually fetch all shipments to bypass any potential populate limits
+    const shipments = await Shipment.find({ '_id': { $in: invoice.shipments } })
+      .populate('driver', 'firstName lastName contactPhone');
+
+    // Attach the fully loaded shipments to the invoice object
+    invoice.shipments = shipments;
 
     // Static brokerage information (as per Excel example)
     // TODO: Move this to a configuration file or a dedicated settings model
